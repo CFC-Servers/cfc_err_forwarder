@@ -1,8 +1,13 @@
+require "luaerror"
+
 local CFCErrorForwarder = {}
 
 CFCErrorForwarder.errorQueue = {}
 
+local fowardingAddress = "http://localhost:5000/webhooks/gmod/forward-errors"
+
 function CFCErrorForwarder.receiveLuaError( err, realm, addonName, addonID )
+    print("[CFC Error Forwarder] Received lua error!")
     local errQueue = CFCErrorForwarder.errorQueue
 
     if errQueue[err] then
@@ -25,15 +30,27 @@ function CFCErrorForwarder.receiveLuaError( err, realm, addonName, addonID )
     errQueue[err] = struct
 end
 
-function CFCErrorForwarder.fowardError( obj )
-    http.Post( "https://scripting.cfcservers.org/cfc2/forward_error", obj, function( result )
-        return print("Succesfully forwarded error!")
-    end, function( failure )
-        -- Ironic.
-        --  - The Senate
-        print("Failed to forward error!")
-        return print( failure )
-    end)
+local function onSuccess( result )
+    print("[CFC Error Forwarder] Successfully forwarded error(s)!")
+end
+
+local function onFailure( failure )
+    print("[CFC Error Forwarder] Failed to forward error!")
+    print( failure )
+    print( failure )
+    print( failure )
+end
+
+function CFCErrorForwarder.forwardError( obj )
+    print("[CFC Error Forwarder] Forwaring lua error(s)!")
+    http.Post( forwardingAddress, obj, onSuccess, onFailure )
+end
+
+local function combineErrors( queuedErrors )
+    local struct = {}
+    struct.errors = queuedErrors
+
+    return struct
 end
 
 function CFCErrorForwarder.groomQueue()
@@ -41,10 +58,15 @@ function CFCErrorForwarder.groomQueue()
 
     if #errQueue == 0 then return end
 
-    errQueue( table.remove( errQueue, 1 ) )
+    local combinedErrors = combineErrors( errQueue )
+
+    CFCErrorForwarder.forwardError( combinedErrors )
+
+    CFCErrorForwarder.errorQueue = {}
 end
 
 timer.Create("CFC_ErrorForwarderQueue", 5, 0, CFCErrorForwarder.groomQueue )
 
-hook.Remove( "OnLuaError", "CFC_ErrorForwarder" )
-hook.Add( "OnLuaError", "CFC_ErrorForwarder", CFCErrorForwarder.receiveLuaError )
+hook.Remove( "LuaError", "CFC_ErrorForwarder" )
+--hook.Add( "LuaError", "CFC_ErrorForwarder", CFCErrorForwarder.receiveLuaError )
+hook.Add( "LuaError", "CFC_ErrorForwarder", function() print("AAAAAAAAAAAHHHHHHHHHHHHHHHH AHHHHHHHHHHHH FUCK") end)
