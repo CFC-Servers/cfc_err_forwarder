@@ -1,41 +1,46 @@
-require "luaerror"
+require("luaerror")
+luaerror.EnableCompiletimeDetour(true)
+luaerror.EnableRuntimeDetour(true)
 
 local CFCErrorForwarder = {}
 
 CFCErrorForwarder.errorQueue = {}
 
-local fowardingAddress = "http://localhost:5000/webhooks/gmod/forward-errors"
+local forwardingAddress = "http://localhost:5000/webhooks/gmod/forward-errors"
 
-function CFCErrorForwarder.receiveLuaError( err, realm, addonName, addonID )
-    print("[CFC Error Forwarder] Received lua error!")
-    local errQueue = CFCErrorForwarder.errorQueue
-
-    if errQueue[err] then
-        local count = errQueue[err]["count"]
-        errQueue[err]["count"] = count + 1
-        errQueue[err]["occuredAt"] = os.time()
+function CFCErrorForwarder.receiveLuaError( isRunTime, fullError, sourceFile, sourceLine, errorStr, stack )
+    print( "[CFC Error Forwarder] Received lua error!" )
+    if CFCErrorForwarder.errorQueue[tostring(errorStr)] then
+        --local count = errQueue[errorStr]["count"]
+        --CFCErrorForwarder.errorQueue[errorStr]["count"] = count + 1
+        --CFCErrorForwarder.errorQueue[errorStr]["occuredAt"] = tostring(os.time())
 
         return
     end
 
     local struct = {}
 
-    struct["error"] = err
-    struct["realm"] = realm
-    struct["addonName"] = addonName
-    struct["addonID"] = addonID
-    struct["occuredAt"] = os.time()
-    struct["count"] = 1
+    struct["isRunTime"] = tostring(isRunTime)
+    --struct["fullError"] = tostring(fullError)
+    --struct["sourceFile"] = tostring(sourceFile)
+    --struct["sourceLine"] = tostring(sourceLine)
+    --struct["errorStr"] = tostring(errorstr)
+    --struct["stack"] = tostring(stack)
+    --struct["occuredAt"] = tostring(os.time())
+    --struct["count"] = 1
 
-    errQueue[err] = struct
+    print( "[CFC Error Forwarder] Inserting lua error into queue.." )
+
+
+    CFCErrorForwarder.errorQueue["test"] = struct
 end
 
 local function onSuccess( result )
-    print("[CFC Error Forwarder] Successfully forwarded error(s)!")
+    print( "[CFC Error Forwarder] Successfully forwarded error(s)! -- screeeeeeeeeeeeeeee" )
 end
 
 local function onFailure( failure )
-    print("[CFC Error Forwarder] Failed to forward error!")
+    print( "[CFC Error Forwarder] Failed to forward error!" )
     print( failure )
     print( failure )
     print( failure )
@@ -54,11 +59,19 @@ local function combineErrors( queuedErrors )
 end
 
 function CFCErrorForwarder.groomQueue()
-    local errQueue = CFCErrorForwarder.errorQueue
+    --print( "[CFC Error Forwarder] Grooming error queue!" )
 
-    if #errQueue == 0 then return end
+    local errQueue = CFCErrorForwarder.errorQueue
+    local errCount = table.Count( errQueue )
+
+    --print( "[CFC Error Forwarder] Error Queue length: " .. tostring( errCount ))
+    if errCount == 0 then return end
+
+    print( "[CFC Error Forwarder] Error Queue is not empty (#" .. tostring( errCount ) .. "). Combining errors.." )
 
     local combinedErrors = combineErrors( errQueue )
+
+    print( "[CFC Error Forwarder] Errors combined. Forwarding.." )
 
     CFCErrorForwarder.forwardError( combinedErrors )
 
@@ -68,5 +81,4 @@ end
 timer.Create("CFC_ErrorForwarderQueue", 5, 0, CFCErrorForwarder.groomQueue )
 
 hook.Remove( "LuaError", "CFC_ErrorForwarder" )
---hook.Add( "LuaError", "CFC_ErrorForwarder", CFCErrorForwarder.receiveLuaError )
-hook.Add( "LuaError", "CFC_ErrorForwarder", function() print("AAAAAAAAAAAHHHHHHHHHHHHHHHH AHHHHHHHHHHHH FUCK") end)
+hook.Add( "LuaError", "CFC_ErrorForwarder", CFCErrorForwarder.receiveLuaError )
