@@ -36,7 +36,7 @@ function CFCErrorForwarder.insertNewError( isRunTime, fullError, sourceFile, sou
 
     CFCErrorForwarder.errorQueue[errorStr] = newError
     
-    PrintTable( errorQueue )
+    PrintTable( CFCErrorForwarder.errorQueue )
 end
 
 function CFCErrorForwarder.receiveLuaError( isRunTime, fullError, sourceFile, sourceLine, errorStr, stack )
@@ -85,7 +85,7 @@ function CFCErrorForwarder.forwardAllErrors()
         CFCErrorForwarder.forwardError( data )
     end
 
-    errorQueue = {}
+    CFCErrorForwarder.errorQueue = {}
 end
 
 function CFCErrorForwarder.groomQueue()
