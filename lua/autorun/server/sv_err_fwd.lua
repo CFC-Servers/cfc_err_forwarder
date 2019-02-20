@@ -2,23 +2,25 @@ require("luaerror")
 luaerror.EnableCompiletimeDetour(true)
 luaerror.EnableRuntimeDetour(true)
 
-local CFCErrorForwarder = {}
-
-CFCErrorForwarder.errorQueue = {}
-local errorQueue = CFCErrorForwarder.errorQueue
+local errorQueue = {}
 
 local forwardingAddress = "http://localhost:5000/webhooks/gmod/forward-errors"
 
 local groomingIntervalInSeconds = 5
 
-function CFCErrorForwarder.incrementExistingError( errObj )
+local addon = "CFC Error Forwarder"
+local function log(msg)
+    print("[" .. addon .. "] " .. msg)
+end
+
+local function incrementExistingError( errObj )
     local count = errObj.count
 
     errObj.count = count + 1
     errObj.occuredAt = os.time()
 end
 
-function CFCErrorForwarder.insertNewError( isRunTime, fullError, sourceFile, sourceLine, errorStr, stack )
+local function insertNewError( isRunTime, fullError, sourceFile, sourceLine, errorStr, stack )
     local newError = {
         isRunTime  = isRunTime,
         fullError  = fullError,
@@ -30,35 +32,34 @@ function CFCErrorForwarder.insertNewError( isRunTime, fullError, sourceFile, sou
         count      = 1
     }
 
-    print( "[CFC Error Forwarder] Inserting lua error into queue.." )
+    log( "Inserting lua error into queue.." )
 
     errorQueue[errorStr] = newError
     
-    PrintTable(errorQueue)
+    PrintTable( errorQueue )
 end
 
-function CFCErrorForwarder.receiveLuaError( isRunTime, fullError, sourceFile, sourceLine, errorStr, stack )
-    print( "[CFC Error Forwarder] Received lua error!" )
+local function receiveLuaError( isRunTime, fullError, sourceFile, sourceLine, errorStr, stack )
+    log( "Received lua error!" )
  
     if errorQueue[errorStr] then 
-        return CFCErrorForwarder.incrementExistingError( errorQueue[errorStr] ) 
+        return incrementExistingError( errorQueue[errorStr] ) 
     end
 
-    return CFCErrorForwarder.insertNewError( isRunTime, fullError, sourceFile, sourceLine, errorStr, stack )
-
+    return insertNewError( isRunTime, fullError, sourceFile, sourceLine, errorStr, stack )
 end
 
 local function onSuccess( result )
-    print( "[CFC Error Forwarder] Successfully forwarded error(s)! -- screeeeeeeeeeeeeeee" )
+    log( "Successfully forwarded error(s)! -- screeeeeeeeeeeeeeee" )
 end
 
 local function onFailure( failure )
-    print( "[CFC Error Forwarder] Failed to forward error!" )
+    log( "Failed to forward error!" )
     print( failure )
 end
 
-function CFCErrorForwarder.forwardError( obj )
-    print("[CFC Error Forwarder] Forwaring lua error(s)!")
+local function forwardError( obj )
+    log( "Forwarding lua error(s)!" )
     local data = {
         json = util.TableToJSON( obj )
     }
@@ -66,25 +67,31 @@ function CFCErrorForwarder.forwardError( obj )
     http.Post( forwardingAddress, data, onSuccess, onFailure )
 end
 
-function CFCErrorForwarder.forwardAllErrors()
+local function errorQueueIsEmpty()
+    local errCount = table.Count( errorQueue )
+
+    if errCount == 0 then return true end
+
+    return false
+end
+
+local function forwardAllErrors()
     for _, data in pairs( errorQueue ) do
-        CFCErrorForwarder.forwardError( data )
+        forwardError( data )
     end
 
     errorQueue = {}
 end
 
-function CFCErrorForwarder.groomQueue()
-    local errCount = table.Count( errorQueue )
+local function groomQueue()
+    if errorQueueIsEmpty() then return end
 
-    if errCount == 0 then return end
+    log( "Error Queue Contains " .. tostring( errCount ) .. " Errors!" )
 
-    print( "[CFC Error Forwarder] Error Queue Contains " .. tostring( errCount ) .. " Errors!" )
-
-    CFCErrorForwarder.forwardAllErrors()
+    forwardAllErrors()
 end
 
-timer.Create("CFC_ErrorForwarderQueue", groomingIntervalInSeconds, 0, CFCErrorForwarder.groomQueue )
+timer.Create("CFC_ErrorForwarderQueue", groomingIntervalInSeconds, 0, groomQueue )
 
 hook.Remove( "LuaError", "CFC_ErrorForwarder" )
-hook.Add( "LuaError", "CFC_ErrorForwarder", CFCErrorForwarder.receiveLuaError )
+hook.Add( "LuaError", "CFC_ErrorForwarder", receiveLuaError )
