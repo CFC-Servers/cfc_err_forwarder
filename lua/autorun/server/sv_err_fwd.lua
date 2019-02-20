@@ -42,9 +42,7 @@ end
 local function receiveLuaError( isRunTime, fullError, sourceFile, sourceLine, errorStr, stack )
     log( "Received lua error!" )
  
-    if errorQueue[errorStr] then 
-        return incrementExistingError( errorQueue[errorStr] ) 
-    end
+    if errorQueue[errorStr] then return incrementExistingError( errorQueue[errorStr] ) end
 
     return insertNewError( isRunTime, fullError, sourceFile, sourceLine, errorStr, stack )
 end
