@@ -2,6 +2,9 @@ require("luaerror")
 luaerror.EnableCompiletimeDetour(true)
 luaerror.EnableRuntimeDetour(true)
 
+-- In seconds
+ERROR_REPORT_INTERVAL = 60
+
 local CFCErrorForwarder = {}
 
 CFCErrorForwarder.errorQueue = {}
@@ -22,6 +25,7 @@ function CFCErrorForwarder.receiveLuaError( isRunTime, fullError, sourceFile, so
     local struct = {}
 
     struct["isRunTime"] = isRunTime
+    struct["reportInterval"] = ERROR_REPORT_INTERVAL
     struct["fullError"] = fullError
     struct["sourceFile"] = sourceFile
     struct["sourceLine"] = sourceLine
@@ -38,7 +42,7 @@ function CFCErrorForwarder.receiveLuaError( isRunTime, fullError, sourceFile, so
 end
 
 local function onSuccess( result )
-    print( "[CFC Error Forwarder] Successfully forwarded error(s)! -- screeeeeeeeeeeeeeee" )
+    print( "[CFC Error Forwarder] Successfully forwarded error(s)!" )
 end
 
 local function onFailure( failure )
@@ -75,7 +79,7 @@ function CFCErrorForwarder.groomQueue()
     CFCErrorForwarder.errorQueue = {}
 end
 
-timer.Create("CFC_ErrorForwarderQueue", 5, 0, CFCErrorForwarder.groomQueue )
+timer.Create("CFC_ErrorForwarderQueue", ERROR_REPORT_INTERVAL, 0, CFCErrorForwarder.groomQueue )
 
 hook.Remove( "LuaError", "CFC_ErrorForwarder" )
 hook.Add( "LuaError", "CFC_ErrorForwarder", CFCErrorForwarder.receiveLuaError )
