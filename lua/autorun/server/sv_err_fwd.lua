@@ -75,9 +75,7 @@ end
 function CFCErrorForwarder.errorQueueIsEmpty()
     local errCount = table.Count( CFCErrorForwarder.errorQueue )
 
-    if errCount == 0 then return true end
-
-    return false
+    return errCount == 0
 end
 
 function CFCErrorForwarder.forwardAllErrors()
