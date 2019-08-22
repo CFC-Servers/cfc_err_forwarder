@@ -37,8 +37,6 @@ function CFCErrorForwarder.receiveLuaError( isRunTime, fullError, sourceFile, so
     print( "[CFC Error Forwarder] Inserting lua error into queue.." )
 
     CFCErrorForwarder.errorQueue[errorStr] = struct
-
-    PrintTable(CFCErrorForwarder.errorQueue)
 end
 
 local function onSuccess( result )
