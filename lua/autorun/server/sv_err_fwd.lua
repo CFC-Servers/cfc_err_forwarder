@@ -34,7 +34,7 @@ function CFCErrorForwarder.receiveLuaError( isRunTime, fullError, sourceFile, so
     struct["occuredAt"] = os.time()
     struct["count"] = 1
 
-    print( "[CFC Error Forwarder] Inserting lua error into queue.." )
+    print( "[CFC Error Forwarder] Inserting lua error into queue .. " )
 
     CFCErrorForwarder.errorQueue[errorStr] = struct
 end
@@ -60,12 +60,12 @@ function CFCErrorForwarder.forwardError( obj )
 end
 
 function CFCErrorForwarder.groomQueue()
-    --print( "[CFC Error Forwarder] Grooming error queue!" )
+    -- print( "[CFC Error Forwarder] Grooming error queue!" )
 
     local errQueue = CFCErrorForwarder.errorQueue
     local errCount = table.Count( errQueue )
 
-    --print( "[CFC Error Forwarder] Error Queue length: " .. tostring( errCount ) )
+    -- print( "[CFC Error Forwarder] Error Queue length: " .. tostring( errCount ) )
     if errCount == 0 then return end
 
     print( "[CFC Error Forwarder] Error Queue is not empty ( #" .. tostring( errCount ) .. " )" )
