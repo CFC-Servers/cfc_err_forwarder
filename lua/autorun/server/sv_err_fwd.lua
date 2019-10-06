@@ -1,6 +1,6 @@
-require("luaerror")
-luaerror.EnableCompiletimeDetour(true)
-luaerror.EnableRuntimeDetour(true)
+require( "luaerror" )
+luaerror.EnableCompiletimeDetour( true )
+luaerror.EnableRuntimeDetour( true )
 
 -- In seconds
 ERROR_REPORT_INTERVAL = 60
@@ -40,7 +40,7 @@ function CFCErrorForwarder.receiveLuaError( isRunTime, fullError, sourceFile, so
 end
 
 local function onSuccess( result )
-    print( "[CFC Error Forwarder] Successfully forwarded error(s)!" )
+    print( "[CFC Error Forwarder] Successfully forwarded error( s )!" )
 end
 
 local function onFailure( failure )
@@ -51,7 +51,7 @@ local function onFailure( failure )
 end
 
 function CFCErrorForwarder.forwardError( obj )
-    print("[CFC Error Forwarder] Forwaring lua error(s)!")
+    print( "[CFC Error Forwarder] Forwaring lua error( s )!" )
     local json = util.TableToJSON( obj )
     local data = {}
     data.json = json
@@ -65,19 +65,19 @@ function CFCErrorForwarder.groomQueue()
     local errQueue = CFCErrorForwarder.errorQueue
     local errCount = table.Count( errQueue )
 
-    --print( "[CFC Error Forwarder] Error Queue length: " .. tostring( errCount ))
+    --print( "[CFC Error Forwarder] Error Queue length: " .. tostring( errCount ) )
     if errCount == 0 then return end
 
-    print( "[CFC Error Forwarder] Error Queue is not empty (#" .. tostring( errCount ) .. ")" )
+    print( "[CFC Error Forwarder] Error Queue is not empty ( #" .. tostring( errCount ) .. " )" )
 
-    for err, data in pairs(errQueue) do
+    for err, data in pairs( errQueue ) do
         CFCErrorForwarder.forwardError( data )
     end
 
     CFCErrorForwarder.errorQueue = {}
 end
 
-timer.Create("CFC_ErrorForwarderQueue", ERROR_REPORT_INTERVAL, 0, CFCErrorForwarder.groomQueue )
+timer.Create( "CFC_ErrorForwarderQueue", ERROR_REPORT_INTERVAL, 0, CFCErrorForwarder.groomQueue )
 
 hook.Remove( "LuaError", "CFC_ErrorForwarder" )
 hook.Add( "LuaError", "CFC_ErrorForwarder", CFCErrorForwarder.receiveLuaError )
