@@ -42,6 +42,10 @@ function CFCErrorForwarder.reset()
     CFCErrorForwarder.ErrorQueue = {}
 end
 
+function CFCErrorForwarder.init()
+    CFCErrorForwarder.reset()
+end
+
 function CFCErrorForwarder.addSuccess()
     log( "Successfully forwarded error!" )
     CFCErrorForwarder.SuccessCount = CFCErrorForwarder.SucessCount + 1
@@ -51,10 +55,6 @@ function CFCErrorForwarder.addFailure( failure )
     log( "Failed to forward error!" )
     CFCErrorForwarder.FailureCount = CFCErrorForwarder.FailureCount + 1
     print( failure )
-end
-
-function CFCErrorForwarder.init()
-    CFCErrorForwarder.reset()
 end
 
 function CFCErrorForwarder.incrementExistingError( errorObject )
@@ -124,11 +124,17 @@ function CFCErrorForwarder.groomQueue()
 end
 
 --
--- Hooks & Timers
+-- Hooks
 --
--- Infinite Grooming Timer repeating at GROOMING_INTERVAL seconds
-timer.Create( "CFC_ErrorForwarderQueue", GROOMING_INTERVAL, 0, CFCErrorForwarder.groomQueue )
-
 -- Run receiveLuaError operation on every LuaError event
 hook.Remove( "LuaError", "CFC_ErrorForwarder" )
 hook.Add( "LuaError", "CFC_ErrorForwarder", CFCErrorForwarder.receiveLuaError )
+
+--
+-- Startup
+--
+-- Initialize CFCErrorForwarder table
+CFCErrorForwarder.init()
+
+-- Infinite Grooming Timer repeating at GROOMING_INTERVAL seconds
+timer.Create( "CFC_ErrorForwarderQueue", GROOMING_INTERVAL, 0, CFCErrorForwarder.groomQueue )
