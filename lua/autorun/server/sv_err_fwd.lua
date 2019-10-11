@@ -77,7 +77,7 @@ function CFCErrorForwarder.insertNewError( isRunTime, fullError, sourceFile, sou
     newError["occuredAt"]   = os.time()
     newError["count"]       = 1
 
-    log( "Inserting lua error into queue .. " )
+    log( "Inserting lua error into queue..." )
 
     CFCErrorForwarder.ErrorQueue[errorString] = newError
 end
