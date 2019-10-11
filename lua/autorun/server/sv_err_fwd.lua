@@ -26,7 +26,7 @@ CFCErrorForwarder.ErrorQueue = {}
 -- Helper Methods
 --
 local function log( msg )
-    print(LOG_PREFIX .. msg)
+    print( LOG_PREFIX .. msg )
 end
 
 local function onSuccess( result )
@@ -76,8 +76,8 @@ function CFCErrorForwarder.insertNewError( isRunTime, fullError, sourceFile, sou
     newError["stack"]       = stack
     newError["occuredAt"]   = os.time()
     newError["count"]       = 1
-    
-    log( "Inserting lua error into queue.." )
+
+    log( "Inserting lua error into queue .. " )
 
     CFCErrorForwarder.ErrorQueue[errorString] = newError
 end
@@ -85,8 +85,8 @@ end
 function CFCErrorForwarder.receiveLuaError( isRunTime, fullError, sourceFile, sourceLine, errorString, stack )
     log( "Received lua error!" )
 
-    if CFCErrorForwarder.errorExistsInQueue( errorString ) then 
-        return CFCErrorForwarder.incrementExistingError( ErrorQueue[errorString] ) 
+    if CFCErrorForwarder.errorExistsInQueue( errorString ) then
+        return CFCErrorForwarder.incrementExistingError( ErrorQueue[errorString] )
     end
 
     CFCErrorForwarder.insertNewError( isRunTime, fullError, sourceFile, sourceLine, errorString, stack )
@@ -117,7 +117,7 @@ function CFCErrorForwarder.forwardAllErrors()
 end
 
 function CFCErrorForwarder.groomQueue()
-    log( "Grooming Error Queue... (# of Errors: " + tostring(CFCErrorForwarder.getNumberOfErrors()) + ")" )
+    log( "Grooming Error Queue... ( # of Errors: " + tostring( CFCErrorForwarder.getNumberOfErrors() ) + " )" )
 
     CFCErrorForwarder.forwardAllErrors()
 end
