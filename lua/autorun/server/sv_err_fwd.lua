@@ -101,7 +101,7 @@ function CFCErrorForwarder.getNumberOfErrors()
 end
 
 function CFCErrorForwarder.ErrorQueueIsEmpty()
-     CFCErrorForwarder.getNumberOfErrors() == 0
+    return CFCErrorForwarder.getNumberOfErrors() == 0
 end
 
 function CFCErrorForwarder.forwardAllErrors()
