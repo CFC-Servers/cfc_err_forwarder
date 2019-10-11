@@ -80,8 +80,6 @@ function CFCErrorForwarder.insertNewError( isRunTime, fullError, sourceFile, sou
     log( "Inserting lua error into queue.." )
 
     CFCErrorForwarder.ErrorQueue[errorString] = newError
-    
-    PrintTable( CFCErrorForwarder.ErrorQueue )
 end
 
 function CFCErrorForwarder.receiveLuaError( isRunTime, fullError, sourceFile, sourceLine, errorString, stack )
