@@ -29,17 +29,6 @@ local function log( msg )
     print(LOG_PREFIX .. msg)
 end
 
-local function onSuccess( result )
-    log( "Successfully forwarded error!" )
-    CFCErrorForwarder.SuccessCount = CFCErrorForwarder.SucessCount + 1
-end
-
-local function onFailure( failure )
-    log( "Failed to forward error!" )
-    CFCErrorForwarder.FailureCount = CFCErrorForwarder.FailureCount + 1
-    print( failure )
-end
-
 local function getJsonTable( obj )
     return { ["json"] = util.TableToJSON( obj ) }
 end
@@ -51,6 +40,17 @@ function CFCErrorForwarder.reset()
     CFCErrorForwarder.SuccessCount = 0
     CFCErrorForwarder.FailureCount = 0
     CFCErrorForwarder.ErrorQueue = {}
+end
+
+function CFCErrorForwarder.addSuccess()
+    log( "Successfully forwarded error!" )
+    CFCErrorForwarder.SuccessCount = CFCErrorForwarder.SucessCount + 1
+end
+
+function CFCErrorForwarder.addFailure( failure )
+    log( "Failed to forward error!" )
+    CFCErrorForwarder.FailureCount = CFCErrorForwarder.FailureCount + 1
+    print( failure )
 end
 
 function CFCErrorForwarder.init()
@@ -93,7 +93,7 @@ function CFCErrorForwarder.receiveLuaError( isRunTime, fullError, sourceFile, so
 end
 
 function CFCErrorForwarder.forwardError( obj )
-    http.Post( FORWARDING_ADDRESS, getJsonTable( obj ), onSuccess, onFailure )
+    http.Post( FORWARDING_ADDRESS, getJsonTable( obj ), CFCErrorForwarder.addSuccess, CFCErrorForwarder.addFailure )
 end
 
 function CFCErrorForwarder.getNumberOfErrors()
@@ -107,11 +107,12 @@ end
 function CFCErrorForwarder.forwardAllErrors()
     if CFCErrorForwarder.ErrorQueueIsEmpty() then return end
 
-    log( "Forwarding " .. tostring( errCount ) .. " Errors!" )
-
     for err, data in pairs( CFCErrorForwarder.ErrorQueue ) do
         CFCErrorForwarder.forwardError( data )
     end
+
+    log( "Successfully Forwarded " + tostring(CFCErrorForwarder.SuccessCount) + 
+        " Errors (" + tostring(CFCErrorForwarder.FailureCount) + " failures")
 
     CFCErrorForwarder.reset()
 end
