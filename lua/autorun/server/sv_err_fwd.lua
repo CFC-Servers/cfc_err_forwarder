@@ -1,3 +1,4 @@
+
 --
 -- CFC Error Forwarder
 -- Forwards Lua Errors to a webserver made to deal with them
@@ -20,7 +21,6 @@ local LOG_PREFIX = "[CFC Error Forwarder] "
 
 -- The meat & potatoes
 local CFCErrorForwarder = {}
-CFCErrorForwarder.ErrorQueue = {}
 
 --
 -- Helper Methods
@@ -52,9 +52,8 @@ function CFCErrorForwarder.addSuccess()
 end
 
 function CFCErrorForwarder.addFailure( failure )
-    log( "Failed to forward error!" )
+    log( "Failed to forward error! (" + tostring( failure ) + ")" )
     CFCErrorForwarder.FailureCount = CFCErrorForwarder.FailureCount + 1
-    print( failure )
 end
 
 function CFCErrorForwarder.incrementExistingError( errorObject )
@@ -100,26 +99,25 @@ function CFCErrorForwarder.getNumberOfErrors()
     return table.Count( CFCErrorForwarder.ErrorQueue )
 end
 
-function CFCErrorForwarder.ErrorQueueIsEmpty()
+function CFCErrorForwarder.errorQueueIsEmpty()
     return CFCErrorForwarder.getNumberOfErrors() == 0
 end
 
 function CFCErrorForwarder.forwardAllErrors()
-    if CFCErrorForwarder.ErrorQueueIsEmpty() then return end
+    if CFCErrorForwarder.errorQueueIsEmpty() then return end
 
-    for err, data in pairs( CFCErrorForwarder.ErrorQueue ) do
-        CFCErrorForwarder.forwardError( data )
+    for _, errorData in pairs( CFCErrorForwarder.ErrorQueue ) do
+        CFCErrorForwarder.forwardError( errorData )
     end
 
-    log( "Successfully Forwarded " + tostring(CFCErrorForwarder.SuccessCount) + 
-        " Errors (" + tostring(CFCErrorForwarder.FailureCount) + " failures")
-
+    logMessageFormat = "Successfully forwarded %d Errors, and failed to send %d!"
+    log( string.format( logMessageFormat, CFCErrorForwarder.SuccessCount, CFCErrorForwarder.FailureCount ) )
+  
     CFCErrorForwarder.reset()
 end
 
 function CFCErrorForwarder.groomQueue()
     log( "Grooming Error Queue... (# of Errors: " + tostring(CFCErrorForwarder.getNumberOfErrors()) + ")" )
-
     CFCErrorForwarder.forwardAllErrors()
 end
 
