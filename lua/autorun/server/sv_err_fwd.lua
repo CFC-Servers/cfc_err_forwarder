@@ -128,7 +128,7 @@ end
 -- Hooks & Timers
 --
 -- Infinite Grooming Timer repeating at GROOMING_INTERVAL seconds
-timer.Create("CFC_ErrorForwarderQueue", GROOMING_INTERVAL, 0, CFCErrorForwarder.groomQueue )
+timer.Create( "CFC_ErrorForwarderQueue", GROOMING_INTERVAL, 0, CFCErrorForwarder.groomQueue )
 
 -- Run receiveLuaError operation on every LuaError event
 hook.Remove( "LuaError", "CFC_ErrorForwarder" )
