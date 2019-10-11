@@ -26,7 +26,7 @@ local CFCErrorForwarder = {}
 -- Helper Methods
 --
 local function log( msg )
-    print(LOG_PREFIX .. msg)
+    print( LOG_PREFIX .. msg )
 end
 
 local function getJsonTable( obj )
