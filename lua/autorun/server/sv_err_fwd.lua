@@ -1,3 +1,4 @@
+
 --
 -- CFC Error Forwarder
 -- Forwards Lua Errors to a webserver made to deal with them
@@ -20,7 +21,6 @@ local LOG_PREFIX = "[CFC Error Forwarder] "
 
 -- The meat & potatoes
 local CFCErrorForwarder = {}
-CFCErrorForwarder.ErrorQueue = {}
 
 --
 -- Helper Methods
@@ -37,7 +37,6 @@ end
 local function onFailure( failure )
     log( "Failed to forward error!" )
     CFCErrorForwarder.FailureCount = CFCErrorForwarder.FailureCount + 1
-    print( failure )
 end
 
 local function getJsonTable( obj )
@@ -55,6 +54,16 @@ end
 
 function CFCErrorForwarder.init()
     CFCErrorForwarder.reset()
+end
+
+function CFCErrorForwarder.addSuccess()
+    log( "Successfully forwarded error!" )
+    CFCErrorForwarder.SuccessCount = CFCErrorForwarder.SucessCount + 1
+end
+
+function CFCErrorForwarder.addFailure( failure )
+    log( "Failed to forward error! (" + tostring( failure ) + ")" )
+    CFCErrorForwarder.FailureCount = CFCErrorForwarder.FailureCount + 1
 end
 
 function CFCErrorForwarder.incrementExistingError( errorObject )
@@ -93,41 +102,47 @@ function CFCErrorForwarder.receiveLuaError( isRunTime, fullError, sourceFile, so
 end
 
 function CFCErrorForwarder.forwardError( obj )
-    http.Post( FORWARDING_ADDRESS, getJsonTable( obj ), onSuccess, onFailure )
+    http.Post( FORWARDING_ADDRESS, getJsonTable( obj ), CFCErrorForwarder.addSuccess, CFCErrorForwarder.addFailure )
 end
 
 function CFCErrorForwarder.getNumberOfErrors()
     return table.Count( CFCErrorForwarder.ErrorQueue )
 end
 
-function CFCErrorForwarder.ErrorQueueIsEmpty()
-     CFCErrorForwarder.getNumberOfErrors() == 0
+function CFCErrorForwarder.errorQueueIsEmpty()
+    return CFCErrorForwarder.getNumberOfErrors() == 0
 end
 
 function CFCErrorForwarder.forwardAllErrors()
-    if CFCErrorForwarder.ErrorQueueIsEmpty() then return end
+    if CFCErrorForwarder.errorQueueIsEmpty() then return end
 
-    log( "Forwarding " .. tostring( errCount ) .. " Errors!" )
-
-    for err, data in pairs( CFCErrorForwarder.ErrorQueue ) do
-        CFCErrorForwarder.forwardError( data )
+    for _, errorData in pairs( CFCErrorForwarder.ErrorQueue ) do
+        CFCErrorForwarder.forwardError( errorData )
     end
 
+    logMessageFormat = "Successfully forwarded %d Errors, and failed to send %d!"
+    log( string.format( logMessageFormat, CFCErrorForwarder.SuccessCount, CFCErrorForwarder.FailureCount ) )
+  
     CFCErrorForwarder.reset()
 end
 
 function CFCErrorForwarder.groomQueue()
     log( "Grooming Error Queue... ( # of Errors: " + tostring( CFCErrorForwarder.getNumberOfErrors() ) + " )" )
-
     CFCErrorForwarder.forwardAllErrors()
 end
 
 --
--- Hooks & Timers
+-- Hooks
 --
--- Infinite Grooming Timer repeating at GROOMING_INTERVAL seconds
-timer.Create( "CFC_ErrorForwarderQueue", GROOMING_INTERVAL, 0, CFCErrorForwarder.groomQueue )
-
 -- Run receiveLuaError operation on every LuaError event
 hook.Remove( "LuaError", "CFC_ErrorForwarder" )
 hook.Add( "LuaError", "CFC_ErrorForwarder", CFCErrorForwarder.receiveLuaError )
+
+--
+-- Startup
+--
+-- Initialize CFCErrorForwarder table
+CFCErrorForwarder.init()
+
+-- Infinite Grooming Timer repeating at GROOMING_INTERVAL seconds
+timer.Create( "CFC_ErrorForwarderQueue", GROOMING_INTERVAL, 0, CFCErrorForwarder.groomQueue )
