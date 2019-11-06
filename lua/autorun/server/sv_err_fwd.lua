@@ -95,7 +95,7 @@ function CFCErrorForwarder.receiveLuaError( isRunTime, fullError, sourceFile, so
     log( "Received lua error!" )
 
     if CFCErrorForwarder.errorExistsInQueue( errorString ) then
-        return CFCErrorForwarder.incrementExistingError( ErrorQueue[errorString] )
+        return CFCErrorForwarder.incrementExistingError( CFCErrorForwarder.ErrorQueue[errorString] )
     end
 
     CFCErrorForwarder.insertNewError( isRunTime, fullError, sourceFile, sourceLine, errorString, stack )
@@ -122,7 +122,7 @@ function CFCErrorForwarder.forwardAllErrors()
 
     logMessageFormat = "Successfully forwarded %d Errors, and failed to send %d!"
     log( string.format( logMessageFormat, CFCErrorForwarder.SuccessCount, CFCErrorForwarder.FailureCount ) )
-  
+
     CFCErrorForwarder.reset()
 end
 
