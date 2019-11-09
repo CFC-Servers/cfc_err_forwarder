@@ -67,7 +67,7 @@ function CFCErrorForwarder.addFailure( failure )
 end
 
 function CFCErrorForwarder.incrementExistingError( errorObject )
-    errorObject.count = errObject.count + 1
+    errorObject.count = errorObject.count + 1
     errorObject["occuredAt"] = os.time()
 end
 
