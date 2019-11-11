@@ -62,7 +62,7 @@ function CFCErrorForwarder.addSuccess()
 end
 
 function CFCErrorForwarder.addFailure( failure )
-    log( "Failed to forward error! (" + tostring( failure ) + ")" )
+    log( "Failed to forward error! (" .. tostring( failure ) .. ")" )
     CFCErrorForwarder.FailureCount = CFCErrorForwarder.FailureCount + 1
 end
 
@@ -127,7 +127,7 @@ function CFCErrorForwarder.forwardAllErrors()
 end
 
 function CFCErrorForwarder.groomQueue()
-    log( "Grooming Error Queue... ( # of Errors: " + tostring( CFCErrorForwarder.getNumberOfErrors() ) + " )" )
+    log( "Grooming Error Queue... ( # of Errors: " .. tostring( CFCErrorForwarder.getNumberOfErrors() ) .. " )" )
     CFCErrorForwarder.forwardAllErrors()
 end
 
