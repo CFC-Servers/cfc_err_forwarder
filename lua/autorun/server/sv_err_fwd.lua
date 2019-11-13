@@ -14,7 +14,7 @@ luaerror.EnableRuntimeDetour( true )
 local GROOMING_INTERVAL = 60
 
 -- Address to forward errors to
-local FORWARDING_ADDRESS = "http://localhost:5000/webhooks/gmod/forward-errors"
+local FORWARDING_ADDRESS = "http://local:5000/webhooks/gmod/forward-errors"
 
 -- The beginning of every log message
 local LOG_PREFIX = "[CFC Error Forwarder] "
