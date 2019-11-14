@@ -31,7 +31,7 @@ end
 
 local function onSuccess( result )
     log( "Successfully forwarded error!" )
-    CFCErrorForwarder.SuccessCount = CFCErrorForwarder.SucessCount + 1
+    CFCErrorForwarder.SuccessCount = CFCErrorForwarder.SuccessCount + 1
 end
 
 local function onFailure( failure )
@@ -58,7 +58,7 @@ end
 
 function CFCErrorForwarder.addSuccess()
     log( "Successfully forwarded error!" )
-    CFCErrorForwarder.SuccessCount = CFCErrorForwarder.SucessCount + 1
+    CFCErrorForwarder.SuccessCount = CFCErrorForwarder.SuccessCount + 1
 end
 
 function CFCErrorForwarder.addFailure( failure )
