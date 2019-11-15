@@ -31,7 +31,7 @@ init = function()
   timer.Remove(timer_name)
   return timer.Create(timer_name, groom_interval, 0, (function()
     local _base_0 = error_forwarder
-    local _fn_0 = _base_0.groom
+    local _fn_0 = _base_0.groom_queue
     return function(...)
       return _fn_0(_base_0, ...)
     end
