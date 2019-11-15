@@ -13,14 +13,12 @@ do
     end,
     add_error_to_queue = function(self, is_runtime, full_error, source_file, source_line, error_string, stack)
       local new_error = {
-        isRunTime = is_runtime,
-        fullError = full_error,
-        sourceFile = source_file,
-        sourceLine = source_line,
-        errorString = error_string,
-        stack = stack,
-        occurredAt = os.time(),
-        count = 1
+        is_runtime = is_runtime,
+        full_error = full_error,
+        source_file = source_file,
+        source_line = source_line,
+        error_string = error_string,
+        stack = stack
       }
       self.logger:info("Inserting error into queue: " .. tostring(error_string))
       self.queue[error_string] = new_error
@@ -40,10 +38,14 @@ do
     end,
     forward_error = function(self, error_object, on_success, on_failure)
       self.logger:info("Sending error object..")
+      PrintTable(error_object)
       return self.webhooker_interface:send("forward-errors", error_object, on_success, on_failure)
     end,
     forward_all_errors = function(self)
       for error_string, error_data in pairs(self.queue) do
+        self.logger:info(error_string)
+        self.logger:info(error_data)
+        PrintTable(error_data)
         self.logger:debug("Processing queued error: " .. tostring(error_string))
         local success
         success = function(message)

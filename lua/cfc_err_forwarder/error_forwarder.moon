@@ -13,14 +13,12 @@ class ErrorForwarder
 
     add_error_to_queue: (is_runtime, full_error, source_file, source_line, error_string, stack) =>
         new_error = {
-            isRunTime: is_runtime,
-            fullError: full_error,
-            sourceFile: source_file,
-            sourceLine: source_line,
-            errorString: error_string,
-            stack: stack,
-            occurredAt: os.time!,
-            count: 1
+            :is_runtime,
+            :full_error,
+            :source_file,
+            :source_line,
+            :error_string,
+            :stack
         }
 
         @logger\info "Inserting error into queue: #{error_string}"
@@ -44,10 +42,17 @@ class ErrorForwarder
     forward_error: (error_object, on_success, on_failure) =>
         @logger\info "Sending error object.."
 
+        PrintTable error_object
+
         @webhooker_interface\send "forward-errors", error_object, on_success, on_failure
 
     forward_all_errors: =>
         for error_string, error_data in pairs @queue
+
+            @logger\info error_string
+            @logger\info error_data
+            PrintTable error_data
+
             @logger\debug "Processing queued error: #{error_string}"
 
             success = (message) ->
