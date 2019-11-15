@@ -58,7 +58,7 @@ class ErrorForwarder
 
     groom_queue: =>
         @logger\info "Grooming Error Queue of size #{@count_queue!}"
-        if @queue_is_empty then return
+        if @queue_is_empty! then return
 
         @forward_all_errors!
 

@@ -57,7 +57,7 @@ do
     end,
     groom_queue = function(self)
       self.logger:info("Grooming Error Queue of size " .. tostring(self:count_queue()))
-      if self.queue_is_empty then
+      if self:queue_is_empty() then
         return 
       end
       return self:forward_all_errors()
