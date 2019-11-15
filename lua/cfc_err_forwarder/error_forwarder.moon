@@ -4,15 +4,6 @@ class ErrorForwarder
         @webhooker_interface = webhooker_interface
         @queue = {}
 
-        groom_interval = 60
-        timer_name = "CFC_ErrorForwarderQueue"
-
-        groom = ->
-            @groom_queue!
-
-        timer.Remove timer_name
-        timer.Create timer_name, groom_interval, 0, groom
-
     count_queue: =>
         table.Count @queue
 

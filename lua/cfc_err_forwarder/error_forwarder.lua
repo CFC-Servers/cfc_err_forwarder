@@ -76,14 +76,6 @@ do
       self.logger = logger
       self.webhooker_interface = webhooker_interface
       self.queue = { }
-      local groom_interval = 60
-      local timer_name = "CFC_ErrorForwarderQueue"
-      local groom
-      groom = function()
-        return self:groom_queue()
-      end
-      timer.Remove(timer_name)
-      return timer.Create(timer_name, groom_interval, 0, groom)
     end,
     __base = _base_0,
     __name = "ErrorForwarder"
