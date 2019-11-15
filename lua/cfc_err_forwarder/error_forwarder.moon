@@ -12,15 +12,18 @@ class ErrorForwarder
     error_is_queued: (error_string) => @queue[error_string] != nil
 
     add_error_to_queue: (is_runtime, full_error, source_file, source_line, error_string, stack) =>
+        occurred_at = os.time!
+        count = 1
+
         new_error = {
-            :is_runtime,
+            :count
+            :error_string,
             :full_error,
+            :is_runtime,
+            :occurred_at,
             :source_file,
             :source_line,
-            :error_string,
             :stack,
-            occurred_at: os.time!,
-            count: 1
         }
 
         @logger\info "Inserting error into queue: #{error_string}"
@@ -32,6 +35,7 @@ class ErrorForwarder
 
     increment_existing_error: (error_string) =>
         @queue[error_string]["count"] += 1
+        @queue[error_string]["occurred_at"] = os.time!
 
     receive_lua_error: (is_runtime, full_error, source_file, source_line, error_string, stack) =>
         @logger\debug "Received Lua Error: #{error_string}"
@@ -44,14 +48,10 @@ class ErrorForwarder
     forward_error: (error_object, on_success, on_failure) =>
         @logger\info "Sending error object.."
 
-        @webhooker_interface\send "forward-errors", error_object, on_success, on_failure
+        @webhooker_interface\send "forward-errors", http_obj, on_success, on_failure
 
     forward_all_errors: =>
         for error_string, error_data in pairs @queue
-
-            @logger\info error_string
-            @logger\info error_data
-
             @logger\debug "Processing queued error: #{error_string}"
 
             success = (message) ->
@@ -63,8 +63,9 @@ class ErrorForwarder
             @forward_error error_data, success, failure
 
     groom_queue: =>
-        @logger\info "Grooming Error Queue of size #{@count_queue!}"
         if @queue_is_empty! then return
+
+        @logger\info "Grooming Error Queue of size #{@count_queue!}"
 
         @forward_all_errors!
 
