@@ -17,11 +17,21 @@ init = function()
   end
   logger:on("error"):call(alert_discord)
   logger:info("Logger Loaded!")
-  local error_forwarder = ErrorForwarder(logger, webhooker_interface)
+  local groom_interval = 60
+  local error_forwarder = ErrorForwarder(logger, webhooker_interface, groom_interval)
   hook.Remove("LuaError", "CFC_ErrorForwarder")
-  return hook.Add("LuaError", "CFC_ErrorForwarder", (function()
+  hook.Add("LuaError", "CFC_ErrorForwarder", (function()
     local _base_0 = error_forwarder
     local _fn_0 = _base_0.receive_lua_error
+    return function(...)
+      return _fn_0(_base_0, ...)
+    end
+  end)())
+  local timer_name = "CFC_ErrorForwarderQueue"
+  timer.Remove(timer_name)
+  return timer.Create(timer_name, groom_interval, 0, (function()
+    local _base_0 = error_forwarder
+    local _fn_0 = _base_0.groom
     return function(...)
       return _fn_0(_base_0, ...)
     end

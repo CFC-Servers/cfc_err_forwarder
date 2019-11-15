@@ -85,20 +85,11 @@ do
   }
   _base_0.__index = _base_0
   _class_0 = setmetatable({
-    __init = function(self, logger, webhooker_interface)
+    __init = function(self, logger, webhooker_interface, groom_interval)
       self.logger = logger
       self.webhooker_interface = webhooker_interface
-      self.groom_interval = 60
+      self.groom_interval = groom_interval
       self.queue = { }
-      local timer_name = "CFC_ErrorForwarderQueue"
-      timer.Remove(timer_name)
-      return timer.Create(timer_name, groom_interval, 0, (function()
-        local _base_1 = self
-        local _fn_0 = _base_1.groom_queue
-        return function(...)
-          return _fn_0(_base_1, ...)
-        end
-      end)())
     end,
     __base = _base_0,
     __name = "ErrorForwarder"
