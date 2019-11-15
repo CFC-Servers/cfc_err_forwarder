@@ -17,10 +17,15 @@ init = ->
     logger\on("error")\call(alert_discord)
     logger\info "Logger Loaded!"
 
-    error_forwarder = ErrorForwarder logger, webhooker_interface
+    groom_interval = 60 -- in seconds
+    error_forwarder = ErrorForwarder logger, webhooker_interface, groom_interval
 
     hook.Remove "LuaError", "CFC_ErrorForwarder"
     hook.Add "LuaError", "CFC_ErrorForwarder", error_forwarder\receive_lua_error
+
+    timer_name = "CFC_ErrorForwarderQueue"
+    timer.Remove timer_name
+    timer.Create timer_name, groom_interval, 0, error_forwarder\groom
 
 dependencies_loaded = ->
     CFCLogger != nil and WebhookerInterface != nil
