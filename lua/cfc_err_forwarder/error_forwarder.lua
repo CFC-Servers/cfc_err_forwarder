@@ -42,6 +42,7 @@ do
       return self:add_error_to_queue(is_runtime, full_error, source_file, source_line, error_string, stack)
     end,
     generate_json_object = function(self, error_object)
+      error_object["report_interval"] = self.groom_interval
       local error_json = util.TableToJSON(error_object)
       return {
         json = error_json
@@ -87,7 +88,17 @@ do
     __init = function(self, logger, webhooker_interface)
       self.logger = logger
       self.webhooker_interface = webhooker_interface
+      self.groom_interval = 60
       self.queue = { }
+      local timer_name = "CFC_ErrorForwarderQueue"
+      timer.Remove(timer_name)
+      return timer.Create(timer_name, groom_interval, 0, (function()
+        local _base_1 = self
+        local _fn_0 = _base_1.groom_queue
+        return function(...)
+          return _fn_0(_base_1, ...)
+        end
+      end)())
     end,
     __base = _base_0,
     __name = "ErrorForwarder"

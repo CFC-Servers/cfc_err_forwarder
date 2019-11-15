@@ -22,11 +22,6 @@ init = ->
     hook.Remove "LuaError", "CFC_ErrorForwarder"
     hook.Add "LuaError", "CFC_ErrorForwarder", error_forwarder\receive_lua_error
 
-    timer_name = "CFC_ErrorForwarderQueue"
-    groom_interval = 60
-    timer.Remove timer_name
-    timer.Create timer_name, groom_interval, 0, error_forwarder\groom_queue
-
 dependencies_loaded = ->
     CFCLogger != nil and WebhookerInterface != nil
 
