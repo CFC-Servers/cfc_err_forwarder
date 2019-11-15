@@ -79,7 +79,7 @@ do
       local groom_interval = 60
       local timer_name = "CFC_ErrorForwarderQueue"
       local groom
-      groom = function(self)
+      groom = function()
         return self:groom_queue()
       end
       timer.Remove(timer_name)
