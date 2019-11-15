@@ -41,23 +41,25 @@ class ErrorForwarder
 
         @add_error_to_queue is_runtime, full_error, source_file, source_line, error_string, stack
 
-    forward_error: (error_object, on_success, on_failure) =>
+    forward_error: (error_object) =>
         @webhooker_interface\send "forward-errors", error_object, on_success, on_failure
 
     forward_all_errors: =>
         for error_string, error_data in pairs @queue
+            @logger\debug "Processing queued error: #{error_string}"
+
             success = (message) ->
                 @on_success error_string, message
 
             failure = (failure) ->
                 @on_failure error_string, failure
 
-            @forward_error error_data, on_success, on_failure
+            @forward_error error_data, success, failure
 
     groom_queue: =>
+        @logger\info "Grooming Error Queue of size #{@count_queue!}"
         if @queue_is_empty then return
 
-        @logger\info "Grooming Error Queue of size #{@count_queue!}"
         @forward_all_errors!
 
     on_success: (error_string, message) =>

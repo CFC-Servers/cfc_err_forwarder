@@ -38,11 +38,12 @@ do
       end
       return self:add_error_to_queue(is_runtime, full_error, source_file, source_line, error_string, stack)
     end,
-    forward_error = function(self, error_object, on_success, on_failure)
+    forward_error = function(self, error_object)
       return self.webhooker_interface:send("forward-errors", error_object, on_success, on_failure)
     end,
     forward_all_errors = function(self)
       for error_string, error_data in pairs(self.queue) do
+        self.logger:debug("Processing queued error: " .. tostring(error_string))
         local success
         success = function(message)
           return self:on_success(error_string, message)
@@ -51,14 +52,14 @@ do
         failure = function(failure)
           return self:on_failure(error_string, failure)
         end
-        self:forward_error(error_data, on_success, on_failure)
+        self:forward_error(error_data, success, failure)
       end
     end,
     groom_queue = function(self)
+      self.logger:info("Grooming Error Queue of size " .. tostring(self:count_queue()))
       if self.queue_is_empty then
         return 
       end
-      self.logger:info("Grooming Error Queue of size " .. tostring(self:count_queue()))
       return self:forward_all_errors()
     end,
     on_success = function(self, error_string, message)
