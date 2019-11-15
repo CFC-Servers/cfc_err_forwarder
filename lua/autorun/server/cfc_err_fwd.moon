@@ -25,7 +25,7 @@ init = ->
 
     timer_name = "CFC_ErrorForwarderQueue"
     timer.Remove timer_name
-    timer.Create timer_name, groom_interval, 0, error_forwarder\groom
+    timer.Create timer_name, groom_interval, 0, error_forwarder\groom_queue
 
 dependencies_loaded = ->
     CFCLogger != nil and WebhookerInterface != nil
