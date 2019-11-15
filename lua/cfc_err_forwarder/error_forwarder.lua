@@ -12,15 +12,17 @@ do
       return self.queue[error_string] ~= nil
     end,
     add_error_to_queue = function(self, is_runtime, full_error, source_file, source_line, error_string, stack)
+      local occurred_at = os.time()
+      local count = 1
       local new_error = {
-        is_runtime = is_runtime,
+        count = count,
+        error_string = error_string,
         full_error = full_error,
+        is_runtime = is_runtime,
+        occurred_at = occurred_at,
         source_file = source_file,
         source_line = source_line,
-        error_string = error_string,
-        stack = stack,
-        occurred_at = os.time(),
-        count = 1
+        stack = stack
       }
       self.logger:info("Inserting error into queue: " .. tostring(error_string))
       self.queue[error_string] = new_error
@@ -30,6 +32,7 @@ do
     end,
     increment_existing_error = function(self, error_string)
       self.queue[error_string]["count"] = self.queue[error_string]["count"] + 1
+      self.queue[error_string]["occurred_at"] = os.time()
     end,
     receive_lua_error = function(self, is_runtime, full_error, source_file, source_line, error_string, stack)
       self.logger:debug("Received Lua Error: " .. tostring(error_string))
@@ -40,12 +43,10 @@ do
     end,
     forward_error = function(self, error_object, on_success, on_failure)
       self.logger:info("Sending error object..")
-      return self.webhooker_interface:send("forward-errors", error_object, on_success, on_failure)
+      return self.webhooker_interface:send("forward-errors", http_obj, on_success, on_failure)
     end,
     forward_all_errors = function(self)
       for error_string, error_data in pairs(self.queue) do
-        self.logger:info(error_string)
-        self.logger:info(error_data)
         self.logger:debug("Processing queued error: " .. tostring(error_string))
         local success
         success = function(message)
@@ -59,10 +60,10 @@ do
       end
     end,
     groom_queue = function(self)
-      self.logger:info("Grooming Error Queue of size " .. tostring(self:count_queue()))
       if self:queue_is_empty() then
         return 
       end
+      self.logger:info("Grooming Error Queue of size " .. tostring(self:count_queue()))
       return self:forward_all_errors()
     end,
     on_success = function(self, error_string, message)
