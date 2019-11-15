@@ -7,7 +7,7 @@ class ErrorForwarder
         groom_interval = 60
         timer_name = "CFC_ErrorForwarderQueue"
 
-        groom = =>
+        groom = ->
             @groom_queue!
 
         timer.Remove timer_name
