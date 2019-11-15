@@ -39,6 +39,7 @@ do
       return self:add_error_to_queue(is_runtime, full_error, source_file, source_line, error_string, stack)
     end,
     forward_error = function(self, error_object)
+      self.logger:info("Sending error object..")
       return self.webhooker_interface:send("forward-errors", error_object, on_success, on_failure)
     end,
     forward_all_errors = function(self)
