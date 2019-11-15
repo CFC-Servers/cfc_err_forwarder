@@ -19,19 +19,9 @@ init = function()
   logger:info("Logger Loaded!")
   local error_forwarder = ErrorForwarder(logger, webhooker_interface)
   hook.Remove("LuaError", "CFC_ErrorForwarder")
-  hook.Add("LuaError", "CFC_ErrorForwarder", (function()
+  return hook.Add("LuaError", "CFC_ErrorForwarder", (function()
     local _base_0 = error_forwarder
     local _fn_0 = _base_0.receive_lua_error
-    return function(...)
-      return _fn_0(_base_0, ...)
-    end
-  end)())
-  local timer_name = "CFC_ErrorForwarderQueue"
-  local groom_interval = 60
-  timer.Remove(timer_name)
-  return timer.Create(timer_name, groom_interval, 0, (function()
-    local _base_0 = error_forwarder
-    local _fn_0 = _base_0.groom_queue
     return function(...)
       return _fn_0(_base_0, ...)
     end

@@ -2,7 +2,12 @@ class ErrorForwarder
     new: (logger, webhooker_interface) =>
         @logger = logger
         @webhooker_interface = webhooker_interface
+        @groom_interval = 60
         @queue = {}
+
+        timer_name = "CFC_ErrorForwarderQueue"
+        timer.Remove timer_name
+        timer.Create timer_name, groom_interval, 0, self\groom_queue
 
     count_queue: =>
         table.Count @queue
@@ -46,6 +51,8 @@ class ErrorForwarder
         @add_error_to_queue is_runtime, full_error, source_file, source_line, error_string, stack
 
     generate_json_object: (error_object) =>
+        error_object["report_interval"] = @groom_interval
+
         error_json = util.TableToJSON error_object
 
         { json: error_json }
