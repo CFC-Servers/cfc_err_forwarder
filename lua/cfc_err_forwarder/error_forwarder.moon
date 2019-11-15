@@ -42,6 +42,7 @@ class ErrorForwarder
         @add_error_to_queue is_runtime, full_error, source_file, source_line, error_string, stack
 
     forward_error: (error_object) =>
+        @logger\info "Sending error object.."
         @webhooker_interface\send "forward-errors", error_object, on_success, on_failure
 
     forward_all_errors: =>
