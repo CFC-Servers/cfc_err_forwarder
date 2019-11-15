@@ -48,7 +48,7 @@ class ErrorForwarder
     forward_error: (error_object, on_success, on_failure) =>
         @logger\info "Sending error object.."
 
-        @webhooker_interface\send "forward-errors", http_obj, on_success, on_failure
+        @webhooker_interface\send "forward-errors", error_object, on_success, on_failure
 
     forward_all_errors: =>
         for error_string, error_data in pairs @queue
