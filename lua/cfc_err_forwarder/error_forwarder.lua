@@ -43,7 +43,7 @@ do
     end,
     forward_error = function(self, error_object, on_success, on_failure)
       self.logger:info("Sending error object..")
-      return self.webhooker_interface:send("forward-errors", http_obj, on_success, on_failure)
+      return self.webhooker_interface:send("forward-errors", error_object, on_success, on_failure)
     end,
     forward_all_errors = function(self)
       for error_string, error_data in pairs(self.queue) do
