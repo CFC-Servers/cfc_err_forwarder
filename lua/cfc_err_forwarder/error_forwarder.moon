@@ -18,7 +18,9 @@ class ErrorForwarder
             :source_file,
             :source_line,
             :error_string,
-            :stack
+            :stack,
+            occurred_at: os.time!,
+            count: 1
         }
 
         @logger\info "Inserting error into queue: #{error_string}"
@@ -42,8 +44,6 @@ class ErrorForwarder
     forward_error: (error_object, on_success, on_failure) =>
         @logger\info "Sending error object.."
 
-        PrintTable error_object
-
         @webhooker_interface\send "forward-errors", error_object, on_success, on_failure
 
     forward_all_errors: =>
@@ -51,7 +51,6 @@ class ErrorForwarder
 
             @logger\info error_string
             @logger\info error_data
-            PrintTable error_data
 
             @logger\debug "Processing queued error: #{error_string}"
 
