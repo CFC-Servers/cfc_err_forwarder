@@ -45,10 +45,17 @@ class ErrorForwarder
 
         @add_error_to_queue is_runtime, full_error, source_file, source_line, error_string, stack
 
+    generate_json_object: (error_object) =>
+        error_json = util.TableToJSON error_object
+
+        { json: error_json }
+
     forward_error: (error_object, on_success, on_failure) =>
         @logger\info "Sending error object.."
 
-        @webhooker_interface\send "forward-errors", error_object, on_success, on_failure
+        data = @generate_json_object error_object
+
+        @webhooker_interface\send "forward-errors", data, on_success, on_failure
 
     forward_all_errors: =>
         for error_string, error_data in pairs @queue

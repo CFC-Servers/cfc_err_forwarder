@@ -41,9 +41,16 @@ do
       end
       return self:add_error_to_queue(is_runtime, full_error, source_file, source_line, error_string, stack)
     end,
+    generate_json_object = function(self, error_object)
+      local error_json = util.TableToJSON(error_object)
+      return {
+        json = error_json
+      }
+    end,
     forward_error = function(self, error_object, on_success, on_failure)
       self.logger:info("Sending error object..")
-      return self.webhooker_interface:send("forward-errors", error_object, on_success, on_failure)
+      local data = self:generate_json_object(error_object)
+      return self.webhooker_interface:send("forward-errors", data, on_success, on_failure)
     end,
     forward_all_errors = function(self)
       for error_string, error_data in pairs(self.queue) do
