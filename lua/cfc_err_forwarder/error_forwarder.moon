@@ -5,9 +5,11 @@ class ErrorForwarder
         @groom_interval = 60
         @queue = {}
 
+        groom = => self\groom_queue
+
         timer_name = "CFC_ErrorForwarderQueue"
         timer.Remove timer_name
-        timer.Create timer_name, groom_interval, 0, self\groom_queue
+        timer.Create timer_name, groom_interval, 0, groom
 
     count_queue: =>
         table.Count @queue
