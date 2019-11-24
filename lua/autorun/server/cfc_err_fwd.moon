@@ -20,8 +20,11 @@ init = ->
     groom_interval = 60 -- in seconds
     error_forwarder = ErrorForwarder logger, webhooker_interface, groom_interval
 
-    hook.Remove "LuaError", "CFC_ErrorForwarder"
-    hook.Add "LuaError", "CFC_ErrorForwarder", error_forwarder\receive_lua_error
+    hook.Remove "LuaError", "CFC_ServerErrorForwarder"
+    hook.Add "LuaError", "CFC_ServerErrorForwarder", error_forwarder\receive_sv_lua_error
+
+    hook.Remove "ClientLuaError", "CFC_ClientErrorForwarder"
+    hook.Add "ClientLuaError", "CFC_ClientErrorForwarder", error_forwarder\receive_cl_lua_error
 
     timer_name = "CFC_ErrorForwarderQueue"
     timer.Remove timer_name
