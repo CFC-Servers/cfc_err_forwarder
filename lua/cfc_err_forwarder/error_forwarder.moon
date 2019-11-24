@@ -12,9 +12,20 @@ class ErrorForwarder
 
     error_is_queued: (error_string) => @queue[error_string] != nil
 
-    add_error_to_queue: (is_runtime, full_error, source_file, source_line, error_string, stack) =>
-        occurred_at = os.time!
+    add_ply_to_object: (error_object, ply) =>
+        player_obj = {
+            player_name: ply\Name!,
+            player_steam_id: ply\SteamID!
+        }
+
+        error_object["player"] = player_obj
+
+        error_object
+
+    add_error_to_queue: (is_runtime, full_error, source_file, source_line, error_string, stack, ply = nil) =>
         count = 1
+        occurred_at = os.time!
+        is_clientside = ply ~= nil
 
         new_error = {
             :count
@@ -25,7 +36,11 @@ class ErrorForwarder
             :source_file,
             :source_line,
             :stack,
+            :is_clientside
         }
+
+        if is_clientside
+            new_error = @add_ply_to_object(new_error, ply)
 
         @logger\info "Inserting error into queue: #{error_string}"
 
@@ -38,13 +53,19 @@ class ErrorForwarder
         @queue[error_string]["count"] += 1
         @queue[error_string]["occurred_at"] = os.time!
 
-    receive_lua_error: (is_runtime, full_error, source_file, source_line, error_string, stack) =>
-        @logger\debug "Received Lua Error: #{error_string}"
-
+    receive_lua_error: (is_runtime, full_error, source_file, source_line, error_string, stack, ply = nil) =>
         if @error_is_queued error_string
             return @increment_existing_error error_string
 
-        @add_error_to_queue is_runtime, full_error, source_file, source_line, error_string, stack
+        @add_error_to_queue is_runtime, full_error, source_file, source_line, error_string, stack, ply
+
+    receive_sv_lua_error: (is_runtime, full_error, source_file, source_line, error_string, stack) =>
+        @logger\debug "Received Serverside Lua Error: #{error_string}"
+        @receive_lua_error is_runtime, full_error, source_file, source_line, error_String, stack
+
+    receive_cl_lua_error: (ply, full_error, source_file, source_line, error_string, stack) =>
+        @logger\debug "Received Clientside Lua Error for #{ply\SteamID!} (#{ply\Name!}): #{error_string}"
+        @receive_lua_error is_runtime, full_error, source_file, source_line, error_String, stack, ply
 
     generate_json_object: (error_object) =>
         error_object["report_interval"] = @groom_interval
