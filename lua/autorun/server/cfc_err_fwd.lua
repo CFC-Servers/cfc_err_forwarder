@@ -1,5 +1,6 @@
 local ErrorForwarder = include("cfc_err_forwarder/error_forwarder.lua")
 require("luaerror")
+require("cfclogger")
 luaerror.EnableCompiletimeDetour(true)
 luaerror.EnableRuntimeDetour(true)
 local addon_name = "CFC Error Forwarder"
@@ -19,10 +20,18 @@ init = function()
   logger:info("Logger Loaded!")
   local groom_interval = 60
   local error_forwarder = ErrorForwarder(logger, webhooker_interface, groom_interval)
-  hook.Remove("LuaError", "CFC_ErrorForwarder")
-  hook.Add("LuaError", "CFC_ErrorForwarder", (function()
+  hook.Remove("LuaError", "CFC_ServerErrorForwarder")
+  hook.Add("LuaError", "CFC_ServerErrorForwarder", (function()
     local _base_0 = error_forwarder
-    local _fn_0 = _base_0.receive_lua_error
+    local _fn_0 = _base_0.receive_sv_lua_error
+    return function(...)
+      return _fn_0(_base_0, ...)
+    end
+  end)())
+  hook.Remove("ClientLuaError", "CFC_ClientErrorForwarder")
+  hook.Add("ClientLuaError", "CFC_ClientErrorForwarder", (function()
+    local _base_0 = error_forwarder
+    local _fn_0 = _base_0.receive_cl_lua_error
     return function(...)
       return _fn_0(_base_0, ...)
     end
