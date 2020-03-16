@@ -1,6 +1,8 @@
 ErrorForwarder = include "cfc_err_forwarder/error_forwarder.lua"
 
 require "luaerror"
+require "cfclogger"
+
 luaerror.EnableCompiletimeDetour true
 luaerror.EnableRuntimeDetour true
 
