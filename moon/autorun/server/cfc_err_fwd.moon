@@ -7,28 +7,23 @@ require "webhooker_interface"
 luaerror.EnableCompiletimeDetour true
 luaerror.EnableRuntimeDetour true
 
-addon_name = "CFC Error Forwarder"
+ADDON_NAME = "CFC Error Forwarder"
+GROOM_INTERVAL = 60 -- in seconds
 
-logger = CFCLogger addon_name
-webhooker_interface = WebhookerInterface!
+logger = CFCLogger ADDON_NAME
+webhooker = WebhookerInterface!
 
-alert_discord = (message) ->
-    data = {addon: addon_name, :message}
-    webhooker_interface\send "runtime-error", data
+alertDiscord = (message) ->
+    data = {addon: ADDON_NAME, :message}
+    webhooker\send "runtime-error", data
 
-logger\on("error")\call(alert_discord)
+logger\on("error")\call(alertDiscord)
 logger\info "Logger Loaded!"
 
-groom_interval = 60 -- in seconds
-error_forwarder = ErrorForwarder logger, webhooker_interface, groom_interval
+errorForwarder = ErrorForwarder logger, webhooker, GROOM_INTERVAL
 
-hook.Remove "LuaError", "CFC_ServerErrorForwarder"
-hook.Add "LuaError", "CFC_ServerErrorForwarder", error_forwarder\receive_sv_lua_error
+hook.Add "LuaError", "CFC_ServerErrorForwarder", errorForwarder\receiveSVError
+hook.Add "ClientLuaError", "CFC_ClientErrorForwarder", errorForwarder\receiveCLError
 
-hook.Remove "ClientLuaError", "CFC_ClientErrorForwarder"
-hook.Add "ClientLuaError", "CFC_ClientErrorForwarder", error_forwarder\receive_cl_lua_error
-
-timer_name = "CFC_ErrorForwarderQueue"
-
-timer.Remove timer_name
-timer.Create timer_name, groom_interval, 0, error_forwarder\groom_queue
+timerName = "CFC_ErrorForwarderQueue"
+timer.Create timerName, GROOM_INTERVAL, 0, error_forwarder\groomQueue
