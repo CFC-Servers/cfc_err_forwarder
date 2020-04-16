@@ -1,110 +1,113 @@
+import Count from table
+import TableToJSON from util
+
 class ErrorForwarder
-    new: (logger, webhooker_interface, groom_interval) =>
+    new: (logger, webhooker, groomInterval) =>
         @logger = logger
-        @webhooker_interface = webhooker_interface
-        @groom_interval = groom_interval
+        @webhooker = webhooker
+        @groomInterval = groomInterval
         @queue = {}
 
-    count_queue: =>
-        table.Count @queue
+    countQueue: =>
+        Count @queue
 
-    queue_is_empty: => @count_queue! == 0
+    queueIsEmpty: => @countQueue! == 0
 
-    error_is_queued: (error_string) => @queue[error_string] != nil
+    errorIsQueued: (errorString) => @queue[errorString] ~= nil
 
-    add_ply_to_object: (error_object, ply) =>
-        player_obj = {
-            player_name: ply\Name!,
-            player_steam_id: ply\SteamID!
+    addPlyToObject: (errorStruct, ply) =>
+        playerStruct = {
+            playerName: ply\Name!,
+            playerSteamID: ply\SteamID!
         }
 
-        error_object["player"] = player_obj
+        errorStruct.player = playerStruct
+        errorStruct["player"] = playerStruct
 
-        error_object
+        errorStruct
 
-    add_error_to_queue: (is_runtime, full_error, source_file, source_line, error_string, stack, ply = nil) =>
+    queueError: (isRuntime, fullError, sourceFile, sourceLine, errorString, stack, ply = nil) =>
         count = 1
-        occurred_at = os.time!
-        is_clientside = ply ~= nil
+        occurredAt = os.time!
+        isClientside = ply ~= nil
 
-        new_error = {
+        new_error =
             :count
-            :error_string,
-            :full_error,
-            :is_runtime,
-            :occurred_at,
-            :source_file,
-            :source_line,
+            :errorString,
+            :fullError,
+            :isRuntime,
+            :occurredAt,
+            :sourceFile,
+            :sourceLine,
             :stack,
-            :is_clientside
-        }
+            :isClientside
 
-        if is_clientside
-            new_error = @add_ply_to_object(new_error, ply)
+        if isClientside
+            new_error = @addPlyToObject(new_error, ply)
 
-        @logger\info "Inserting error into queue: #{error_string}"
+        @logger\info "Inserting error into queue: #{errorString}"
 
-        @queue[error_string] = new_error
+        @queue[errorString] = new_error
 
-    remove_error_from_queue: (error_string) =>
-        @queue[error_string] = nil
+    unqueueError: (errorString) =>
+        @queue[errorString] = nil
 
-    increment_existing_error: (error_string) =>
-        @queue[error_string]["count"] += 1
-        @queue[error_string]["occurred_at"] = os.time!
+    increment_existing_error: (errorString) =>
+        @queue[errorString]["count"] += 1
+        @queue[errorString]["occurredAt"] = os.time!
 
-    receive_lua_error: (is_runtime, full_error, source_file, source_line, error_string, stack, ply = nil) =>
-        if @error_is_queued error_string
-            return @increment_existing_error error_string
+    receiveError: (isRuntime, fullError, sourceFile, sourceLine, errorString, stack, ply = nil) =>
+        if @errorIsQueued errorString
+            return @increment_existing_error errorString
 
-        @add_error_to_queue is_runtime, full_error, source_file, source_line, error_string, stack, ply
+        @queueError isRuntime, fullError, sourceFile, sourceLine, errorString, stack, ply
 
-    receive_sv_lua_error: (is_runtime, full_error, source_file, source_line, error_string, stack) =>
-        @logger\debug "Received Serverside Lua Error: #{error_string}"
-        @receive_lua_error is_runtime, full_error, source_file, source_line, error_String, stack
+    receiveSVError: (isRuntime, fullError, sourceFile, sourceLine, errorString, stack) =>
+        @logger\debug "Received Serverside Lua Error: #{errorString}"
+        @receiveError isRuntime, fullError, sourceFile, sourceLine, error_String, stack
 
-    receive_cl_lua_error: (ply, full_error, source_file, source_line, error_string, stack) =>
-        @logger\debug "Received Clientside Lua Error for #{ply\SteamID!} (#{ply\Name!}): #{error_string}"
-        @receive_lua_error is_runtime, full_error, source_file, source_line, error_String, stack, ply
+    receiveCLError: (ply, fullError, sourceFile, sourceLine, errorString, stack) =>
+        @logger\debug "Received Clientside Lua Error for #{ply\SteamID!} (#{ply\Name!}): #{errorString}"
+        @receiveError isRuntime, fullError, sourceFile, sourceLine, error_String, stack, ply
 
     generate_json_object: (error_object) =>
-        error_object["report_interval"] = @groom_interval
+        errorObject["report_interval"] = @groomInterval
 
-        error_json = util.TableToJSON error_object
+        errorJSON = TableToJSON errorObject
 
-        { json: error_json }
+        { json: errorJSON }
 
-    forward_error: (error_object, on_success, on_failure) =>
+    forward_error: (error_object, onSuccess, onFailure) =>
         @logger\info "Sending error object.."
 
         data = @generate_json_object error_object
 
-        @webhooker_interface\send "forward-errors", data, on_success, on_failure
+        @webhooker\send "forward-errors", data, onSuccess, onFailure
 
-    forward_all_errors: =>
-        for error_string, error_data in pairs @queue
-            @logger\debug "Processing queued error: #{error_string}"
+    forwardErrors: =>
+        for errorString, errorData in pairs @queue
+            @logger\debug "Processing queued error: #{errorString}"
 
             success = (message) ->
-                @on_success error_string, message
+                @onSuccess errorString, message
 
             failure = (failure) ->
-                @on_failure error_string, failure
+                @onFailure errorString, failure
 
-            @forward_error error_data, success, failure
+            @forward_error errorData, success, failure
 
-    groom_queue: =>
-        if @queue_is_empty! then return
+    groomQueue: =>
+        return if @queueIsEmpty!
 
-        @logger\info "Grooming Error Queue of size #{@count_queue!}"
+        @logger\info "Grooming Error Queue of size #{@countQueue!}"
 
-        @forward_all_errors!
+        @forwardErrors!
 
-    on_success: (error_string, message) =>
-        @logger\info "Successfully sent error: #{error_string}"
-        @remove_error_from_queue error_string
+    onSuccess: (errorString, message) =>
+        @logger\info "Successfully sent error: #{errorString}"
+        @unqueueError errorString
 
-    on_failure: (error_string, failure) =>
+    onFailure: (errorString, failure) =>
         @logger\error "Failed to send error!\n#{failure}"
-        @remove_error_from_queue error_string
+        @unqueueError errorString
 
