@@ -59,15 +59,24 @@ class ErrorForwarder
 
         @queueError isRuntime, fullError, sourceFile, sourceLine, errorString, stack, ply
 
+    logErrorInfo: (isRuntime, fullError, sourceFile, sourceLine, errorString, stack) =>
+        debug = @logger\debug
+
+        debug "Is Runtime: #{isRuntime}"
+        debug "Full Error: #{fullError}"
+        debug "Source File: #{sourceFile}"
+        debug "Source Line: #{sourceLine}"
+        debug "Error String: #{errorString}"
+
     receiveSVError: (isRuntime, fullError, sourceFile, sourceLine, errorString, stack) =>
-        @logger\debug "Received Serverside Lua Error: #{errorString}"
-        @logger\debug isRuntime, fullError, sourceFile, sourceLine, errorString, stack
+        @logger\info "Received Serverside Lua Error: #{errorString}"
+        @logErrorInfo isRuntime, fullError, sourceFile, sourceLine, errorString, stack
 
         @receiveError isRuntime, fullError, sourceFile, sourceLine, errorString, stack
 
     receiveCLError: (ply, fullError, sourceFile, sourceLine, errorString, stack) =>
-        @logger\debug "Received Clientside Lua Error for #{ply\SteamID!} (#{ply\Name!}): #{errorString}"
-        @logger\debug fullError, sourceFile, sourceLine, errorString, stack
+        @logger\info "Received Clientside Lua Error for #{ply\SteamID!} (#{ply\Name!}): #{errorString}"
+        @logErrorInfo nil, fullError, sourceFile, sourceLine, errorString, stack
 
         @receiveError isRuntime, fullError, sourceFile, sourceLine, errorString, stack, ply
 
@@ -80,7 +89,6 @@ class ErrorForwarder
 
     forwardError: (errorStruct, onSuccess, onFailure) =>
         @logger\info "Sending error object.."
-
         data = @generateJSONStruct errorStruct
 
         @webhooker\send "forward-errors", data, onSuccess, onFailure
