@@ -81,7 +81,7 @@ class ErrorForwarder
         @receiveError isRuntime, fullError, sourceFile, sourceLine, errorString, stack, ply
 
     generateJSONStruct: (errorStruct) =>
-        errorObject["reportInterval"] = @groomInterval
+        errorStruct["reportInterval"] = @groomInterval
 
         errorJSON = TableToJSON errorStruct
 
