@@ -64,10 +64,12 @@ class ErrorForwarder
 
     receiveSVError: (isRuntime, fullError, sourceFile, sourceLine, errorString, stack) =>
         @logger\debug "Received Serverside Lua Error: #{errorString}"
+        @logger\debug isRuntime, fullError, sourceFile, sourceLine, errorString, stack
         @receiveError isRuntime, fullError, sourceFile, sourceLine, error_String, stack
 
     receiveCLError: (ply, fullError, sourceFile, sourceLine, errorString, stack) =>
         @logger\debug "Received Clientside Lua Error for #{ply\SteamID!} (#{ply\Name!}): #{errorString}"
+        @logger\debug fullError, sourceFile, sourceLine, errorString, stack
         @receiveError isRuntime, fullError, sourceFile, sourceLine, error_String, stack, ply
 
     generate_json_object: (error_object) =>
