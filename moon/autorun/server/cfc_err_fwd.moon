@@ -1,8 +1,8 @@
-ErrorForwarder = include "cfc_err_forwarder/error_forwarder.lua"
-
 require "luaerror"
 require "cfclogger"
 require "webhooker_interface"
+
+ErrorForwarder = include "cfc_err_forwarder/error_forwarder.lua"
 
 luaerror.EnableCompiletimeDetour true
 luaerror.EnableRuntimeDetour true
@@ -22,8 +22,8 @@ logger\info "Logger Loaded!"
 
 errorForwarder = ErrorForwarder logger, webhooker, GROOM_INTERVAL
 
-hook.Add "LuaError", "CFC_ServerErrorForwarder", errorForwarder\receiveSVError
-hook.Add "ClientLuaError", "CFC_ClientErrorForwarder", errorForwarder\receiveCLError
+hook.Add "LuaError", "CFC_ServerErrorForwarder",  (...) -> errorForwarder\receiveSVError(...)
+hook.Add "ClientLuaError", "CFC_ClientErrorForwarder", (...) -> errorForwarder\receiveCLError(...)
 
 timerName = "CFC_ErrorForwarderQueue"
 timer.Create timerName, GROOM_INTERVAL, 0, errorForwarder\groomQueue
