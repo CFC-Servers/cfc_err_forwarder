@@ -1,6 +1,10 @@
 import Count from table
 import TableToJSON from util
 
+osTime = os.time
+rawset = rawset
+rawget = rawget
+
 class ErrorForwarder
     new: (logger, webhooker, groomInterval) =>
         @logger = logger
@@ -12,20 +16,19 @@ class ErrorForwarder
 
     queueIsEmpty: => @countQueue! == 0
 
-    errorIsQueued: (fullError) => @queue[fullError] ~= nil
+    errorIsQueued: (fullError) => rawget( @queue, fullError ) ~= nil
 
     addPlyToObject: (errorStruct, ply) =>
-        playerStruct =
+        rawset errorStruct, "player", {
             playerName: ply\Name!,
             playerSteamID: ply\SteamID!
-
-        errorStruct.player = playerStruct
+        }
 
         errorStruct
 
     queueError: (isRuntime, fullError, sourceFile, sourceLine, errorString, stack, ply) =>
         count = 1
-        occurredAt = os.time!
+        occurredAt = osTime!
         isClientside = ply ~= nil
 
         newError =
@@ -44,20 +47,29 @@ class ErrorForwarder
 
         @logger\info "Inserting error into queue: '#{fullError}'"
 
-        @queue[fullError] = newError
+        rawset @queue, fullError, newError
 
     unqueueError: (fullError) =>
-        @queue[fullError] = nil
+        thisErr = rawget @queue, fullError
+
+        for k in pairs thisErr
+            rawset thisErr, k, nil
+
+        rawset @queue, fullError, nil
 
     incrementError: (fullError) =>
-        @queue[fullError]["count"] += 1
-        @queue[fullError]["occurredAt"] = os.time!
+        thisErr = rawget @queue, fullError
+        count = rawget thisErr, "count"
+
+        rawset thisErr, "count", count + 1
+        rawset thisErr, "occurredAt", osTime!
 
     receiveError: (isRuntime, fullError, sourceFile, sourceLine, errorString, stack, ply) =>
         if @errorIsQueued fullError
             return @incrementError fullError
 
         @queueError isRuntime, fullError, sourceFile, sourceLine, errorString, stack, ply
+
 
     logErrorInfo: (isRuntime, fullError, sourceFile, sourceLine, errorString, stack) =>
         debug = @logger\debug
@@ -81,11 +93,9 @@ class ErrorForwarder
         @receiveError isRuntime, fullError, sourceFile, sourceLine, errorString, stack, ply
 
     generateJSONStruct: (errorStruct) =>
-        errorStruct["reportInterval"] = @groomInterval
+        rawset errorStruct, "reportInterval", @groomInterval
 
-        errorJSON = TableToJSON errorStruct
-
-        { json: errorJSON }
+        { json: TableToJSON errorStruct }
 
     forwardError: (errorStruct, onSuccess, onFailure) =>
         @logger\info "Sending error object.."
