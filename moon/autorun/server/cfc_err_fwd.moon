@@ -1,5 +1,5 @@
 require "luaerror"
-require "cfclogger"
+require "logger"
 require "webhooker_interface"
 
 ErrorForwarder = include "cfc_err_forwarder/error_forwarder.lua"
@@ -10,7 +10,7 @@ luaerror.EnableRuntimeDetour true
 ADDON_NAME = "CFC Error Forwarder"
 GROOM_INTERVAL = 60 -- in seconds
 
-logger = CFCLogger ADDON_NAME
+logger = Logger ADDON_NAME
 webhooker = WebhookerInterface!
 
 alertDiscord = (message) ->
