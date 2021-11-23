@@ -14,8 +14,6 @@ class ErrorForwarder
 
     countQueue: => Count @queue
 
-    queueIsEmpty: => @countQueue! == 0
-
     errorIsQueued: (fullError) => rawget( @queue, fullError ) ~= nil
 
     addPlyToObject: (errorStruct, ply) =>
@@ -31,16 +29,17 @@ class ErrorForwarder
         occurredAt = osTime!
         isClientside = ply ~= nil
 
-        newError =
+        newError = {
             :count
-            :errorString,
-            :fullError,
-            :isRuntime,
-            :occurredAt,
-            :sourceFile,
-            :sourceLine,
-            :stack,
+            :errorString
+            :fullError
+            :isRuntime
+            :occurredAt
+            :sourceFile
+            :sourceLine
+            :stack
             :isClientside
+        }
 
         if isClientside
             newError = @addPlyToObject newError, ply
@@ -107,23 +106,29 @@ class ErrorForwarder
         for errorString, errorData in pairs @queue
             @logger\debug "Processing queued error: #{errorString}"
 
-            success = (message) -> @onSuccess errorString, message
-            failure = (failure) -> @onFailure errorString, failure
+            onSuccess = (message) -> @onSuccess errorString, message
+            onFailure = (failure) -> @onFailure errorString, failure
 
-            @forwardError errorData, success, failure
+            success, err = pcall ->
+                @forwardError errorData, onSuccess, onFailure
+
+            continue if success
+
+            onFailure err
 
     groomQueue: =>
-        return if @queueIsEmpty!
+        count = @countQueue!
+        return if count == 0
 
-        @logger\info "Grooming Error Queue of size #{@countQueue!}"
+        @logger\info "Grooming Error Queue of size: #{count}"
 
         @forwardErrors!
 
     onSuccess: (fullError, message) =>
-        @logger\info "Successfully sent error: #{fullError}"
+        @logger\info "Successfully sent error", fullError
         @unqueueError fullError
 
     onFailure: (fullError, failure) =>
-        @logger\error "Failed to send error!\n#{failure}"
+        @logger\error "Failed to send error!", failure
         @unqueueError fullError
 
