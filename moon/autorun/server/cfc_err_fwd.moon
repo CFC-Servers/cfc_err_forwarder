@@ -6,6 +6,7 @@ ErrorForwarder = include "cfc_err_forwarder/error_forwarder.lua"
 
 luaerror.EnableCompiletimeDetour true
 luaerror.EnableRuntimeDetour true
+luaerror.EnableClientDetour true
 
 ADDON_NAME = "CFC Error Forwarder"
 GROOM_INTERVAL = 60 -- in seconds
