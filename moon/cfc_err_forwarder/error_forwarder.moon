@@ -90,11 +90,21 @@ class ErrorForwarder
         @logErrorInfo nil, fullError, sourceFile, sourceLine, errorString, stack
 
         @receiveError isRuntime, fullError, sourceFile, sourceLine, errorString, stack, ply
-
+    
     generateJSONStruct: (errorStruct) =>
         rawset errorStruct, "reportInterval", @groomInterval
+        temp = ""
+        check, err = pcall( ( x ) -> temp = util.TableToJSON( x ) end, errorStruct )
+        if check then return { json: temp }
 
-        { json: TableToJSON errorStruct }
+        errorSource = {
+            sourceLine: errorStruct.sourceLine,
+            stack: errorStruct.stack,
+            fullError: errorStruct.fullError,
+            sourceFile: errorStruct.sourceFile,
+            errorString: "CYCLIC ERROR: " .. errorString.errorString
+        }
+        @webhooker\send "forward-errors", errorSource
 
     forwardError: (errorStruct, onSuccess, onFailure) =>
         @logger\info "Sending error object.."
