@@ -98,11 +98,13 @@ class ErrorForwarder
         if check then return { json: temp }
 
         errorSource = {
-            sourceLine: errorStruct.sourceLine,
-            stack: errorStruct.stack,
-            fullError: errorStruct.fullError,
-            sourceFile: errorStruct.sourceFile,
-            errorString: "CYCLIC ERROR: " .. errorString.errorString
+            json: {
+                sourceLine: errorStruct.sourceLine,
+                stack: errorStruct.stack,
+                fullError: errorStruct.fullError,
+                sourceFile: errorStruct.sourceFile,
+                errorString: "CYCLIC ERROR: " .. errorString.errorString
+            }
         }
         @webhooker\send "forward-errors", errorSource
 
