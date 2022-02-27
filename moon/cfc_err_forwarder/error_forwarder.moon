@@ -1,5 +1,4 @@
 import Count from table
-import TableToJSON from util
 
 osTime = os.time
 rawset = rawset
@@ -94,7 +93,7 @@ class ErrorForwarder
     generateJSONStruct: (errorStruct) =>
         rawset errorStruct, "reportInterval", @groomInterval
 
-        { json: TableToJSON errorStruct }
+        { json: util.TableToJSON errorStruct }
 
     forwardError: (errorStruct, onSuccess, onFailure) =>
         @logger\info "Sending error object.."
