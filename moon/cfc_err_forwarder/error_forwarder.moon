@@ -79,12 +79,14 @@ class ErrorForwarder
         debug "Error String: #{errorString}"
 
     receiveSVError: (isRuntime, fullError, sourceFile, sourceLine, errorString, stack) =>
+        stack = {}
         @logger\info "Received Serverside Lua Error: #{errorString}"
         @logErrorInfo isRuntime, fullError, sourceFile, sourceLine, errorString, stack
 
         @receiveError isRuntime, fullError, sourceFile, sourceLine, errorString, stack
 
     receiveCLError: (ply, fullError, sourceFile, sourceLine, errorString, stack) =>
+        stack = {}
         @logger\info "Received Clientside Lua Error for #{ply\SteamID!} (#{ply\Name!}): #{errorString}"
         @logErrorInfo nil, fullError, sourceFile, sourceLine, errorString, stack
 
