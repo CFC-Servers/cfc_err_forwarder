@@ -7,19 +7,16 @@ istable = istable
 
 foundTables = {}
 
-removeCyclic = ( tbl ) ->
-    if foundTables[tbl] then return end
-    foundTables[tbl] = true
+removeCyclic = ( tbl, found={} ) ->
+    return if found[tbl]
+    found[tbl] = true
+
     for k, v in pairs tbl
         if istable v
-            if foundTables[v]
+            if found[v]
                 tbl[k] = nil
             else
-                removeCyclic v
-    
-startCyclicRemoval = ( tbl ) ->
-    removeCyclic tbl
-    foundTables = {}
+                removeCyclic v, found
 
 class ErrorForwarder
     new: (logger, webhooker, groomInterval) =>
@@ -96,14 +93,14 @@ class ErrorForwarder
         debug "Error String: #{errorString}"
 
     receiveSVError: (isRuntime, fullError, sourceFile, sourceLine, errorString, stack) =>
-        startCyclicRemoval stack
+        removeCyclic stack
         @logger\info "Received Serverside Lua Error: #{errorString}"
         @logErrorInfo isRuntime, fullError, sourceFile, sourceLine, errorString, stack
 
         @receiveError isRuntime, fullError, sourceFile, sourceLine, errorString, stack
 
     receiveCLError: (ply, fullError, sourceFile, sourceLine, errorString, stack) =>
-        startCyclicRemoval stack
+        removeCyclic stack
         @logger\info "Received Clientside Lua Error for #{ply\SteamID!} (#{ply\Name!}): #{errorString}"
         @logErrorInfo nil, fullError, sourceFile, sourceLine, errorString, stack
 
