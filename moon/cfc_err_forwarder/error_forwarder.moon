@@ -3,6 +3,23 @@ import Count from table
 osTime = os.time
 rawset = rawset
 rawget = rawget
+istable = istable
+
+foundTables = {}
+
+removeCyclic = ( tbl ) ->
+    if foundTables[tbl] then return end
+    foundTables[tbl] = true
+    for k, v in pairs tbl
+        if istable v
+            if foundTables[v]
+                tbl[k] = nil
+            else
+                removeCyclic v
+    
+startCyclicRemoval = ( tbl ) ->
+    removeCyclic tbl
+    foundTables = {}
 
 class ErrorForwarder
     new: (logger, webhooker, groomInterval) =>
@@ -79,14 +96,14 @@ class ErrorForwarder
         debug "Error String: #{errorString}"
 
     receiveSVError: (isRuntime, fullError, sourceFile, sourceLine, errorString, stack) =>
-        stack = {}
+        startCyclicRemoval stack
         @logger\info "Received Serverside Lua Error: #{errorString}"
         @logErrorInfo isRuntime, fullError, sourceFile, sourceLine, errorString, stack
 
         @receiveError isRuntime, fullError, sourceFile, sourceLine, errorString, stack
 
     receiveCLError: (ply, fullError, sourceFile, sourceLine, errorString, stack) =>
-        stack = {}
+        startCyclicRemoval stack
         @logger\info "Received Clientside Lua Error for #{ply\SteamID!} (#{ply\Name!}): #{errorString}"
         @logErrorInfo nil, fullError, sourceFile, sourceLine, errorString, stack
 
@@ -132,4 +149,3 @@ class ErrorForwarder
     onFailure: (fullError, failure) =>
         @logger\error "Failed to send error!", failure
         @unqueueError fullError
-
