@@ -5,8 +5,6 @@ rawset = rawset
 rawget = rawget
 istable = istable
 
-foundTables = {}
-
 removeCyclic = ( tbl, found={} ) ->
     return if found[tbl]
     found[tbl] = true
