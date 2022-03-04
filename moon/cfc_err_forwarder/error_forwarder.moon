@@ -5,16 +5,17 @@ rawset = rawset
 rawget = rawget
 istable = istable
 
-removeCyclic = ( tbl, found={} ) ->
+removeCyclic = (tbl, found={}) ->
     return if found[tbl]
     found[tbl] = true
 
     for k, v in pairs tbl
-        if istable v
-            if found[v]
-                tbl[k] = nil
-            else
-                removeCyclic v, found
+        continue unless istable v
+
+        if found[v]
+            tbl[k] = nil
+        else
+            removeCyclic v, found
 
 class ErrorForwarder
     new: (logger, webhooker, groomInterval) =>
