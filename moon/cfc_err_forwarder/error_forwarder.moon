@@ -52,6 +52,7 @@ class ErrorForwarder
             :sourceLine
             :stack
             :isClientside
+            reportInterval: @groomInterval
         }
 
         if isClientside
@@ -107,8 +108,6 @@ class ErrorForwarder
         @receiveError isRuntime, fullError, sourceFile, sourceLine, errorString, stack, ply
 
     generateJSONStruct: (errorStruct) =>
-        rawset errorStruct, "reportInterval", @groomInterval
-        removeCyclic errorStruct.stack
         { json: util.TableToJSON errorStruct }
 
     forwardError: (errorStruct, onSuccess, onFailure) =>
