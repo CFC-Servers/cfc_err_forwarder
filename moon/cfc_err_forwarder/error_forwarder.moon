@@ -98,6 +98,8 @@ class ErrorForwarder
         @receiveError isRuntime, fullError, sourceFile, sourceLine, errorString, stack
 
     receiveCLError: (ply, fullError, sourceFile, sourceLine, errorString, stack) =>
+        return unless ply and ply\IsPlayer!
+
         @logger\info "Received Clientside Lua Error for #{ply\SteamID!} (#{ply\Name!}): #{errorString}"
         @logErrorInfo nil, fullError, sourceFile, sourceLine, errorString, stack
 
