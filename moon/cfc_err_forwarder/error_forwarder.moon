@@ -13,7 +13,7 @@ removeCyclic = (tbl, found={}) ->
         continue unless istable v
 
         if found[v]
-            print "Found cyclic table, key: " .. tostring k .. " ,value: " .. tostring v  .. " in table: " .. tostring tbl
+            print "Found cyclic table, key: #{k} | value: #{v} | table: #{tbl}"
             tbl[k] = nil
         else
             removeCyclic v, found
