@@ -18,6 +18,12 @@ removeCyclic = (tbl, found={}) ->
         else
             removeCyclic v, found
 
+stripStack = (tbl) ->
+    for _, stackobj in pairs tbl
+        stackobj.locals = nil
+        stackobj.upvalues = nil
+        stackobj.activelines = nil
+
 class ErrorForwarder
     new: (logger, webhooker, groomInterval) =>
         @logger = logger
@@ -108,6 +114,7 @@ class ErrorForwarder
         @receiveError isRuntime, fullError, sourceFile, sourceLine, errorString, stack, ply
 
     generateJSONStruct: (errorStruct) =>
+        stripStack errorStruct.stack
         { json: util.TableToJSON errorStruct }
 
     forwardError: (errorStruct, onSuccess, onFailure) =>
