@@ -25,6 +25,7 @@ errorForwarder = ErrorForwarder logger, webhooker, GROOM_INTERVAL
 
 hook.Add "LuaError", "CFC_ServerErrorForwarder", errorForwarder\receiveSVError
 hook.Add "ClientLuaError", "CFC_ClientErrorForwarder", errorForwarder\receiveCLError
+hook.Add "ShutDown", "CFC_ShutdownErrorForwarder", errorForwarder\forwardErrors
 
 timerName = "CFC_ErrorForwarderQueue"
 timer.Create timerName, GROOM_INTERVAL, 0, ->
