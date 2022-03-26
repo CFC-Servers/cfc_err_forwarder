@@ -71,8 +71,9 @@ class ErrorForwarder
     unqueueError: (fullError) =>
         thisErr = rawget @queue, fullError
 
-        for k in pairs thisErr
-            rawset thisErr, k, nil
+        if thisErr
+            for k in pairs thisErr
+                rawset thisErr, k, nil
 
         rawset @queue, fullError, nil
 
