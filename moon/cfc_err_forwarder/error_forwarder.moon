@@ -37,8 +37,8 @@ class ErrorForwarder
 
     addPlyToObject: (errorStruct, ply) =>
         rawset errorStruct, "player", {
-            playerName: ply\Name!,
-            playerSteamID: ply\SteamID!
+            playerName: ply\Name! or "Invalid Player",
+            playerSteamID: ply\SteamID! or "Invalid Player"
         }
 
         errorStruct
@@ -107,9 +107,11 @@ class ErrorForwarder
         @receiveError isRuntime, fullError, sourceFile, sourceLine, errorString, stack
 
     receiveCLError: (ply, fullError, sourceFile, sourceLine, errorString, stack) =>
-        return unless ply and ply\IsPlayer!
-
-        @logger\info "Received Clientside Lua Error for #{ply\SteamID!} (#{ply\Name!}): #{errorString}"
+        if not ply or ply\IsPlayer!
+            ply = "Invalid player"
+            @logger\info "Received Clientside Lua Error from Invalid Player: #{errorString}"
+        else
+            @logger\info "Received Clientside Lua Error for #{ply\SteamID!} (#{ply\Name!}): #{errorString}"
         @logErrorInfo nil, fullError, sourceFile, sourceLine, errorString, stack
 
         @receiveError isRuntime, fullError, sourceFile, sourceLine, errorString, stack, ply
