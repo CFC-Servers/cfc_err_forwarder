@@ -25,9 +25,9 @@ stripStack = (tbl) ->
         stackobj.activelines = nil
 
 class ErrorForwarder
-    new: (logger, webhooker, groomInterval) =>
+    new: (logger, discord, groomInterval) =>
         @logger = logger
-        @webhooker = webhooker
+        @discord = discord
         @groomInterval = groomInterval
         @queue = {}
 
@@ -114,15 +114,15 @@ class ErrorForwarder
 
         @receiveError isRuntime, fullError, sourceFile, sourceLine, errorString, stack, ply
 
-    generateJSONStruct: (errorStruct) =>
+    cleanStruct: (errorStruct) =>
         stripStack errorStruct.stack
-        { json: util.TableToJSON errorStruct }
+        return errorStruct
 
     forwardError: (errorStruct, onSuccess, onFailure) =>
         @logger\info "Sending error object.."
-        data = @generateJSONStruct errorStruct
+        data = @cleanStruct errorStruct
 
-        @webhooker\send "forward-errors", data, onSuccess, onFailure
+        @discord data
 
     forwardErrors: =>
         for errorString, errorData in pairs @queue
