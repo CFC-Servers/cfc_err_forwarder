@@ -20,5 +20,4 @@ return (content) ->
 
     ErrorNoHaltWithStack "Failed to create Gist!"
     Logger\warn "Status: ", status
-    PrintTable headers
     Logger\warn "Body: ", body

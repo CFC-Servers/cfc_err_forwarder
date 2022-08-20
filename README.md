@@ -9,6 +9,7 @@ I forward errors, it's what I do.
 
 
 ## Configuration
- - **`cfc_err_forwarder_server_webhook`**: The full Discord Webhook URL (after the `https://`) to send Serverside errors
- - **`cfc_err_forwarder_client_webhook`**: The full Discord Webhook URL (after the `https://`) to send Clientside errors
+ - **`cfc_err_forwarder_interval`**: The interval (in seconds) at which errors are parsed and sent to Discord
+ - **`cfc_err_forwarder_server_webhook`**: The full Discord Webhook URL to send Serverside errors
+ - **`cfc_err_forwarder_client_webhook`**: The full Discord Webhook URL to send Clientside errors
  - **`cfc_err_forwarder_client_enabled`**: A boolean indicating whether or not the addon should even track Clientside errors

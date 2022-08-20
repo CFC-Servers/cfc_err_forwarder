@@ -1,6 +1,6 @@
 red = 14483456
-bold = (text) -> "**#{text}**"
 
+bold = (text) -> "**#{text}**"
 code = (text, language="") -> "```#{language}\n#{text}```"
 
 timestamp = -> os.date "%Y-%m-%d %H:%M", os.time!
@@ -21,8 +21,7 @@ niceStack = (stackData) ->
     stack = stackData.stack
 
     for i = 1, #stack do
-        indent += 1
-
+        indent = indent + 1
         item = stack[i]
 
         lineNumber = item.currentLine
@@ -54,7 +53,7 @@ return (data) ->
 
                     {
                         name: "Full Error"
-                        value: code truncate niceStack data.fullError
+                        value: code truncate niceStack data
                     },
 
                     {
@@ -67,7 +66,8 @@ return (data) ->
                         value: code humanTimesamp data.occurredAt
                     }
                 },
-                author: timestamp: timestamp
+                author: name: GetHostName!
+                timestamp: timestamp!
             }
         }
     }

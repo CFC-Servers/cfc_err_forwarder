@@ -24,16 +24,16 @@ stripStack = (tbl) ->
         stackobj.upvalues = nil
         stackobj.activelines = nil
 
-class ErrorForwarder
-    new: (logger, discord, groomInterval) =>
+return class ErrorForwarder
+    new: (logger, discord, config) =>
         @logger = logger
         @discord = discord
-        @groomInterval = groomInterval
+        @config = config
         @queue = {}
 
     countQueue: => Count @queue
 
-    errorIsQueued: (fullError) => rawget( @queue, fullError ) ~= nil
+    errorIsQueued: (fullError) => rawget(@queue, fullError) ~= nil
 
     addPlyToObject: (errorStruct, ply) =>
         rawset errorStruct, "player", {
@@ -58,7 +58,7 @@ class ErrorForwarder
             :sourceLine
             :stack
             :isClientside
-            reportInterval: @groomInterval
+            reportInterval: @config.groomInterval\GetInt!
         }
 
         if isClientside
@@ -90,7 +90,6 @@ class ErrorForwarder
 
         @queueError isRuntime, fullError, sourceFile, sourceLine, errorString, stack, ply
 
-
     logErrorInfo: (isRuntime, fullError, sourceFile, sourceLine, errorString, stack) =>
         debug = @logger\debug
 
@@ -108,6 +107,7 @@ class ErrorForwarder
 
     receiveCLError: (ply, fullError, sourceFile, sourceLine, errorString, stack) =>
         return unless ply and ply\IsPlayer!
+        return unless @config.clientEnabled\GetBool!
 
         @logger\info "Received Clientside Lua Error for #{ply\SteamID!} (#{ply\Name!}): #{errorString}"
         @logErrorInfo nil, fullError, sourceFile, sourceLine, errorString, stack
@@ -122,13 +122,13 @@ class ErrorForwarder
         @logger\info "Sending error object.."
         data = @cleanStruct errorStruct
 
-        @discord data
+        self.discord data, onSuccess, onFailure
 
     forwardErrors: =>
         for errorString, errorData in pairs @queue
             @logger\debug "Processing queued error: #{errorString}"
 
-            onSuccess = (message) -> @onSuccess errorString, message
+            onSuccess = -> @onSuccess errorString
             onFailure = (failure) -> @onFailure errorString, failure
 
             success, err = pcall ->
@@ -143,10 +143,9 @@ class ErrorForwarder
         return if count == 0
 
         @logger\info "Grooming Error Queue of size: #{count}"
-
         @forwardErrors!
 
-    onSuccess: (fullError, message) =>
+    onSuccess: (fullError) =>
         @logger\info "Successfully sent error", fullError
         @unqueueError fullError
 

@@ -1,14 +1,16 @@
-import Config from CFCErrForwarder
+Formatter = include "discord_formatter.lua"
 
-formatter = include "discord_formatter.lua"
+return (config) ->
+    (data, success, failed) ->
+        url = data.isClientside and "client" or "server"
+        url = config.webhook[url]\GetString!
 
-return (data) ->
-    url = data.isClientside and "Clientside" or "Serverside"
-    url = Config.webhook[url]
+        reqwest
+            url: url
+            success: success
+            failed: (err, ext) -> failed "#{err} - #{ext}"
+            method: "POST"
+            type: "application/json"
+            headers: "User-Agent": "CFC Error Forwarder v1"
+            body: util.TableToJSON Formatter data
 
-    reqwest
-        url: url
-        method: "POST"
-        type: "application/json"
-        headers: "User-Agent": "CFC Error Forwarder v1"
-        body: util.TableToJSON Formatter data
