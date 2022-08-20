@@ -36,7 +36,8 @@ niceStack = (stackData) ->
     table.concat lines, "\n"
 
 return (data) ->
-    realm = data.isClientside and "Client" or "Server"
+    client = data.isClientside
+    realm = client and "Client" or "Server"
 
     {
         content: "",
@@ -53,7 +54,7 @@ return (data) ->
 
                     {
                         name: "Full Error"
-                        value: code truncate niceStack data
+                        value: code truncate client and data.fullError or niceStack data
                     },
 
                     {

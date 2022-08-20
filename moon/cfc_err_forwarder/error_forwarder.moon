@@ -110,9 +110,9 @@ return class ErrorForwarder
         return unless @config.clientEnabled\GetBool!
 
         @logger\info "Received Clientside Lua Error for #{ply\SteamID!} (#{ply\Name!}): #{errorString}"
-        @logErrorInfo nil, fullError, sourceFile, sourceLine, errorString, stack
+        @logErrorInfo true, fullError, sourceFile, sourceLine, errorString, stack
 
-        @receiveError isRuntime, fullError, sourceFile, sourceLine, errorString, stack, ply
+        @receiveError true, fullError, sourceFile, sourceLine, errorString, stack, ply
 
     cleanStruct: (errorStruct) =>
         stripStack errorStruct.stack
