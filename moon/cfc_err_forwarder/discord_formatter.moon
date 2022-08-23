@@ -24,7 +24,7 @@ niceStack = (stackData) ->
         indent = indent + 1
         item = stack[i]
 
-        lineNumber = item.currentLine
+        lineNumber = item.currentline
         src = item.short_src or item.source or "<unknown source>"
 
         name = item.name
