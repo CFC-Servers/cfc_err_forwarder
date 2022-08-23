@@ -39,9 +39,6 @@ return (data) ->
     client = data.isClientside
     realm = client and "Client" or "Server"
 
-    print "Formatting structure for discord"
-    PrintTable data
-
     {
         content: "",
         embeds: {
