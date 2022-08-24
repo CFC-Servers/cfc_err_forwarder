@@ -20,7 +20,6 @@ removeCyclic = (tbl, found={}) ->
 
 stripStack = (tbl) ->
     for _, stackobj in pairs tbl
-        stackobj.locals = nil
         stackobj.upvalues = nil
         stackobj.activelines = nil
 
@@ -91,7 +90,7 @@ return class ErrorForwarder
         @queueError isRuntime, fullError, sourceFile, sourceLine, errorString, stack, ply
 
     logErrorInfo: (isRuntime, fullError, sourceFile, sourceLine, errorString, stack) =>
-        debug = @logger\debug
+        debug = @logger\info
 
         debug "Is Runtime: #{isRuntime}"
         debug "Full Error: #{fullError}"
@@ -147,6 +146,7 @@ return class ErrorForwarder
 
     onSuccess: (fullError) =>
         @logger\info "Successfully sent error", fullError
+
         @unqueueError fullError
 
     onFailure: (fullError, failure) =>

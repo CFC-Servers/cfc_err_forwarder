@@ -34,7 +34,7 @@ Discord = discordBuilder Config
 ErrorForwarder = errorForwarder Logger, Discord, Config
 
 
-timer.Create timerName, Config.groomInterval\GetString! or 60, 0, ->
+timer.Create timerName, Config.groomInterval\GetInt! or 60, 0, ->
     success, err = pcall ErrorForwarder\groomQueue
     Logger\error "Groom Queue failed!", err if not success
 
