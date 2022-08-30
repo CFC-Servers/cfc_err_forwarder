@@ -19,9 +19,33 @@ removeCyclic = (tbl, found={}) ->
             removeCyclic v, found
 
 stripStack = (tbl) ->
-    for _, stackobj in pairs tbl
-        stackobj.upvalues = nil
-        stackobj.activelines = nil
+    for _, stackObj in pairs tbl
+        stackObj.upvalues = nil
+        stackObj.activelines = nil
+
+saveLocals = (stack) ->
+    for _, stackObj in pairs tbl
+        newLocals = {}
+
+        for name, value in pairs stackObj.locals
+            if istable value
+                newTbl = {}
+
+                count = 0
+                for key, val in pairs value
+                    break if count >= 5
+                    newTbl[key] = tostring val
+                    count += 1
+
+                newLocals[name] = table.ToString newTbl
+            else
+                newLocals[name] = tostring value
+
+            newLocal = newLocals[name]
+            if #newLocal > 50
+                newLocals[name] = "#{string.Left newLocal, 47}..."
+
+        stackObj.locals = newLocals
 
 return class ErrorForwarder
     new: (logger, discord, config) =>
@@ -46,6 +70,7 @@ return class ErrorForwarder
         count = 1
         occurredAt = osTime!
         isClientside = ply ~= nil
+        saveLocals stack
 
         newError = {
             :count
