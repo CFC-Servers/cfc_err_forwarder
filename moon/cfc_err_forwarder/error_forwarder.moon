@@ -25,9 +25,11 @@ stripStack = (tbl) ->
 
 saveLocals = (stack) ->
     for _, stackObj in pairs stack
-        newLocals = {}
+        local locals = stackObj.locals
+        continue unless locals
 
-        for name, value in pairs stackObj.locals
+        newLocals = {}
+        for name, value in pairs locals
             if istable value
                 newTbl = {}
 
