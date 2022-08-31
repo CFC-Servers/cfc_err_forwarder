@@ -24,7 +24,7 @@ stripStack = (tbl) ->
         stackObj.activelines = nil
 
 saveLocals = (stack) ->
-    for _, stackObj in pairs tbl
+    for _, stackObj in pairs stack
         newLocals = {}
 
         for name, value in pairs stackObj.locals
