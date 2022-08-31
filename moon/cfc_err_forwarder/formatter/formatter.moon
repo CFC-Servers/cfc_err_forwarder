@@ -1,16 +1,13 @@
 red = 14483456
 locals = include "locals.lua"
 niceStack = include "nice_stack.lua"
-{:bad, :bold, :code, :truncate, :timestamp, :humanTimestamp} = include "text_helpers.lua"
+{:bad, :bold, :code, :steamIDLink, :truncate, :timestamp, :humanTimestamp} = include "text_helpers.lua"
 
 nonil = (t) -> [v for v in *t when v ~= nil]
 
 (data) ->
     client = data.isClientside
     realm = client and "Client" or "Server"
-
-    print "sourcefile", data.sourceFile
-    print "sourceline", data.sourceLine
 
     {
         content: ""
@@ -34,6 +31,10 @@ nonil = (t) -> [v for v in *t when v ~= nil]
 
                     with l = locals data
                         return { name: "Locals", value: code truncate l } if l
+
+                    with {:ply, :plyName, :plySteamID} = data
+                        return { name: "Player", value: bold "#{plyName} ( #{steamIDLink plySteamID} )" } if ply
+                        return nil
 
                     {
                         name: "Count"

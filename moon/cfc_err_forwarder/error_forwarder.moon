@@ -74,6 +74,12 @@ return class ErrorForwarder
         isClientside = ply ~= nil
         saveLocals stack
 
+        local plyName
+        local plySteamID
+        if ply
+            plyName = ply\Nick!
+            plySteamID = ply\SteamID!
+
         newError = {
             :count
             :errorString
@@ -84,6 +90,9 @@ return class ErrorForwarder
             :sourceLine
             :stack
             :isClientside
+            :ply
+            :plyName
+            :plySteamID
             reportInterval: @config.groomInterval\GetInt!
         }
 

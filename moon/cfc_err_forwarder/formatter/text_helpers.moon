@@ -8,8 +8,12 @@ bad = (text) ->
     text = "- #{text}"
     code text, "diff"
 
+steamIDLink = (steamID) ->
+    steamID64 = util.SteamIDTo64 steamID
+    "[#{steamID}](https://steamid.io/lookup/#{steamID64})"
+
 truncate = (text, max=1024) ->
     return text if #text < max
     return "#{string.Left text, max - 10}..."
 
-:bad, :bold, :code, :truncate, :timestamp, :humanTimestamp
+:bad, :bold, :code, :steamIDLink, :truncate, :timestamp, :humanTimestamp
