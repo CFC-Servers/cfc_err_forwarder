@@ -6,6 +6,7 @@ MAX_LOCALS = 8
 
     for level in *stack
         continue if locals
+        continue unless level
         :locals = level
 
     return unless locals
