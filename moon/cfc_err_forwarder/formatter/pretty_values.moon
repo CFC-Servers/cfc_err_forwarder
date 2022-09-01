@@ -15,10 +15,11 @@ prettyFunc = include "cfc_err_forwarder/formatter/pretty_function.lua"
             "Number [#{round val}]"
 
         when TYPE_STRING
-            "String [\"" .. val .. "\"]"
+            "\"" .. val .. "\""
 
         when TYPE_TABLE
-            "Table [#{val}]"
+            count = table.Count val
+            "Table [#{count} item#{count ~= 1 and "s" or ""}]"
 
         when TYPE_FUNCTION
             "Function [#{prettyFunc val}]"

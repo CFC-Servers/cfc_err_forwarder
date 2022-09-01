@@ -35,17 +35,12 @@ hook.Add "InitPostEntity", "CFC_ErrForwarder_FuncNameSetup", getNamesFrom
 
 (func) ->
     name = functionNameCache[func]
+    name and= string.Replace name, "_G.", ""
+    return name if name
+
     info = debug.getinfo func, "flLnSu"
 
     src = info.short_src
     src = string.Replace src, "addons/", ""
 
-    line = "\n"
-
-    if name
-        name = string.Replace name, "_G.", ""
-        line = "#{line}  #{name}\n"
-
-    line = "#{line}  #{info.short_src}:#{info.linedefined}\n"
-
-    return line
+    return "\n  #{src}:#{info.linedefined}\n"

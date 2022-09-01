@@ -25,6 +25,19 @@ stripStack = (tbl) ->
         stackObj.upvalues = nil
         stackObj.activelines = nil
 
+stringTable = (tbl) ->
+    str = "{\n"
+
+    count = 0
+    for k, v in pairs tbl
+        break if count >= 5
+        str ..= "  #{k} = #{pretty v}\n"
+        count += 1
+
+    str ..= "}"
+
+    str
+
 saveLocals = (stack) ->
     for _, stackObj in pairs stack
         locals = stackObj.locals
@@ -33,23 +46,13 @@ saveLocals = (stack) ->
         newLocals = {}
         for name, value in pairs locals
             if istable value
-                newTbl = {}
-
-                -- Take only 5 elements from the sub table
-                count = 0
-                for key, val in pairs value
-                    break if count >= 5
-                    newTbl[key] = pretty val
-                    count += 1
-
-                -- TODO: Limit the length of the sub-values here?
-                newLocals[name] = table.ToString newTbl
+                newLocals[name] = stringTable value
             else
                 newLocals[name] = pretty value
 
                 newLocal = newLocals[name]
-                if #newLocal > 100
-                    newLocals[name] = "#{string.Left newLocal, 97}..."
+                if #newLocal > 125
+                    newLocals[name] = "#{string.Left newLocal, 122}..."
 
         stackObj.locals = newLocals
 
