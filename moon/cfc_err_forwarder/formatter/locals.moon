@@ -1,4 +1,4 @@
-pretty = include "pretty_values.lua"
+MAX_LOCALS = 8
 
 (data) ->
     local locals
@@ -20,9 +20,9 @@ pretty = include "pretty_values.lua"
     convert = (line) ->
         {:name, :value} = line
         spacing = string.rep " ", longest - #name
-        "#{name} #{spacing}= #{pretty value}"
+        "#{name} #{spacing}= #{value}"
 
-    maxLocals = math.min 5, #out
+    maxLocals = math.min MAX_LOCALS, #out
     out = [convert line for line in *out[,maxLocals]]
 
     table.concat out, "\n"

@@ -5,6 +5,8 @@ rawset = rawset
 rawget = rawget
 istable = istable
 
+pretty = include "cfc_err_forwarder/formatter/pretty_values.lua"
+
 removeCyclic = (tbl, found={}) ->
     return if found[tbl]
     found[tbl] = true
@@ -33,19 +35,21 @@ saveLocals = (stack) ->
             if istable value
                 newTbl = {}
 
+                -- Take only 5 elements from the sub table
                 count = 0
                 for key, val in pairs value
                     break if count >= 5
-                    newTbl[key] = tostring val
+                    newTbl[key] = pretty val
                     count += 1
 
+                -- TODO: Limit the length of the sub-values here?
                 newLocals[name] = table.ToString newTbl
             else
-                newLocals[name] = tostring value
+                newLocals[name] = pretty value
 
-            newLocal = newLocals[name]
-            if #newLocal > 50
-                newLocals[name] = "#{string.Left newLocal, 47}..."
+                newLocal = newLocals[name]
+                if #newLocal > 100
+                    newLocals[name] = "#{string.Left newLocal, 97}..."
 
         stackObj.locals = newLocals
 
@@ -72,7 +76,7 @@ return class ErrorForwarder
         count = 1
         occurredAt = osTime!
         isClientside = ply ~= nil
-        saveLocals stack
+        locals = saveLocals stack
 
         local plyName
         local plySteamID
