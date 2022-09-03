@@ -3,9 +3,8 @@ locals = include "locals.lua"
 niceStack = include "nice_stack.lua"
 
 import
-    bad, bold, getSourceText,
-    code, steamIDLink, truncate,
-    timestamp, humanTimestamp
+    bad, bold, getSourceText, code,
+    steamIDLink, truncate, timestamp
     from include "text_helpers.lua"
 
 nonil = (t) -> [v for v in *t when v ~= nil]
@@ -19,7 +18,6 @@ nonil = (t) -> [v for v in *t when v ~= nil]
         embeds: {
             {
                 color: red
-                timestamp: timestamp!
                 title: "#{realm} Error"
                 author: name: GetHostName!
                 description: bad data.errorString
@@ -49,7 +47,7 @@ nonil = (t) -> [v for v in *t when v ~= nil]
 
                     {
                         name: "Most recent occurrence"
-                        value: code humanTimestamp data.occurredAt
+                        value: timestamp data.occurredAt
                         inline: true
                     }
                 }

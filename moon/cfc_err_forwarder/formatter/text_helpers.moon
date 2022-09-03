@@ -3,8 +3,7 @@ getSourceURL = include "get_source_url.lua"
 bold = (text) -> "**#{text}**"
 code = (text, language="") -> "```#{language}\n#{text}```"
 
-timestamp = -> os.date "%Y-%m-%d %H:%M", os.time!
-humanTimestamp = (ts) -> os.date "%X %x", ts
+timestamp = (ts) -> "<t:#{ts}:R>"
 
 bad = (text) ->
     text = "- #{text}"
@@ -18,4 +17,14 @@ truncate = (text, max=1024) ->
     return text if #text < max
     return "#{string.Left text, max - 10}..."
 
-:bad, :bold, :code, :steamIDLink, :truncate, :timestamp, :humanTimestamp, :getSourceURL
+getSourceText = (data) ->
+    :sourceFile, :sourceLine = data
+
+    sourceURL = getSourceURL sourceFile, sourceLine
+    sourceLink = sourceURL and "[Line with Context](#{sourceURL})" or ""
+
+    sourceText = code "#{sourceFile}:#{sourceLine}"
+
+    "#{sourceLink}\n#{sourceText}"
+
+:bad, :bold, :code, :steamIDLink, :truncate, :timestamp, :getSourceText

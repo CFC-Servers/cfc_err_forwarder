@@ -26,12 +26,12 @@ publicGamemodes = {
     if sourceSpl[1] == "addons"
         fetchPath = "addons/#{sourceSpl[2]}/.git/FETCH_HEAD", "GAME"
 
-        return unless file.Exists fetchPath
+        return unless file.Exists fetchPath, "GAME"
 
         content = file.Read fetchPath, "GAME"
         firstLine = string.Split(content, "\n")[1]
 
-        _, _, branch, repo = string.find firstLine, "branch '(.+) of (.+)$"
+        _, _, branch, repo = string.find firstLine, "branch '(.+)' of (.+)$"
 
         repo = string.Replace repo, "https://", ""
         repo = string.Replace repo, "http://", ""
