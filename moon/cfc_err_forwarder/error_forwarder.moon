@@ -26,12 +26,18 @@ stripStack = (tbl) ->
         stackObj.activelines = nil
 
 stringTable = (tbl) ->
-    str = "{\n"
+    oneline = table.Count tbl == 1
+
+    str = "{"
+    str ..= "\n" unless oneline
 
     count = 0
     for k, v in pairs tbl
         break if count >= 5
-        str ..= "  #{k} = #{pretty v}\n"
+
+        str ..= "  #{k} = #{pretty v}"
+        str ..= oneline and " " or "\n"
+
         count += 1
 
     str ..= "}"
@@ -156,6 +162,7 @@ return class ErrorForwarder
 
         @receiveError true, fullError, sourceFile, sourceLine, errorString, stack, ply
 
+    -- TODO: Remove this stupid thing andc all stripStack directly
     cleanStruct: (errorStruct) =>
         stripStack errorStruct.stack
         return errorStruct

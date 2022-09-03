@@ -1,5 +1,5 @@
 import Round from math
-round = (n) -> Round n, 3
+round = (n) -> Round n, 2
 
 prettyFunc = include "cfc_err_forwarder/formatter/pretty_function.lua"
 
@@ -19,7 +19,13 @@ prettyFunc = include "cfc_err_forwarder/formatter/pretty_function.lua"
 
         when TYPE_TABLE
             count = table.Count val
-            "Table [#{count} item#{count ~= 1 and "s" or ""}]"
+            countLine = "(empty)"
+
+            if count > 0
+                items = "item#{count ~= 1 and "s" or ""}"
+                countLine = "#{count} items"
+
+            "Table [#{countLine}]"
 
         when TYPE_FUNCTION
             "Function [#{prettyFunc val}]"

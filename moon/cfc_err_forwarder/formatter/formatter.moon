@@ -1,7 +1,12 @@
 red = 14483456
 locals = include "locals.lua"
 niceStack = include "nice_stack.lua"
-{:bad, :bold, :code, :steamIDLink, :truncate, :timestamp, :humanTimestamp} = include "text_helpers.lua"
+
+import
+    bad, bold, getSourceText,
+    code, steamIDLink, truncate,
+    timestamp, humanTimestamp
+    from include "text_helpers.lua"
 
 nonil = (t) -> [v for v in *t when v ~= nil]
 
@@ -21,7 +26,7 @@ nonil = (t) -> [v for v in *t when v ~= nil]
                 fields: nonil {
                     {
                         name: "Source File"
-                        value: code "#{data.sourceFile}:#{data.sourceLine}"
+                        value: getSourceText data
                     }
 
                     {
