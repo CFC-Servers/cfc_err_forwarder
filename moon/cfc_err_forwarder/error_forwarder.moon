@@ -26,7 +26,7 @@ stripStack = (tbl) ->
         stackObj.activelines = nil
 
 stringTable = (tbl) ->
-    oneline = table.Count tbl == 1
+    oneline = table.Count(tbl) == 1
 
     str = "{"
     str ..= "\n" unless oneline
