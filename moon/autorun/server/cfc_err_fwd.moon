@@ -1,35 +1,48 @@
 require "luaerror"
 require "logger"
-require "webhooker_interface"
-
-ErrorForwarder = include "cfc_err_forwarder/error_forwarder.lua"
-
-luaerror.EnableCompiletimeDetour true
-luaerror.EnableRuntimeDetour true
-luaerror.EnableClientDetour true
-
-ADDON_NAME = "CFC Error Forwarder"
-GROOM_INTERVAL = 60 -- in seconds
-
-logger = Logger ADDON_NAME
-webhooker = WebhookerInterface!
-
-alertDiscord = (message) ->
-    data = {addon: ADDON_NAME, :message}
-    webhooker\send "runtime-error", data
-
-logger\on("error")\call(alertDiscord)
-logger\info "Logger Loaded!"
-
-errorForwarder = ErrorForwarder logger, webhooker, GROOM_INTERVAL
-
-hook.Add "LuaError", "CFC_ServerErrorForwarder", errorForwarder\receiveSVError
-hook.Add "ClientLuaError", "CFC_ClientErrorForwarder", errorForwarder\receiveCLError
-hook.Add "ShutDown", "CFC_ShutdownErrorForwarder", errorForwarder\forwardErrors
+require "reqwest"
 
 timerName = "CFC_ErrorForwarderQueue"
-timer.Create timerName, GROOM_INTERVAL, 0, ->
-    success, err = pcall errorForwarder\groomQueue
+errorForwarder = include "cfc_err_forwarder/error_forwarder.lua"
+discordBuilder = include "cfc_err_forwarder/discord_interface.lua"
 
-    if not success
-        logger\error "Groom Queue failed!", err
+luaerror.EnableCompiletimeDetour true
+luaerror.EnableClientDetour true
+luaerror.EnableRuntimeDetour true
+
+convarPrefix = "cfc_err_forwarder"
+convarFlags = FCVAR_ARCHIVE + FCVAR_PROTECTED
+makeConfig = (name, value, help) -> CreateConVar "#{convarPrefix}_#{name}", value, convarFlags, help
+
+Config =
+    -- cfc_err_forwarder_interval
+    groomInterval: makeConfig "interval", "60", "Interval at which errors are parsed and sent to Discord"
+
+    -- cfc_err_forwarder_client_enabled
+    clientEnabled: makeConfig "client_enabled", "1", "Whether or not to track and forward Clientside errors"
+
+    webhook:
+        -- cfc_err_forwarder_client_webhook
+        client: makeConfig "client_webhook", "", "Discord Webhook URL"
+
+        -- cfc_err_forwarder_server_webhook
+        server: makeConfig "server_webhook", "", "Discord Webhook URL"
+
+
+Logger = Logger "ErrorForwarder"
+Discord = discordBuilder Config
+ErrorForwarder = errorForwarder Logger, Discord, Config
+
+
+timer.Create timerName, Config.groomInterval\GetInt! or 60, 0, ->
+    success, err = pcall ErrorForwarder\groomQueue
+    Logger\error "Groom Queue failed!", err if not success
+
+cvars.AddChangeCallback "cfc_err_forwarder_interval", (_, _, value) ->
+    timer.Adjust timerName, tonumber(value), "UpdateTimer"
+
+hook.Add "LuaError", "CFC_ServerErrorForwarder", ErrorForwarder\receiveSVError
+hook.Add "ClientLuaError", "CFC_ClientErrorForwarder", ErrorForwarder\receiveCLError
+hook.Add "ShutDown", "CFC_ShutdownErrorForwarder", ErrorForwarder\forwardErrors
+
+Logger\info "Loaded!"

@@ -5,6 +5,8 @@ rawset = rawset
 rawget = rawget
 istable = istable
 
+pretty = include "cfc_err_forwarder/formatter/pretty_values.lua"
+
 removeCyclic = (tbl, found={}) ->
     return if found[tbl]
     found[tbl] = true
@@ -19,21 +21,57 @@ removeCyclic = (tbl, found={}) ->
             removeCyclic v, found
 
 stripStack = (tbl) ->
-    for _, stackobj in pairs tbl
-        stackobj.locals = nil
-        stackobj.upvalues = nil
-        stackobj.activelines = nil
+    for _, stackObj in pairs tbl
+        stackObj.upvalues = nil
+        stackObj.activelines = nil
 
-class ErrorForwarder
-    new: (logger, webhooker, groomInterval) =>
+stringTable = (tbl) ->
+    oneline = table.Count(tbl) == 1
+
+    str = "{"
+    str ..= "\n" unless oneline
+
+    count = 0
+    for k, v in pairs tbl
+        break if count >= 5
+
+        str ..= "  #{k} = #{pretty v}"
+        str ..= oneline and " " or "\n"
+
+        count += 1
+
+    str ..= "}"
+
+    str
+
+saveLocals = (stack) ->
+    for _, stackObj in pairs stack
+        locals = stackObj.locals
+        continue unless locals
+
+        newLocals = {}
+        for name, value in pairs locals
+            if istable value
+                newLocals[name] = stringTable value
+            else
+                newLocals[name] = pretty value
+
+                newLocal = newLocals[name]
+                if #newLocal > 125
+                    newLocals[name] = "#{string.Left newLocal, 122}..."
+
+        stackObj.locals = newLocals
+
+return class ErrorForwarder
+    new: (logger, discord, config) =>
         @logger = logger
-        @webhooker = webhooker
-        @groomInterval = groomInterval
+        @discord = discord
+        @config = config
         @queue = {}
 
     countQueue: => Count @queue
 
-    errorIsQueued: (fullError) => rawget( @queue, fullError ) ~= nil
+    errorIsQueued: (fullError) => rawget(@queue, fullError) ~= nil
 
     addPlyToObject: (errorStruct, ply) =>
         rawset errorStruct, "player", {
@@ -47,6 +85,13 @@ class ErrorForwarder
         count = 1
         occurredAt = osTime!
         isClientside = ply ~= nil
+        locals = saveLocals stack
+
+        local plyName
+        local plySteamID
+        if ply
+            plyName = ply\Nick!
+            plySteamID = ply\SteamID!
 
         newError = {
             :count
@@ -58,7 +103,10 @@ class ErrorForwarder
             :sourceLine
             :stack
             :isClientside
-            reportInterval: @groomInterval
+            :ply
+            :plyName
+            :plySteamID
+            reportInterval: @config.groomInterval\GetInt!
         }
 
         if isClientside
@@ -90,9 +138,8 @@ class ErrorForwarder
 
         @queueError isRuntime, fullError, sourceFile, sourceLine, errorString, stack, ply
 
-
     logErrorInfo: (isRuntime, fullError, sourceFile, sourceLine, errorString, stack) =>
-        debug = @logger\debug
+        debug = @logger\info
 
         debug "Is Runtime: #{isRuntime}"
         debug "Full Error: #{fullError}"
@@ -108,27 +155,29 @@ class ErrorForwarder
 
     receiveCLError: (ply, fullError, sourceFile, sourceLine, errorString, stack) =>
         return unless ply and ply\IsPlayer!
+        return unless @config.clientEnabled\GetBool!
 
         @logger\info "Received Clientside Lua Error for #{ply\SteamID!} (#{ply\Name!}): #{errorString}"
-        @logErrorInfo nil, fullError, sourceFile, sourceLine, errorString, stack
+        @logErrorInfo true, fullError, sourceFile, sourceLine, errorString, stack
 
-        @receiveError isRuntime, fullError, sourceFile, sourceLine, errorString, stack, ply
+        @receiveError true, fullError, sourceFile, sourceLine, errorString, stack, ply
 
-    generateJSONStruct: (errorStruct) =>
+    -- TODO: Remove this stupid thing andc all stripStack directly
+    cleanStruct: (errorStruct) =>
         stripStack errorStruct.stack
-        { json: util.TableToJSON errorStruct }
+        return errorStruct
 
     forwardError: (errorStruct, onSuccess, onFailure) =>
         @logger\info "Sending error object.."
-        data = @generateJSONStruct errorStruct
+        data = @cleanStruct errorStruct
 
-        @webhooker\send "forward-errors", data, onSuccess, onFailure
+        self.discord data, onSuccess, onFailure
 
     forwardErrors: =>
         for errorString, errorData in pairs @queue
             @logger\debug "Processing queued error: #{errorString}"
 
-            onSuccess = (message) -> @onSuccess errorString, message
+            onSuccess = -> @onSuccess errorString
             onFailure = (failure) -> @onFailure errorString, failure
 
             success, err = pcall ->
@@ -143,11 +192,11 @@ class ErrorForwarder
         return if count == 0
 
         @logger\info "Grooming Error Queue of size: #{count}"
-
         @forwardErrors!
 
-    onSuccess: (fullError, message) =>
+    onSuccess: (fullError) =>
         @logger\info "Successfully sent error", fullError
+
         @unqueueError fullError
 
     onFailure: (fullError, failure) =>
