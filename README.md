@@ -13,3 +13,13 @@ I forward errors, it's what I do.
  - **`cfc_err_forwarder_server_webhook`**: The full Discord Webhook URL to send Serverside errors
  - **`cfc_err_forwarder_client_webhook`**: The full Discord Webhook URL to send Clientside errors
  - **`cfc_err_forwarder_client_enabled`**: A boolean indicating whether or not the addon should even track Clientside errors
+
+
+## Screenshots
+
+### Serverside Error with Locals and Context
+![DiscordCanary_nmbYDY33PH](https://user-images.githubusercontent.com/7936439/188520510-709cda4d-1f30-4f15-b43a-ac6cddd0723c.png)
+
+
+### Clientside Error with Context
+![image](https://user-images.githubusercontent.com/7936439/188520586-fdd2f05f-c83a-458a-a7f3-8f29fa99b95f.png)
