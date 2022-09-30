@@ -1,4 +1,6 @@
-include( "cfc_err_forwarder/init.lua" )
+if SERVER then
+	include( "cfc_err_forwarder/init.lua" )
+end
 --[[---------------------------------------------------------
    Name: gamemode:GravGunPunt()
    Desc: We're about to punt an entity (primary fire).
