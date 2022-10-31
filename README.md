@@ -4,10 +4,10 @@ A pure-lua (well, Moonscript) Error tracker for Garry's Mod.
 This addon will watch for errors, do a little investigation, and send a message to a target Discord channel for your review.
 
 ### Some nifty features:
- - If using source-controlled addons (i.e. git repos in your `addons/` dir), err_forwarder will generate a link to github.com, showing you the exact line that errored
- - Tracks Serverside and (optionally) Clientside errors, and can send messages to different channels depending on which realm the errors occurred in
- - Includes basic batching logic so it won't spam your error channel
- - Shows you the current values of up to 8 local variables in the stack that threw an error (very useful for debugging!)
+ - 🧠 If using source-controlled addons (i.e. git repos in your `addons/` dir), err_forwarder will generate a link to github.com, showing you the exact line that errored
+ - 🪝 Tracks Serverside and (optionally) Clientside errors, and can send messages to different channels depending on which realm the errors occurred in
+ - 📦 Includes basic batching logic so it won't spam your error channel
+ - 🔎 Shows you the current values of up to 8 local variables in the stack that threw an error (very useful for debugging!)
 
 ## Requirements
  - [gm_logger](https://github.com/CFC-Servers/gm_logger)
