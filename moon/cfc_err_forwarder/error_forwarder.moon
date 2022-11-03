@@ -112,7 +112,7 @@ return class ErrorForwarder
         if isClientside
             newError = @addPlyToObject newError, ply
 
-        @logger\info "Inserting error into queue: '#{fullError}'"
+        @logger\debug "Inserting error into queue: '#{fullError}'"
 
         rawset @queue, fullError, newError
 
@@ -139,7 +139,7 @@ return class ErrorForwarder
         @queueError isRuntime, fullError, sourceFile, sourceLine, errorString, stack, ply
 
     logErrorInfo: (isRuntime, fullError, sourceFile, sourceLine, errorString, stack) =>
-        debug = @logger\info
+        debug = @logger\debug
 
         debug "Is Runtime: #{isRuntime}"
         debug "Full Error: #{fullError}"
@@ -148,7 +148,7 @@ return class ErrorForwarder
         debug "Error String: #{errorString}"
 
     receiveSVError: (isRuntime, fullError, sourceFile, sourceLine, errorString, stack) =>
-        @logger\info "Received Serverside Lua Error: #{errorString}"
+        @logger\debug "Received Serverside Lua Error: #{errorString}"
         @logErrorInfo isRuntime, fullError, sourceFile, sourceLine, errorString, stack
 
         @receiveError isRuntime, fullError, sourceFile, sourceLine, errorString, stack
@@ -157,7 +157,7 @@ return class ErrorForwarder
         return unless ply and ply\IsPlayer!
         return unless @config.clientEnabled\GetBool!
 
-        @logger\info "Received Clientside Lua Error for #{ply\SteamID!} (#{ply\Name!}): #{errorString}"
+        @logger\debug "Received Clientside Lua Error for #{ply\SteamID!} (#{ply\Name!}): #{errorString}"
         @logErrorInfo true, fullError, sourceFile, sourceLine, errorString, stack
 
         @receiveError true, fullError, sourceFile, sourceLine, errorString, stack, ply
@@ -168,7 +168,7 @@ return class ErrorForwarder
         return errorStruct
 
     forwardError: (errorStruct, onSuccess, onFailure) =>
-        @logger\info "Sending error object.."
+        @logger\debug "Sending error object.."
         data = @cleanStruct errorStruct
 
         self.discord data, onSuccess, onFailure
@@ -191,11 +191,11 @@ return class ErrorForwarder
         count = @countQueue!
         return if count == 0
 
-        @logger\info "Grooming Error Queue of size: #{count}"
+        @logger\debug "Grooming Error Queue of size: #{count}"
         @forwardErrors!
 
     onSuccess: (fullError) =>
-        @logger\info "Successfully sent error", fullError
+        @logger\debug "Successfully sent error", fullError
 
         @unqueueError fullError
 
