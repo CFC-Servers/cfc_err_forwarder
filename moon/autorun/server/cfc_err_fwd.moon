@@ -35,7 +35,7 @@ else
     log = (...) -> print "[ErrorForwarder]", ...
     log "GM_Logger not found, using backup logger. Consider installing: github.com/CFC-Servers/gm_logger"
 
-    logger = {
+    logger =
         trace: ->
         debug: ->
         info: log
