@@ -1,5 +1,4 @@
 require "luaerror"
-require "logger"
 require "reqwest"
 
 timerName = "CFC_ErrorForwarderQueue"
@@ -28,15 +27,29 @@ Config =
         -- cfc_err_forwarder_server_webhook
         server: makeConfig "server_webhook", "", "Discord Webhook URL"
 
+local logger
+if file.Exists "includes/modules/logger.lua", "LUA"
+    require "logger"
+    logger = Logger "ErrorForwarder"
+else
+    log = (...) -> print "[ErrorForwarder]", ...
+    log "GM_Logger not found, using backup logger. Consider installing: github.com/CFC-Servers/gm_logger"
 
-Logger = Logger "ErrorForwarder"
+    logger =
+        trace: ->
+        debug: ->
+        info: log
+        warn: log
+        error: log
+        
+
 Discord = discordBuilder Config
-ErrorForwarder = errorForwarder Logger, Discord, Config
+ErrorForwarder = errorForwarder logger, Discord, Config
 
 
 timer.Create timerName, Config.groomInterval\GetInt! or 60, 0, ->
     success, err = pcall ErrorForwarder\groomQueue
-    Logger\error "Groom Queue failed!", err if not success
+    logger\error "Groom Queue failed!", err if not success
 
 cvars.AddChangeCallback "cfc_err_forwarder_interval", (_, _, value) ->
     timer.Adjust timerName, tonumber(value), "UpdateTimer"
@@ -45,4 +58,4 @@ hook.Add "LuaError", "CFC_ServerErrorForwarder", ErrorForwarder\receiveSVError
 hook.Add "ClientLuaError", "CFC_ClientErrorForwarder", ErrorForwarder\receiveCLError
 hook.Add "ShutDown", "CFC_ShutdownErrorForwarder", ErrorForwarder\forwardErrors
 
-Logger\info "Loaded!"
+logger\info "Loaded!"

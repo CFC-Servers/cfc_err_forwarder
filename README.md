@@ -10,7 +10,7 @@ This addon will watch for errors, do a little investigation, and send a message 
  - 🔎 Shows you the current values of up to 8 local variables in the stack that threw an error (very useful for debugging!)
 
 ## Requirements
- - [gm_logger](https://github.com/CFC-Servers/gm_logger)
+ - [gm_logger](https://github.com/CFC-Servers/gm_logger) _(Optional)_
  - [gm_luaerror](https://github.com/danielga/gm_luaerror)
  - [gmsv_reqwest](https://github.com/WilliamVenner/gmsv_reqwest)
 
