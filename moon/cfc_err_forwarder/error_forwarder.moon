@@ -178,7 +178,7 @@ return class ErrorForwarder
             @logger\debug "Processing queued error: #{errorString}"
 
             onSuccess = -> @onSuccess errorString
-            onFailure = (failure) -> @onFailure errorString, failure
+            onFailure = (failure) -> @onFailure errorString, failure, errorData
 
             success, err = pcall ->
                 @forwardError errorData, onSuccess, onFailure
@@ -199,6 +199,8 @@ return class ErrorForwarder
 
         @unqueueError fullError
 
-    onFailure: (fullError, failure) =>
+    onFailure: (fullError, failure, errorData) =>
         @logger\error "Failed to send error!", failure
         @unqueueError fullError
+        print util.TableToJSON failedErrorData: errorData
+

@@ -40,7 +40,7 @@ hook.Add "InitPostEntity", "CFC_ErrForwarder_FuncNameSetup", getNamesFrom
 
     info = debug.getinfo func, "flLnSu"
 
-    src = info.short_src
+    src = info.short_src or "<unknown source>"
     src = string.Replace src, "addons/", ""
 
     return "\n  #{src}:#{info.linedefined}\n"

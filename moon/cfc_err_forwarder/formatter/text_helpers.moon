@@ -5,17 +5,14 @@ code = (text, language="") -> "```#{language}\n#{text}```"
 
 timestamp = (ts) -> "<t:#{ts}:R>"
 
-bad = (text) ->
-    text = "- #{text}"
-    code text, "diff"
+bad = (text) -> code "- #{text}", "diff"
 
-steamIDLink = (steamID) ->
-    steamID64 = util.SteamIDTo64 steamID
-    "[#{steamID}](https://steamid.io/lookup/#{steamID64})"
+to64 = util.SteamIDTo64
+steamIDLink = (id) -> "[#{id}](https://steamid.io/lookup/#{to64 id})"
 
-truncate = (text, max=1024) ->
+truncate = (text="<empty>", max=1024) ->
     return text if #text < max
-    return "#{string.Left text, max - 10}..."
+    "#{string.Left text, max - 10}..."
 
 getSourceText = (data) ->
     :sourceFile, :sourceLine = data

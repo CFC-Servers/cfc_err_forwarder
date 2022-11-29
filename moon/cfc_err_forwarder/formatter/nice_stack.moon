@@ -11,8 +11,8 @@
         lineNumber = item.currentline
         src = item.short_src or item.source or "<unknown source>"
 
-        name = item.name
-        name = "unknown" if #name == 0
+        name = item.name or ""
+        name = "<unknown>" if #name == 0
 
         spacing = string.rep " ", indent
         table.insert lines, "#{spacing}#{i}.  #{name} - #{src}:#{lineNumber}"
