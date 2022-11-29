@@ -169,13 +169,13 @@ return class ErrorForwarder
 
     forwardError: (errorStruct, onSuccess, onFailure) =>
         @logger\debug "Sending error object.."
-        data = @cleanStruct errorStruct
-
-        self.discord data, onSuccess, onFailure
+        self.discord errorStruct, onSuccess, onFailure
 
     forwardErrors: =>
-        for errorString, errorData in pairs @queue
+        for errorString, data in pairs @queue
             @logger\debug "Processing queued error: #{errorString}"
+
+            errorData = @cleanStruct data
 
             onSuccess = -> @onSuccess errorString
             onFailure = (failure) -> @onFailure errorString, failure, errorData
