@@ -1,10 +1,7 @@
 require "luaerror"
 require "reqwest"
 
-timerName = "CFC_ErrorForwarderQueue"
 errorForwarder = include "cfc_err_forwarder/error_forwarder.lua"
-discordBuilder = include "cfc_err_forwarder/discord_interface.lua"
-
 luaerror.EnableCompiletimeDetour true
 luaerror.EnableClientDetour true
 luaerror.EnableRuntimeDetour true
@@ -13,9 +10,11 @@ convarPrefix = "cfc_err_forwarder"
 convarFlags = FCVAR_ARCHIVE + FCVAR_PROTECTED
 makeConfig = (name, value, help) -> CreateConVar "#{convarPrefix}_#{name}", value, convarFlags, help
 
-Config =
-    -- cfc_err_forwarder_interval
-    groomInterval: makeConfig "interval", "60", "Interval at which errors are parsed and sent to Discord"
+export Config = {
+    -- cfc_err_forwarder_dedupe_duration
+    dedupeDuration: makeConfig "dedupe_duration", "60", "Number of seconds to hold each error before sending it to Discord. Helps de-dupe spammy errors."
+
+    backup: makeConfig "backup", "1", "Whether or not to save errors to a file in case the server crashes or restarts"
 
     -- cfc_err_forwarder_client_enabled
     clientEnabled: makeConfig "client_enabled", "1", "Whether or not to track and forward Clientside errors"
@@ -26,6 +25,7 @@ Config =
 
         -- cfc_err_forwarder_server_webhook
         server: makeConfig "server_webhook", "", "Discord Webhook URL"
+}
 
 local logger
 if file.Exists "includes/modules/logger.lua", "LUA"
@@ -42,20 +42,21 @@ else
         warn: log
         error: log
         
+ErrorForwarder = errorForwarder logger, Config
 
-Discord = discordBuilder Config
-ErrorForwarder = errorForwarder logger, Discord, Config
+cb = (_, _, value) -> ErrorForwarder\adjustTimer tonumber value
+cvars.AddChangeCallback "cfc_err_forwarder_interval", cb, "UpdateTimer"
 
-
-timer.Create timerName, Config.groomInterval\GetInt! or 60, 0, ->
-    success, err = pcall ErrorForwarder\groomQueue
-    logger\error "Groom Queue failed!", err if not success
-
-cvars.AddChangeCallback "cfc_err_forwarder_interval", (_, _, value) ->
-    timer.Adjust timerName, tonumber(value), "UpdateTimer"
+cb = (_, _, value) -> ErrorForwarder.discord\loadQueue! if value == "1"
+cvars.AddChangeCallback "cfc_err_forwarder_backup", cb, "LoadBackupOnEnable"
 
 hook.Add "LuaError", "CFC_ServerErrorForwarder", ErrorForwarder\receiveSVError
 hook.Add "ClientLuaError", "CFC_ClientErrorForwarder", ErrorForwarder\receiveCLError
-hook.Add "ShutDown", "CFC_ShutdownErrorForwarder", ErrorForwarder\forwardErrors
+hook.Add "ShutDown", "CFC_ShutdownErrorForwarder", ->
+    return unless Config.backup\GetBool!
+
+    logger\info "Shut Down detected, saving unsent queue items..."
+    ErrorForwarder\forwardErrors!
+    ErrorForwarder.discord\saveQueue!
 
 logger\info "Loaded!"
