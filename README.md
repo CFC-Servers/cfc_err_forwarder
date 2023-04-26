@@ -6,9 +6,9 @@ This addon will watch for errors, do a little investigation, and send a message 
 ### Some nifty features:
  - :brain: If using source-controlled addons (i.e. git repos in your `addons/` dir), err_forwarder will generate a link to github.com, showing you the exact line that errored
  - :file_cabinet: Tracks Serverside and (optionally) Clientside errors, and can send messages to different channels depending on which realm the errors occurred in
- - :package: Includes configurable batching logic and respects Discord rate limiitng, so it won't spam your error channel
+ - :package: Includes configurable batching logic and respects Discord rate limiting, so it won't spam your error channel
  - :mag_right: Shows you the current values of up to 8 local variables in the stack that threw an error (very useful for debugging!)
- - :floppy_disk: Automatically backs up your unsent errors, making sure you don't lose errors if the server crashes/restarts.
+ - :floppy_disk: Automatically backs up your unsent errors, making it less likely that you lose track of errors if the server crashes/restarts.
 
 ## Requirements
  - [gm_logger](https://github.com/CFC-Servers/gm_logger) _(Optional)_
@@ -27,7 +27,7 @@ This addon will watch for errors, do a little investigation, and send a message 
 
 ## Configuration
  - **`cfc_err_forwarder_dedupe_duration`**: The number of seconds new errors are held before being sent to Discord. Helps de-dupe spammy errors.
- - **`cfc_err_forwarder_backups`**: A boolean indicating whether or not errors should be backed up to a file in case the server crashes or restarts.
+ - **`cfc_err_forwarder_backup`**: A boolean indicating whether or not errors should be backed up to a file in case the server crashes or restarts.
  - **`cfc_err_forwarder_server_webhook`**: The full Discord Webhook URL to send Serverside errors
  - **`cfc_err_forwarder_client_webhook`**: The full Discord Webhook URL to send Clientside errors
  - **`cfc_err_forwarder_client_enabled`**: A boolean indicating whether or not the addon should even track Clientside errors
