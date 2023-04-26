@@ -24,10 +24,11 @@ You can track its progress _(or ask questions)_ in our support Discord: https://
 <br>
 
 ### Some nifty features:
- - 🧠 If using source-controlled addons (i.e. git repos in your `addons/` dir), err_forwarder will generate a link to github.com, showing you the exact line that errored
- - 🪝 Tracks Serverside and (optionally) Clientside errors, and can send messages to different channels depending on which realm the errors occurred in
- - 📦 Includes basic batching logic so it won't spam your error channel
- - 🔎 Shows you the current values of up to 8 local variables in the stack that threw an error (very useful for debugging!)
+ - :brain: If using source-controlled addons (i.e. git repos in your `addons/` dir), err_forwarder will generate a link to github.com, showing you the exact line that errored
+ - :file_cabinet: Tracks Serverside and (optionally) Clientside errors, and can send messages to different channels depending on which realm the errors occurred in
+ - :package: Includes configurable batching logic and respects Discord rate limiitng, so it won't spam your error channel
+ - :mag_right: Shows you the current values of up to 8 local variables in the stack that threw an error (very useful for debugging!)
+ - :floppy_disk: Automatically backs up your unsent errors, making sure you don't lose errors if the server crashes/restarts.
 
 ## Requirements
  - [gmsv_reqwest](https://github.com/WilliamVenner/gmsv_reqwest) **Required**
@@ -45,7 +46,8 @@ You can track its progress _(or ask questions)_ in our support Discord: https://
 
 
 ## Configuration
- - **`cfc_err_forwarder_interval`**: The interval (in seconds) at which errors are parsed and sent to Discord
+ - **`cfc_err_forwarder_dedupe_duration`**: The number of seconds new errors are held before being sent to Discord. Helps de-dupe spammy errors.
+ - **`cfc_err_forwarder_backups`**: A boolean indicating whether or not errors should be backed up to a file in case the server crashes or restarts.
  - **`cfc_err_forwarder_server_webhook`**: The full Discord Webhook URL to send Serverside errors
  - **`cfc_err_forwarder_client_webhook`**: The full Discord Webhook URL to send Clientside errors
  - **`cfc_err_forwarder_client_enabled`**: A boolean indicating whether or not the addon should even track Clientside errors

@@ -37,8 +37,8 @@ nonil = (t) -> [v for v in *t when v ~= nil]
                         return { name: "Locals", value: code truncate(l), "m"  } if l
                         return nil
 
-                    with {:ply, :plyName, :plySteamID} = data
-                        return { name: "Player", value: bold "#{plyName} ( #{steamIDLink plySteamID} )" } if ply
+                    with {:hasPly, :plyName, :plySteamID} = data
+                        return { name: "Player", value: bold "#{plyName} ( #{steamIDLink plySteamID} )" } if hasPly
                         return nil
 
                     with {:branch} = data
