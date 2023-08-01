@@ -18,7 +18,7 @@ nonil = (t) -> [v for v in *t when v ~= nil]
         embeds: {
             {
                 color: red
-                title: "#{realm} Error"
+                title: "#{realm} Error - Branch: #{data.branch}"
                 author: name: GetHostName!
                 description: bad data.errorString
                 fields: nonil {

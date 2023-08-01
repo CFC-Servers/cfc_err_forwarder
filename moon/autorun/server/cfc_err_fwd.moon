@@ -58,4 +58,8 @@ hook.Add "LuaError", "CFC_ServerErrorForwarder", ErrorForwarder\receiveSVError
 hook.Add "ClientLuaError", "CFC_ClientErrorForwarder", ErrorForwarder\receiveCLError
 hook.Add "ShutDown", "CFC_ShutdownErrorForwarder", ErrorForwarder\forwardErrors
 
+net.Receive "cfc_err_forwarder_clbranch", (_,ply) ->
+    if not ply.CFC_ErrorForwarder_CLBranch
+        ply.CFC_ErrorForwarder_CLBranch = net.ReadString!
+
 logger\info "Loaded!"

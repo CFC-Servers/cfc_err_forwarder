@@ -89,9 +89,13 @@ return class ErrorForwarder
 
         local plyName
         local plySteamID
+        local branch
         if ply
             plyName = ply\Nick!
             plySteamID = ply\SteamID!
+            branch = ply.CFC_ErrorForwarder_CLBranch or "MISSING"
+        else
+            branch = BRANCH
 
         newError = {
             :count
@@ -106,6 +110,7 @@ return class ErrorForwarder
             :ply
             :plyName
             :plySteamID
+            :branch
             reportInterval: @config.groomInterval\GetInt!
         }
 
