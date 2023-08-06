@@ -12,16 +12,17 @@ local functionNameCache = _G._ErrorForwarder_functionNameCache
 local defaultSeen = function()
     local seen = setmetatable( {}, { __mode = "k" } )
     seen[seen] = true
-    seen[VF] = true
-    seen[GLib] = true
 
+    if VFS then seen[VFS] = true end
+    if Glib then seen[GLib] = true end
     if Gooey then seen[Gooey] = true end
     if Gcompute then seen[GCompute] = true end
 
     return seen
 end
 
-local getNamesFrom = function( tbl, path, seen )
+local getNamesFrom
+getNamesFrom = function( tbl, path, seen )
     tbl = tbl or _G
     path = path or "_G"
     seen = seen or defaultSeen()
@@ -51,15 +52,15 @@ end )
 --- @param func function
 --- @return string
 return function( func )
+    if not func then return "<unknown>" end
+
     local name = rawget( functionNameCache, func )
     name = name and string_Replace( name, "_G.", "" )
-
     if name then return name end
 
     local info = debug_getinfo( func, "flLnSu" )
-
     local src = info.short_src or "<unknown source>"
     src = string_Replace( src, "addons/", "" )
 
-    return string.format( "\n  %s:%s\n", src, info.linedefined )
+    return string.format( "%s:%s", src, info.linedefined )
 end

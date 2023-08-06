@@ -34,6 +34,7 @@ EF.Config = {
 }
 local Config = EF.Config
 
+include( "cfc_err_forwarder/context.lua" )
 include( "cfc_err_forwarder/discord_interface.lua" )
 include( "cfc_err_forwarder/error_forwarder.lua" )
 local Discord = EF.Discord
@@ -80,7 +81,7 @@ hook.Add( "LuaError", "CFC_ServerErrorForwarder", receiver )
 hook.Add( "ClientLuaError", "CFC_ClientErrorForwarder", receiver )
 hook.Add( "ShutDown", "CFC_ShutdownErrorForwarder", function()
     log.warn( "Shut Down detected, saving unsent queue items..." )
-    Forwarder:forwardErrors()
+    Forwarder:ForwardErrors()
 
     if Config.backup:GetInt() ~= 1 then return end
     Discord:saveQueue()

@@ -17,9 +17,8 @@ local DiscordInterface = {
     retryAfter = nil,
     saveFile = "cfc_error_forwarder_queue.json",
     requestTemplate = {
-        timeout = 10,
+        timeout = 25,
         method = "POST",
-        type = "application/json",
         headers = { ["User-Agent"] = "CFC Error Forwarder v1" }
     },
 }
@@ -98,10 +97,26 @@ function DI:sendNext()
     log.info( "Sending Discord webhook. Queue size: " .. #self.queue )
 
     local success = ProtectedCall( function()
-        table.Merge( item, self.requestTemplate )
-        item.url = self:getUrl( item.isClientside )
-        item.isClientside = nil
-        reqwest( item )
+        local data = FormData()
+        data:Append( "payload_json", item.body )
+
+        local context = item.rawData.fullContext
+
+        local locals = context.locals
+        if locals then data:Append( "files[0]", util.TableToJSON( locals, true ), "json", "full_locals.json" ) end
+
+        local upvalues = context.upvalues
+        if upvalues then data:Append( "files[1]", util.TableToJSON( upvalues, true ), "json", "full_upvalues.json" ) end
+
+        local newItem = table.Copy( self.requestTemplate )
+        newItem.url = self:getUrl( item.isClientside )
+        newItem.body = data:Read()
+        newItem.headers = table.Merge(
+            data:GetHeaders(),
+            newItem.headers
+        )
+
+        reqwest( newItem )
     end )
 
     if not success then
@@ -148,7 +163,8 @@ end
 function DI:Send( data )
     self:enqueue{
         isClientside = data.isClientside,
-        body = util.TableToJSON( Formatter( data ) )
+        body = Formatter( data ),
+        rawData = data
     }
 end
 
