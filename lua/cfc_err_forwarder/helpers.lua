@@ -45,16 +45,16 @@ do
             newLocals[name] = stringTable( value )
         else
             local val = pretty( value )
-            newLocals[name] = val
 
-            local newLocal = val
-            if #newLocal > 125 then
+            if #val > 125 then
                 if val[1] == '"' then
-                    newLocal = string.sub( newLocal, 1, 121 ) .. "...\""
+                    val = string.sub( newLocal, 1, 121 ) .. "...\""
                 else
-                    newLocal = string.sub( newLocal, 1, 122 ) .. "..."
+                    val = string.sub( newLocal, 1, 122 ) .. "..."
                 end
             end
+
+            newLocals[name] = val
         end
     end
 

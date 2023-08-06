@@ -8,6 +8,8 @@ local Helpers = ErrorForwarder.Helpers
 local log = ErrorForwarder.Logger
 local Discord = ErrorForwarder.Discord
 
+local context = include( "context.lua" )
+
 --- @class ErrorForwarderForwarder
 ErrorForwarder.Forwarder = {}
 local Forwarder = ErrorForwarder.Forwarder
@@ -24,6 +26,7 @@ function Forwarder:QueueError( luaError, isClientside, ply )
         return
     end
 
+    local localsContext, upvaluesContext = context( luaError.stack )
     Helpers.SaveLocals( luaError.stack )
     Helpers.StripStack( luaError.stack )
 
@@ -40,7 +43,11 @@ function Forwarder:QueueError( luaError, isClientside, ply )
         isClientside = isClientside,
         plyName = plyName,
         plySteamID = plySteamID,
-        reportInterval = Config.groomInterval:GetInt() or 60
+        reportInterval = Config.groomInterval:GetInt() or 60,
+        fullContext = {
+            locals = localsContext,
+            upvalues = upvaluesContext,
+        }
     }
 
     if isClientside then
