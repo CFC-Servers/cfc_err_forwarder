@@ -93,7 +93,7 @@ return class ErrorForwarder
         if ply
             plyName = ply\Nick!
             plySteamID = ply\SteamID!
-            branch = ply.CFC_ErrorForwarder_CLBranch or "MISSING"
+            branch = ply.CFC_ErrorForwarder_CLBranch or "Not sure yet"
         else
             branch = BRANCH
 

@@ -1,6 +1,8 @@
 require "luaerror"
 require "reqwest"
 
+util.AddNetworkString "cfc_err_forwarder_clbranch"
+
 timerName = "CFC_ErrorForwarderQueue"
 errorForwarder = include "cfc_err_forwarder/error_forwarder.lua"
 discordBuilder = include "cfc_err_forwarder/discord_interface.lua"
