@@ -24,4 +24,7 @@ getSourceText = (data) ->
 
     "#{sourceLink}\n#{sourceText}"
 
-:bad, :bold, :code, :steamIDLink, :truncate, :timestamp, :getSourceText
+gmodBranch = (branch) ->
+    branch == "unknown" and "main" or branch
+
+:bad, :bold, :code, :steamIDLink, :truncate, :timestamp, :getSourceText, :gmodBranch

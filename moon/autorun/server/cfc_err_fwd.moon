@@ -1,6 +1,8 @@
 require "luaerror"
 require "reqwest"
 
+util.AddNetworkString "cfc_err_forwarder_clbranch"
+
 timerName = "CFC_ErrorForwarderQueue"
 errorForwarder = include "cfc_err_forwarder/error_forwarder.lua"
 discordBuilder = include "cfc_err_forwarder/discord_interface.lua"
@@ -57,5 +59,9 @@ cvars.AddChangeCallback "cfc_err_forwarder_interval", (_, _, value) ->
 hook.Add "LuaError", "CFC_ServerErrorForwarder", ErrorForwarder\receiveSVError
 hook.Add "ClientLuaError", "CFC_ClientErrorForwarder", ErrorForwarder\receiveCLError
 hook.Add "ShutDown", "CFC_ShutdownErrorForwarder", ErrorForwarder\forwardErrors
+
+net.Receive "cfc_err_forwarder_clbranch", (_,ply) ->
+    if not ply.CFC_ErrorForwarder_CLBranch
+        ply.CFC_ErrorForwarder_CLBranch = net.ReadString!
 
 logger\info "Loaded!"
