@@ -39,3 +39,4 @@ This addon will watch for errors, do a little investigation, and send a message 
 
 ### Clientside Error with Context
 ![image](https://user-images.githubusercontent.com/7936439/188520586-fdd2f05f-c83a-458a-a7f3-8f29fa99b95f.png)
+
