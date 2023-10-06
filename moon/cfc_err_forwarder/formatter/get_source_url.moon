@@ -25,43 +25,46 @@ publicGamemodes = {
     if root == "gamemodes"
         return "https://github.com/Facepunch/garrysmod/blob/master/garrysmod/#{source}#L#{line}"
 
-    if root == "addons"
-        fetchPath = "addons/#{mainDir}/.git/FETCH_HEAD", "GAME"
+    assert root == "addons"
 
-        return unless file.Exists fetchPath, "GAME"
+    fetchPath = "addons/#{mainDir}/.git/FETCH_HEAD", "GAME"
+    return unless file.Exists fetchPath, "GAME"
 
-        content = file.Read fetchPath, "GAME"
+    content = file.Read fetchPath, "GAME"
 
-        -- 6679969ce1b0f6baa80dc4460beb7004f3197408 branch 'master' of https://github.com/Stooberton/ACF-3
-        -- 6679969ce1b0f6baa80dc4460beb7004f3197408 branch 'master' of github.com:Stooberton/ACF-3
-        firstLine = string.Split(content, "\n")[1]
+    -- 6679969ce1b0f6baa80dc4460beb7004f3197408 branch 'master' of github.com:Stooberton/ACF-3
+    -- 6679969ce1b0f6baa80dc4460beb7004f3197408 branch 'master' of https://github.com/Stooberton/ACF-3
+    -- 6679969ce1b0f6baa80dc4460beb7004f3197408	branch 'master' of https://github.com/stooberton/acf-3.git
+    firstLine = string.Split(content, "\n")[1]
 
-        -- "master", "https://github.com/Stooberton/ACF-3"
-        -- "master", "github.com:Stooberton/ACF-3"
-        _, _, branch, repo = string.find firstLine, "branch '(.+)' of (.+)$"
+    -- "master", "github.com:Stooberton/ACF-3"
+    -- "master", "https://github.com/Stooberton/ACF-3"
+    -- "master", "https://github.com/Stooberton/acf-3.git"
+    _, _, branch, repo = string.find firstLine, "branch '(.+)' of (.+)$"
 
-        -- "github.com/Stooberton/ACF-3"
-        repo = string.Replace repo, "https://", ""
-        repo = string.Replace repo, "http://", ""
-        repo = string.Replace repo, ":", "/"
+    -- "github.com/Stooberton/ACF-3"
+    repo = string.Replace repo, "https://", ""
+    repo = string.Replace repo, "http://", ""
+    repo = string.Replace repo, ":", "/"
+    repo = string.Replace repo, ".git", ""
 
-        -- { "github.com", "Stooberton", "ACF-3" }
-        repoSpl = string.Split repo, "/"
+    -- { "github.com", "Stooberton", "ACF-3" }
+    repoSpl = string.Split repo, "/"
 
-        -- "github.com"
-        host = repoSpl[1]
+    -- "github.com"
+    host = repoSpl[1]
 
-        -- "Stooberton"
-        owner = repoSpl[2]
+    -- "Stooberton"
+    owner = repoSpl[2]
 
-        -- "ACF-3"
-        project = repoSpl[3]
+    -- "ACF-3"
+    project = repoSpl[3]
 
-        -- "lua/entities/acf_armor/shared.lua"
-        -- "sandbox/entities/waepons/gmod_stool/stools/duplicator/transport.lua"
-        finalPath = table.concat sourceSpl, "/", 3, #sourceSpl
-        finalPath ..= "#L#{line}"
+    -- "lua/entities/acf_armor/shared.lua"
+    -- "sandbox/entities/waepons/gmod_stool/stools/duplicator/transport.lua"
+    finalPath = table.concat sourceSpl, "/", 3, #sourceSpl
+    finalPath ..= "#L#{line}"
 
-        finalURL = string.format "https://%s/%s/%s/blob/%s/%s", host, owner, project, branch, finalPath
+    finalURL = string.format "https://%s/%s/%s/blob/%s/%s", host, owner, project, branch, finalPath
 
-        return finalURL
+    return finalURL
