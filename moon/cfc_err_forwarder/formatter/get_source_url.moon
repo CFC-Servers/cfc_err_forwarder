@@ -11,40 +11,60 @@ publicGamemodes = {
 
 -- source:
 --    addons/acf-3/lua/entities/acf_armor/shared.lua
---    addons/cfc_pvp/lua/cfc_pvp/plugins/server/acf_caliber_limits.lua
 --    gamemodes/sandbox/entities/weapons/gmod_tool/stools/duplicator/transport.lua
 --
--- line: Just a number, nothing crazy
+-- line: Just a line number
 (source, line) ->
     -- { "addons", "acf-3", "lua", "entities", "acf_armor", "shared.lua" }
     -- { "gamemodes", "sandbox", "entities", "weapons", "gmod_tool", "stools", "duplicator", "transport.lua" }
     sourceSpl = string.Split source, "/"
 
-    if sourceSpl[1] == "gamemodes"
+    root = sourceSpl[1]
+    mainDir = sourceSpl[2]
+
+    if root == "gamemodes"
         return "https://github.com/Facepunch/garrysmod/blob/master/garrysmod/#{source}#L#{line}"
 
-    if sourceSpl[1] == "addons"
-        fetchPath = "addons/#{sourceSpl[2]}/.git/FETCH_HEAD", "GAME"
+    assert root == "addons"
 
-        return unless file.Exists fetchPath, "GAME"
+    fetchPath = "addons/#{mainDir}/.git/FETCH_HEAD", "GAME"
+    return unless file.Exists fetchPath, "GAME"
 
-        content = file.Read fetchPath, "GAME"
-        firstLine = string.Split(content, "\n")[1]
+    content = file.Read fetchPath, "GAME"
 
-        _, _, branch, repo = string.find firstLine, "branch '(.+)' of (.+)$"
+    -- 6679969ce1b0f6baa80dc4460beb7004f3197408 branch 'master' of github.com:Stooberton/ACF-3
+    -- 6679969ce1b0f6baa80dc4460beb7004f3197408 branch 'master' of https://github.com/Stooberton/ACF-3
+    -- 6679969ce1b0f6baa80dc4460beb7004f3197408	branch 'master' of https://github.com/stooberton/acf-3.git
+    firstLine = string.Split(content, "\n")[1]
 
-        repo = string.Replace repo, "https://", ""
-        repo = string.Replace repo, "http://", ""
-        repo = string.Replace repo, ":", "/"
+    -- "master", "github.com:Stooberton/ACF-3"
+    -- "master", "https://github.com/Stooberton/ACF-3"
+    -- "master", "https://github.com/Stooberton/acf-3.git"
+    _, _, branch, repo = string.find firstLine, "branch '(.+)' of (.+)$"
 
-        repoSpl = string.Split repo, "/"
-        host = repoSpl[1]
-        owner = repoSpl[2]
-        project = repoSpl[3]
+    -- "github.com/Stooberton/ACF-3"
+    repo = string.Replace repo, "https://", ""
+    repo = string.Replace repo, "http://", ""
+    repo = string.Replace repo, ":", "/"
+    repo = string.Replace repo, ".git", ""
 
-        finalPath = table.concat sourceSpl, "/", 3, #sourceSpl
-        finalPath ..= "#L#{line}"
+    -- { "github.com", "Stooberton", "ACF-3" }
+    repoSpl = string.Split repo, "/"
 
-        finalURL = string.format "https://%s/%s/%s/blob/%s/%s", host, owner, project, branch, finalPath
+    -- "github.com"
+    host = repoSpl[1]
 
-        return finalURL
+    -- "Stooberton"
+    owner = repoSpl[2]
+
+    -- "ACF-3"
+    project = repoSpl[3]
+
+    -- "lua/entities/acf_armor/shared.lua"
+    -- "sandbox/entities/waepons/gmod_stool/stools/duplicator/transport.lua"
+    finalPath = table.concat sourceSpl, "/", 3, #sourceSpl
+    finalPath ..= "#L#{line}"
+
+    finalURL = string.format "https://%s/%s/%s/blob/%s/%s", host, owner, project, branch, finalPath
+
+    return finalURL
