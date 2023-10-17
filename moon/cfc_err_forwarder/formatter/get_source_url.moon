@@ -25,7 +25,8 @@ publicGamemodes = {
     if root == "gamemodes"
         return "https://github.com/Facepunch/garrysmod/blob/master/garrysmod/#{source}#L#{line}"
 
-    assert root == "addons"
+    -- If the root isn't a Gamemode or Addon, we can't get a source URL for it
+    return if root ~= "addons"
 
     fetchPath = "addons/#{mainDir}/.git/FETCH_HEAD", "GAME"
     return unless file.Exists fetchPath, "GAME"
