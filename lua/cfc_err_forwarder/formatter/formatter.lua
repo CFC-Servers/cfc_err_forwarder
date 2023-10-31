@@ -52,6 +52,14 @@ return function( data )
             } )
         end
 
+        if data.branch then
+            table.insert( fields, {
+                name = "Branch",
+                value = bold( TextHelpers.gmodBranch( data.branch ) ),
+                inline = true
+            } )
+        end
+
         table.insert( fields, {
             name = "Count",
             value = bold( data.count ),
