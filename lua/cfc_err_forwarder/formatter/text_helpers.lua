@@ -47,6 +47,7 @@ end
 --- @return string
 function TextHelpers.truncate( text, max )
     max = max or 1024
+    text = text or "<empty>"
     if #text <= max then return text end
 
     if text[1] == [["]] then
@@ -69,6 +70,13 @@ function TextHelpers.getSourceText( data )
     local sourceText = TextHelpers.code( sourceFile .. ":" .. sourceLine, "" )
 
     return sourceLink .. "\n" .. sourceText
+end
+
+--- Formats the given branch into a human friendly name
+--- @param branch string
+--- @return string
+function TextHelpers.gmodBranch( branch )
+    return branch == "unknown" and "main" or branch
 end
 
 return TextHelpers

@@ -1,17 +1,16 @@
 local os_Time = os.time
-local rawget = rawget
-local rawset = rawset
 
-local queueName = "CFC_ErrorForwarderQueue"
+local log = ErrorForwarder.Logger
 local Config = ErrorForwarder.Config
 local Helpers = ErrorForwarder.Helpers
-local log = ErrorForwarder.Logger
 local Discord = ErrorForwarder.Discord
+local queueName = "CFC_ErrorForwarderQueue"
 
 local context = include( "context.lua" )
 
 --- @class ErrorForwarderForwarder
 ErrorForwarder.Forwarder = {}
+--- @class ErrorForwarderForwarder
 local Forwarder = ErrorForwarder.Forwarder
 Forwarder.queue = {}
 
@@ -30,10 +29,13 @@ function Forwarder:QueueError( luaError, isClientside, ply )
     Helpers.SaveLocals( luaError.stack )
     Helpers.StripStack( luaError.stack )
 
-    local plyName, plySteamID
+    local plyName, plySteamID, branch
     if ply then
         plyName = ply:Nick()
         plySteamID = ply:SteamID()
+        branch = Forwarder.GetBranch( ply ) or "Not sure yet"
+    else
+        branch = BRANCH
     end
 
     --- @class ErrorForwarder_QueuedError
@@ -43,6 +45,7 @@ function Forwarder:QueueError( luaError, isClientside, ply )
         isClientside = isClientside,
         plyName = plyName,
         plySteamID = plySteamID,
+        branch = branch,
         reportInterval = Config.groomInterval:GetInt() or 60,
         fullContext = {
             locals = localsContext,
@@ -55,7 +58,7 @@ function Forwarder:QueueError( luaError, isClientside, ply )
     end
 
     log.debug( "Inserting error into queue: " .. luaError.fullError )
-    rawset( self.queue, fullError, newError )
+    self.queue[fullError] = newError
 end
 
 --- Forwards all queued Errors to Discord
@@ -79,7 +82,7 @@ function Forwarder:groomQueue()
 end
 
 function Forwarder:errorIsQueued( fullError )
-    return rawget( self.queue, fullError ) ~= nil
+    return self.queue[fullError]
 end
 
 function Forwarder:startTimer()
@@ -95,7 +98,7 @@ function Forwarder:adjustTimer( interval )
 end
 
 function Forwarder:incrementError( fullError )
-    local item = rawget( self.queue, fullError )
+    local item = self.queue[fullError]
     item.count = item.count + 1
     item.occurredAt = os_Time()
 end
