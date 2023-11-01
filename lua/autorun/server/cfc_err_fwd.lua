@@ -1,3 +1,4 @@
+require( "formdata" )
 include( "cfc_err_forwarder/logger.lua" )
 
 --- @class ErrorForwarder

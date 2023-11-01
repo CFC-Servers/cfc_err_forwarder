@@ -42,5 +42,3 @@ function Logger.err( ... )
     MsgC( prefix( errCol, ... ) )
     MsgN()
 end
-
-PrintTable( EF.Logger )
