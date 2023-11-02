@@ -18,7 +18,7 @@ Forwarder.queue = {}
 --- @param luaError ErrorForwarder_LuaError
 --- @param isClientside boolean
 --- @param ply Player?
-function Forwarder:QueueError( luaError, isClientside, ply )
+function Forwarder:QueueError( luaError )
     local fullError = luaError.fullError
     if self:errorIsQueued( fullError ) then
         self:incrementError( fullError )
@@ -29,11 +29,15 @@ function Forwarder:QueueError( luaError, isClientside, ply )
     Helpers.SaveLocals( luaError.stack )
     Helpers.StripStack( luaError.stack )
 
+    local ply = luaError.ply
+    local isClientside = false
+
     local plyName, plySteamID, branch
     if ply then
         plyName = ply:Nick()
         plySteamID = ply:SteamID()
         branch = Forwarder.GetBranch( ply ) or "Not sure yet"
+        isClientside = true
     else
         branch = BRANCH
     end
