@@ -24,6 +24,8 @@ EF.Config = {
     -- cfc_err_forwarder_client_enabled
     clientEnabled = makeConfig( "client_enabled", "1", "Whether or not to track and forward Clientside errors" ),
 
+    includeFullContext = makeConfig( "include_full_context", "0", "Whether or not to include JSON files in every message containing the full locals/upvalues" ),
+
     webhook = {
         -- cfc_err_forwarder_client_webhook
         client = makeConfig( "client_webhook", "", "Discord Webhook URL" ),

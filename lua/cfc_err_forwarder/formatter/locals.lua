@@ -1,8 +1,13 @@
+local math_min = math.min
+local string_rep = string.rep
+local table_insert = table.insert
+local table_concat = table.concat
+
 local MAX_LOCALS = 8
 
 --- @param data ErrorForwarder_QueuedError
 --- @return string?
-return function( data )
+return function( data, limit )
     local stack = data
     local locals
 
@@ -19,21 +24,21 @@ return function( data )
     local longest = 0
     for name, value in pairs( locals ) do
         if #name > longest then longest = #name end
-        table.insert( out, { name = name, value = value } )
+        table_insert( out, { name = name, value = value } )
     end
 
     local function convert( line )
         local name = line.name
         local value = line.value
-        local spacing = string.rep( " ", longest - #name )
+        local spacing = string_rep( " ", longest - #name )
         return name .. spacing .. "= " .. value
     end
 
-    local maxLocals = math.min( MAX_LOCALS, #out )
+    local maxLocals = math_min( limit or MAX_LOCALS, #out )
     local limitedOut = {}
     for i = 1, maxLocals do
-        table.insert( limitedOut, convert( out[i] ) )
+        table_insert( limitedOut, convert( out[i] ) )
     end
 
-    return table.concat( limitedOut, "\n" )
+    return table_concat( limitedOut, "\n" )
 end

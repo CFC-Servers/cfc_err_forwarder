@@ -128,6 +128,13 @@ formatRawValue = function( val )
             name = prettyFunc( val ),
         }
     elseif typeID == TYPE_ENTITY then
+        if not IsValid( val ) then
+            return {
+                _type = "Entity [NULL]",
+                data = {}
+            }
+        end
+
         return {
             _type = "Entity",
             data = {
@@ -413,7 +420,6 @@ return function( stack )
         local level = stack[i]
         local funcName = prettyFunc( level.func )
         local fileAndLine = string.format( "%s:%s", level.short_src, level.currentline )
-        print( level, funcName, fileAndLine )
 
         stackLocals[i] = {
             stackLevel = i,
