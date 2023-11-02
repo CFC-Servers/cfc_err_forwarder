@@ -1,27 +1,7 @@
-# CFC Error Forwarder
-<p align="left">
-    <a href="https://discord.gg/5JUqZjzmYJ" alt="Discord Invite"><img src="https://img.shields.io/discord/981394195812085770?label=Support&logo=discord&logoColor=white" /></a>
-</p>
+# cfc_err_forwarder
 A pure-lua (well, Moonscript) Error tracker for Garry's Mod.
 
-This addon will watch for errors, do a little investigation, and send a message to a Discord channel for your review.
-
-### Who is this for?
-This is for Server Owners/Operators. This allows server operators to monitor and manage the errors that occur on their server.
-
-### Who is this **not** for?
-Addon developers looking for a way to track their errors automatically across all servers - this is not the tool for you.
-
-<br>
-
-## Notice ⚠️
-A full-rewrite of this addon is nearly complete. It has fixes, new features, design reworks, discord ratelimit prevention, reliability improvements, and more.
-
-Please keep an eye out for the update!
-
-You can track its progress _(or ask questions)_ in our support Discord: https://discord.gg/5JUqZjzmYJ
-
-<br>
+This addon will watch for errors, do a little investigation, and send a message to a target Discord channel for your review.
 
 ### Some nifty features:
  - :brain: If using source-controlled addons (i.e. git repos in your `addons/` dir), err_forwarder will generate a link to github.com, showing you the exact line that errored
@@ -31,9 +11,9 @@ You can track its progress _(or ask questions)_ in our support Discord: https://
  - :floppy_disk: Automatically backs up your unsent errors, making it less likely that you lose track of errors if the server crashes/restarts.
 
 ## Requirements
- - [gmsv_reqwest](https://github.com/WilliamVenner/gmsv_reqwest) **Required**
- - [gm_luaerror](https://github.com/danielga/gm_luaerror) _(Optional)_
-    - Add this module if you want more information about serverside errors, such as locals at the time of error
+ - [gm_logger](https://github.com/CFC-Servers/gm_logger) _(Optional)_
+ - [gm_luaerror](https://github.com/danielga/gm_luaerror)
+ - [gmsv_reqwest](https://github.com/WilliamVenner/gmsv_reqwest)
 
 
 ## Installation
@@ -51,7 +31,8 @@ You can track its progress _(or ask questions)_ in our support Discord: https://
  - **`cfc_err_forwarder_server_webhook`**: The full Discord Webhook URL to send Serverside errors
  - **`cfc_err_forwarder_client_webhook`**: The full Discord Webhook URL to send Clientside errors
  - **`cfc_err_forwarder_client_enabled`**: A boolean indicating whether or not the addon should even track Clientside errors
- - **`cfc_err_forwarder_bucket_size`**: Client -> Server rate limiting bucket size. (Only applies when not using the luaerror dll)
+ - **`cfc_err_forwarder_include_full_context`**: A boolean indicating whether or not the full error context should be included in the Discord messsages
+
 
 ## Screenshots
 
@@ -61,57 +42,3 @@ You can track its progress _(or ask questions)_ in our support Discord: https://
 
 ### Clientside Error with Context
 ![image](https://user-images.githubusercontent.com/7936439/188520586-fdd2f05f-c83a-458a-a7f3-8f29fa99b95f.png)
-
-<br>
-
-## Hooks
-
-### `CFC_ErrorForwarder_PreQueue`
-Called before an Error is queued to be processed. 
-
-Return `false` to prevent it from being queued.
-
-You may also _(carefully)_ modify the error structure.
-
-### Error Structure
-With the following code:
-```lua
--- addons/example/lua/example/init.lua
-AddCSLuaFile()
-if SERVER then return end
-
-local function exampleFunction()
-    print( 5 + {} )
-end
-
-hook.Add( "InitPostEntity", "Example", function()
-    ProtectedCall( exampleFunction )
-end )
-```
-
-The error structure would look like:
-| **Name**         | **Type**  | **Example**                                                          | **Description**                                                                                                                                                         |
-|------------------|-----------|----------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `branch`         | `string`  | `"unknown"` _(Base branch)_                                          | The game branch where the error occurred. Is either `"Not sure yet"` if the client errored early, or [`BRANCH`](https://wiki.facepunch.com/gmod/Global.BRANCH) string   |
-| `count`          | `number`  | `1`                                                                  | How many times this error has occurred _(Will always be `1` in `CFC_ErrorForrwarder_PreQueue`)_                                                                         |
-| `errorString`    | `string`  | `"attempt to perform arithmetic on a table value"`                   | The actual error message that was produced                                                                                                                              |
-| `fullError`      | `string`  |                                                                      | The full, raw, multiline error string with a simplified stack                                                                                                           |
-| `isClientside`   | `boolean` | `true`                                                               | Whether or not this error occurred on a client                                                                                                                          |
-| `isRuntime`      | `boolean` | `true`                                                               | "Whether this is a runtime error or not" - taken straight from `gm_luaerror`                                                                                            |
-| `occurredAt`     | `number`  | `1704534832`                                                         | The result of `os.time()` of when the error occurred                                                                                                                    |
-| `ply`            | `Player`  | `Player [1][Phatso]`                                                 | The Player who experienced the error, or `nil` if serverside                                                                                                            |
-| `plyName`        | `string`  | `"Phatso"`                                                           | `nil` if serverside                                                                                                                                                     |
-| `plySteamID`     | `string`  | `"STEAM_0:0:21170873"`                                               | `nil` if serverside                                                                                                                                                     |
-| `reportInterval` | `number`  | `60`                                                                 | In seconds, how often the addon is sending errors to Discord                                                                                                            |
-| `sourceFile`     | `string`  | `"addons/test/lua/example/init.lua"`                                 | The file path where the error occurred                                                                                                                                  |
-| `sourceLine`     | `number`  | `4`                                                                  | The line in the file where the error occurred                                                                                                                              |
-| `stack`          | `table`   | `{ 1 = { currentline = 4, name = "unknown", source = "..." }, ... }` | A numerically indexed Stack object                                                                                                                                      |
-
-<br>
-
-### `CFC_ErrorForwarder_OnReceiveCLError`
-This hook is only called when the `luaerror` dll is not installed.
-
-This hook is called in the network receiver that is triggered when a player forwards their error to the server.
-
-Return `false` to prevent it from being processed.
