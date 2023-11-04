@@ -160,9 +160,7 @@ _formatRawValue = function( val, _seen )
         _seen = _seen or {}
 
         for k, v in pairs( val ) do
-            if _seen[v] then
-                formatted[k] = "<recursive>"
-            else
+            if not _seen[v] then
                 _seen[v] = true
 
                 local parsed = _formatRawValue( v, _seen )
@@ -192,7 +190,7 @@ _formatRawValue = function( val, _seen )
 
         return {
             name = "Function",
-            data = { info = pretty },
+            _val = pretty,
             short = {
                 name = "Func",
                 val = pretty
@@ -214,10 +212,12 @@ _formatRawValue = function( val, _seen )
             }
         end
 
+        local class = val:GetClass()
+
         return {
             name = "Entity",
             data = {
-                class = val:GetClass(),
+                class = class,
                 name = val:GetName(),
                 model = val:GetModel(),
                 pos = val:GetPos(),
@@ -281,8 +281,8 @@ _formatRawValue = function( val, _seen )
                 },
                 angleVelocity = val:GetAngleVelocity(),
                 energy = val:GetEnergy(),
-                entity = _formatRawValue( ent ).data,
-                material = _formatRawValue( val:GetMaterial() ).data,
+                entity = ent,
+                material = val:GetMaterial(),
                 mass = val:GetMass(),
                 name = val:GetName(),
                 pos = val:GetPos(),
@@ -309,13 +309,13 @@ _formatRawValue = function( val, _seen )
             name = "CTakeDamageInfo",
             data = {
                 ammo = game.GetAmmoName( val:GetAmmoType() ),
-                attacker = _formatRawValue( attacker ).data,
+                attacker = attacker,
                 damage = damage,
                 damageBonus = val:GetDamageBonus(),
                 damageForce = val:GetDamageForce(),
                 damageType = val:GetDamageType(),
                 damageTypes = getDamageTypes( val ),
-                inflictor = _formatRawValue( val:GetInflictor() ).data,
+                inflictor = val:GetInflictor(),
             },
             short = {
                 name = "Dmg",
@@ -332,7 +332,7 @@ _formatRawValue = function( val, _seen )
                 angles = val:GetAngles(),
                 attachmentIndex = val:GetAttachment(),
                 color = val:GetColor(),
-                entity = _formatRawValue( ent ).data,
+                entity = ent,
                 magnitude = val:GetMagnitude(),
                 normal = val:GetNormal(),
                 origin = val:GetOrigin(),
@@ -363,7 +363,7 @@ _formatRawValue = function( val, _seen )
             name = "CRecipientFilter",
             data = {
                 count = count,
-                players = formatTable( val:GetPlayers() ),
+                players = val:GetPlayers(),
             },
             short = { val = fmt( "#%d", count ) }
         }
@@ -439,7 +439,7 @@ _formatRawValue = function( val, _seen )
     elseif typeID == TYPE_MATRIX then
         return {
             name = "VMatrix",
-            data = formatTable( val:ToTable() ),
+            data = val:ToTable(),
             short = { name = "Matrix" }
         }
 
@@ -532,7 +532,7 @@ _formatRawValue = function( val, _seen )
         return {
             name = "SurfaceInfo",
             data = {
-                material = _formatRawValue( mat ).data,
+                material = mat,
                 isNoDraw = val:IsNoDraw(),
                 isSky = val:IsSky(),
                 isWater = val:IsWater(),
@@ -553,7 +553,16 @@ end
 
 local function formatRawValue( val )
     local out = _formatRawValue( val )
-    out._val = out._val or val
+    out._val = out._val or tostring( val )
+
+    if out.name ~= "Table" then
+        local data = out.data
+        if data then
+            for key, value in pairs( data ) do
+                data[key] = _formatRawValue( value )
+            end
+        end
+    end
 
     return out
 end
@@ -577,6 +586,7 @@ local function getUpvalues( item )
 end
 
 local function getLocals( item )
+    print( "Getting locals" )
     local locals = {}
     local rawLocals = item.locals
     if not rawLocals then return {} end
@@ -590,6 +600,7 @@ local function getLocals( item )
 end
 
 return function( stack )
+    print( "Running Context function" )
     local stackLocals = {}
     local stackUpvalues = {}
 
@@ -597,22 +608,19 @@ return function( stack )
 
     for i = 1, stackCount do
         local level = stack[i]
-        local funcName = prettyFunc( level.func )
-        local fileAndLine = string.format( "%s:%s", level.short_src, level.currentline )
 
+        local locals = getLocals( level )
         stackLocals[i] = {
-            stackLevel = i,
-            funcName = funcName,
-            fileAndLine = fileAndLine,
-            locals = getLocals( level )
+            locals = locals
         }
 
+        local upvalues = getUpvalues( level )
         stackUpvalues[i] = {
-            stackLevel = i,
-            funcName = funcName,
-            fileAndLine = fileAndLine,
-            upvalues = getUpvalues( level )
+            upvalues = upvalues
         }
+
+        if (locals and next( locals )) then break end
+        if (upvalues and next( upvalues )) then break end
     end
 
     return stackLocals, stackUpvalues

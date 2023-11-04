@@ -5,8 +5,6 @@ local string_rep = string.rep
 --- @param details RawValueDetails
 local function formatShortValue( details )
     local shortData = details.short or {}
-
-    local name = shortData.name or details.name
     local shortVal = tostring( shortData.val or details._val )
 
     if shortVal then
@@ -16,6 +14,7 @@ local function formatShortValue( details )
     end
 
     -- An empty name means we display the value as-is
+    local name = shortData.name or details.name
     if name ~= "" then
         name = name .. " "
         shortVal = fmt( "[%s]", shortVal )
@@ -23,6 +22,8 @@ local function formatShortValue( details )
 
     return name .. shortVal
 end
+
+local formatValueData
 
 local function formatDataTable( data, level, lines )
     level = level or 2
@@ -38,11 +39,17 @@ local function formatDataTable( data, level, lines )
         local value = data[key]
 
         lines = lines .. spacing
-        lines = lines .. key .. " = " .. formatShortValue( value )
+        lines = lines .. key .. " = " .. value.name .. " ["
+        if value.data then
+            lines = lines .. formatDataTable( value.data, level + 2 )
+        else
+            lines = lines .. tostring( value )
+        end
+
         lines = lines .. "\n"
     end
 
-    lines = lines .. "}"
+    lines = lines .. string_rep( " ", level - 2 ) .. "}]"
 
     return lines
 end
@@ -50,7 +57,7 @@ end
 --- Formats s value in its long form
 --- @param details RawValueDetails
 --- @return string, string
-local function formatValueData( details )
+formatValueData = function( details, level )
     local value
 
     local data = details.data
@@ -61,7 +68,8 @@ local function formatValueData( details )
             value = ""
         end
     else
-        value = tostring( details._val )
+        local shortData = details.short or {}
+        value = tostring( shortData.val or details._val or details )
     end
 
     return details.name, value
@@ -98,23 +106,22 @@ return function( stack, valueType, limit, short )
 
     local out = ""
 
-    local keys = table.GetKeys( values )
-    local maxKeys = math.min( limit, #keys )
+    local names = table.GetKeys( values )
+    local maxValues = math.min( limit, #names )
 
-    for i = 1, maxKeys do
-        local key = keys[i]
-        local details = values[key]
+    for i = 1, maxValues do
+        local varName = names[i]
+        local details = values[varName]
 
         local typeName
         local val
 
         if short then
-            print( key, details )
             val = formatShortValue( details )
-            out = out .. fmt( "%s = %s\n", key, val )
+            out = out .. fmt( "%s = %s\n", varName, val )
         else
             typeName, val = formatValueData( details )
-            out = out .. fmt( "%s = %s [%s]\n", key, typeName, val )
+            out = out .. fmt( "%s = %s [%s]\n", varName, typeName, val )
         end
     end
 
