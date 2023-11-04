@@ -38,13 +38,13 @@ return function( data )
             },
         }
 
-        local localsData = values( data.fullContext.locals, "locals", MAX_LOCALS, true )
-        if localsData then
-            table.insert( fields, {
-                name = "Locals",
-                value = code( truncate( localsData ), "m" )
-            } )
-        end
+        -- local localsData = values( data.fullContext.locals, "locals", MAX_LOCALS, true )
+        -- if localsData then
+        --     table.insert( fields, {
+        --         name = "Locals",
+        --         value = code( truncate( localsData ), "m" )
+        --     } )
+        -- end
 
         if data.isClientside then
             table.insert( fields, {
