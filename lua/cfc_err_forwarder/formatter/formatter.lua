@@ -1,6 +1,8 @@
 local red = 14483456
-local locals = include( "locals.lua" )
+local MAX_LOCALS = 8
+
 local niceStack = include( "nice_stack.lua" )
+local values = include( "values.lua" )
 
 local TextHelpers = include( "text_helpers.lua" )
 local bold = TextHelpers.bold
@@ -36,7 +38,7 @@ return function( data )
             },
         }
 
-        local localsData = locals( data.fullContext.locals, 8, true )
+        local localsData = values( data.fullContext.locals, "locals", MAX_LOCALS, true )
         if localsData then
             table.insert( fields, {
                 name = "Locals",

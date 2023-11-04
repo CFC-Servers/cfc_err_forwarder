@@ -25,7 +25,7 @@ function Forwarder:QueueError( luaError )
         return
     end
 
-    local localsContext, upvaluesContext = context( luaError.stack )
+    local locals, upvalues = context( luaError.stack )
     Helpers.StripStack( luaError.stack )
 
     local ply = luaError.ply
@@ -51,8 +51,8 @@ function Forwarder:QueueError( luaError )
         branch = branch,
         reportInterval = Config.groomInterval:GetInt() or 60,
         fullContext = {
-            locals = localsContext,
-            upvalues = upvaluesContext,
+            locals = locals,
+            upvalues = upvalues,
         }
     }
 
