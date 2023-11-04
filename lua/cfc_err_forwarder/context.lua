@@ -1,3 +1,4 @@
+local Helpers = ErrorForwarder.Helpers
 local prettyFunc = include( "formatter/pretty_function.lua" )
 
 local tostring = tostring
@@ -98,14 +99,13 @@ local function getDamageTypes( damageInfo )
 end
 
 --- @class FormattedRawValueShort
---- @field name string The human friendly name of the value
+--- @field name string? The human friendly name of the value. Omit to use the normal name, set to "" to not display a name
 --- @field val string The human friendly short value
 
 --- @class RawValueDetails
---- @field type string The human-friendly type of the value
---- @field _type string? The TypeID of the value (added post-return)
+--- @field name string The human-friendly type of the value
 --- @field data table? Extra fields to give more context for the value. May not be present for simple values
---- @field value any The actual value itself
+--- @field _val any The actual value itself
 --- @field short FormattedRawValueShort The data to build a short one-liner for limited context
 
 --- Internal funtion to generate the first set of value details
@@ -115,35 +115,32 @@ _formatRawValue = function( val, _seen )
 
     if typeID == TYPE_NIL then
         return {
-            type = "Nil",
-            short = { name = "Nil" }
+            name = "Nil",
+            short = { val = "" }
         }
 
     elseif typeID == TYPE_BOOL then
         return {
-            type = "Boolean",
-            short = {
-                name = "Bool",
-                val = tostring( val )
-            }
+            name = "Boolean",
+            short = { name = "" }
         }
 
     elseif typeID == TYPE_NUMBER then
         return {
-            type = "Number",
+            name = "Number",
             short = {
-                name = "Num",
-                val = tostring( val )
+                name = "",
+                val = val
             }
         }
 
     elseif typeID == TYPE_STRING then
+        local quoted = fmt( [["%s"]], val )
+
         return {
-            type = "String",
-            short = {
-                name = "Str",
-                val = val
-            }
+            name = "String",
+            _val = quoted,
+            short = { name = "" }
         }
 
     elseif IsColor( val ) then
@@ -153,12 +150,9 @@ _formatRawValue = function( val, _seen )
         local a = val.a
 
         return {
-            type = "Color",
+            name = "Color",
             data = { r = r, g = g, b = b, a = a },
-            short = {
-                name = "Col",
-                val = fmt( "%d,%d,%d", r, g, b )
-            }
+            short = { val = fmt( "%d,%d,%d", r, g, b ) }
         }
 
     elseif typeID == TYPE_TABLE then
@@ -170,24 +164,34 @@ _formatRawValue = function( val, _seen )
                 formatted[k] = "<recursive>"
             else
                 _seen[v] = true
-                formatted[k] = _formatRawValue( v, _seen )
+
+                local parsed = _formatRawValue( v, _seen )
+                formatted[k] = parsed
             end
         end
 
+        local shortName
+        local shortVal
+
+        local formattedCount = table.Count( formatted )
+        if formattedCount == 0 then
+            shortName = ""
+            shortVal = "{}"
+        else
+            shortVal = fmt( "#%d", formattedCount )
+        end
+
         return {
-            type = "Table",
+            name = "Table",
             data = formatted,
-            short = {
-                name = "Tbl",
-                val = fmt( "#%d", table.Count( formatted ) )
-            }
+            short = { name = shortName, val = shortVal }
         }
 
     elseif typeID == TYPE_FUNCTION then
         local pretty = prettyFunc( val )
 
         return {
-            type = "Function",
+            name = "Function",
             data = { info = pretty },
             short = {
                 name = "Func",
@@ -201,17 +205,17 @@ _formatRawValue = function( val, _seen )
         -- Can't add any extra info about a NULL Entity
         if not isValid then
             return {
-                type = "Entity",
+                name = "Entity",
                 data = { isValid = isValid },
                 short = {
-                    name = "Entity",
+                    name = "Ent",
                     val = "NULL"
                 }
             }
         end
 
         return {
-            type = "Entity",
+            name = "Entity",
             data = {
                 class = val:GetClass(),
                 name = val:GetName(),
@@ -232,7 +236,7 @@ _formatRawValue = function( val, _seen )
         local z = val.z
 
         return {
-            type = "Vector",
+            name = "Vector",
             data = { x = x, y = y, z = z },
             short = {
                 name = "Vec",
@@ -246,7 +250,7 @@ _formatRawValue = function( val, _seen )
         local r = val.r
 
         return {
-            type = "Angle",
+            name = "Angle",
             data = { p = p, y = y, r = r },
             short = {
                 name = "Ang",
@@ -259,14 +263,9 @@ _formatRawValue = function( val, _seen )
 
         if not isValid then
             return {
-                type = "PhysObj",
-                data = {
-                    isValid = false
-                },
-                short = {
-                    name = "PhysObj",
-                    val = "NULL"
-                }
+                name = "PhysObj",
+                data = { isValid = false },
+                short = { val = "NULL" }
             }
         end
 
@@ -274,7 +273,7 @@ _formatRawValue = function( val, _seen )
         local ent = val:GetEntity()
 
         return {
-            type = "PhysObj",
+            name = "PhysObj",
             data = {
                 aabb = {
                     min = mins,
@@ -300,10 +299,6 @@ _formatRawValue = function( val, _seen )
                 },
                 isValid = val:IsValid(),
             },
-            short = {
-                name = "PhysObj",
-                val = tostring( ent )
-            }
         }
 
     elseif typeID == TYPE_DAMAGEINFO then
@@ -311,7 +306,7 @@ _formatRawValue = function( val, _seen )
         local attacker = val:GetAttacker()
 
         return {
-            type = "CTakeDamageInfo",
+            name = "CTakeDamageInfo",
             data = {
                 ammo = game.GetAmmoName( val:GetAmmoType() ),
                 attacker = _formatRawValue( attacker ).data,
@@ -332,7 +327,7 @@ _formatRawValue = function( val, _seen )
         local ent = val:GetEntity()
 
         return {
-            type = "CEffectData",
+            name = "CEffectData",
             data = {
                 angles = val:GetAngles(),
                 attachmentIndex = val:GetAttachment(),
@@ -349,7 +344,7 @@ _formatRawValue = function( val, _seen )
 
     elseif typeID == TYPE_MOVEDATA then
         return {
-            type = "CMoveData",
+            name = "CMoveData",
             data = {
                 angles = val:GetAngles(),
                 buttons = getButtons( val ),
@@ -359,27 +354,23 @@ _formatRawValue = function( val, _seen )
                 moveAngles = val:GetMoveAngles(),
                 origin = val:GetOrigin(),
             },
-            short = { name = "CMoveData" }
         }
 
     elseif typeID == TYPE_RECIPIENTFILTER then
         local count = val:GetCount()
 
         return {
-            type = "CRecipientFilter",
+            name = "CRecipientFilter",
             data = {
                 count = count,
                 players = formatTable( val:GetPlayers() ),
             },
-            short = {
-                name = "CRecipientFilter",
-                val = fmt( "#%d", count )
-            }
+            short = { val = fmt( "#%d", count ) }
         }
 
     elseif typeID == TYPE_USERCMD then
         return {
-            type = "CUserCmd",
+            name = "CUserCmd",
             data = {
                 commandNumber = val:GetCommandNumber(),
                 buttons = getButtons( val ),
@@ -392,26 +383,24 @@ _formatRawValue = function( val, _seen )
                 viewAngles = val:GetViewAngles(),
                 isForced = val:IsForced(),
             },
-            short = { name = "CUserCmd" }
         }
 
     elseif typeID == TYPE_MATERIAL then
         local name = val:GetName()
 
         return {
-            type = "IMaterial",
+            name = "IMaterial",
             data = {
                 name = name,
                 shader = val:GetShader(),
-                string = val:GetString(),
-                texture = val:GetTexture(),
+                texture = val:GetTexture( "$basetexture" ),
             },
             short = { name = "Mat", val = name }
         }
 
     elseif typeID == TYPE_PARTICLE then
         return {
-            type = "CLuaParticle",
+            name = "CLuaParticle",
             data = {
                 color = val:GetColor(),
                 dieTime = val:GetDieTime(),
@@ -426,21 +415,21 @@ _formatRawValue = function( val, _seen )
         local name = val:GetName()
 
         return {
-            type = "ITexture",
+            name = "ITexture",
             data = {
                 name = name,
-                height = val:GetTall(),
-                width = val:GetWide(),
+                height = val:Height(),
+                width = val:Width(),
             },
             short = {
-                name = "Tex",
+                name = "Texture",
                 val = val
             }
         }
 
     elseif typeID == TYPE_MESH then
         return {
-            type = "IMesh",
+            name = "IMesh",
             data = {
                 isValid = val:IsValid(),
             },
@@ -449,7 +438,7 @@ _formatRawValue = function( val, _seen )
 
     elseif typeID == TYPE_MATRIX then
         return {
-            type = "VMatrix",
+            name = "VMatrix",
             data = formatTable( val:ToTable() ),
             short = { name = "Matrix" }
         }
@@ -458,7 +447,7 @@ _formatRawValue = function( val, _seen )
         local isPlaying = val:IsPlaying()
 
         return {
-            type = "CSoundPatch",
+            name = "CSoundPatch",
             data = {
                 isPlaying = isPlaying,
                 dsp = val:GetDSP(),
@@ -477,21 +466,20 @@ _formatRawValue = function( val, _seen )
         local tell = val:Tell()
 
         return {
-            type = "File",
+            name = "File",
             data = {
                 size = size,
                 tell = tell,
                 endOfFile = val:EndOfFile(),
             },
             short = {
-                name = "File",
                 val = fmt( "%d/%d", tell, size )
             }
         }
 
     elseif typeID == TYPE_LOCOMOTION then
         return {
-            type = "CLuaLocomotion",
+            name = "CLuaLocomotion",
             data = {
                 acceleration = val:GetAcceleration(),
                 avoidAllowed = val:GetAvoidAllowed(),
@@ -514,17 +502,14 @@ _formatRawValue = function( val, _seen )
 
         if not isValid then
             return {
-                type = "PathFollower",
+                name = "PathFollower",
                 data = { isValid = isValid },
-                short = {
-                    name = "PathFollower",
-                    val = "NULL"
-                }
+                short = { val = "NULL" }
             }
         end
 
         return {
-            type = "PathFollower",
+            name = "PathFollower",
             data = {
                 age = val:GetAge(),
                 goal = val:GetCurrentGoal(),
@@ -537,18 +522,15 @@ _formatRawValue = function( val, _seen )
 
     elseif typeID == TYPE_PHYSCOLLIDE then
         return {
-            type = "PhysCollide",
+            name = "PhysCollide",
             data = { isValid = val:IsValid(), },
-            short = {
-                name = "PhysCollide",
-                val = isValid and "" or "NULL"
-            }
+            short = { val = isValid and "" or "NULL" }
         }
 
     elseif typeID == TYPE_SURFACEINFO then
         local mat = val:GetMaterial()
         return {
-            type = "SurfaceInfo",
+            name = "SurfaceInfo",
             data = {
                 material = _formatRawValue( mat ).data,
                 isNoDraw = val:IsNoDraw(),
@@ -563,13 +545,17 @@ _formatRawValue = function( val, _seen )
 
     else
         return {
-            type = "Unknown",
-            short = {
-                name = "Unknown",
-                val = type( val )
-            }
+            name = "Unknown",
+            short = { val = type( val ) }
         }
     end
+end
+
+local function formatRawValue( val )
+    local out = _formatRawValue( val )
+    out._val = out._val or val
+
+    return out
 end
 
 local function getUpvalues( item )
@@ -583,7 +569,7 @@ local function getUpvalues( item )
     for i = 1, nups do
         local name, value = debug.getupvalue( func, i )
         if value ~= nil then
-            upvalues[name] = _formatRawValue( value )
+            upvalues[name] = formatRawValue( value )
         end
     end
 
@@ -596,7 +582,7 @@ local function getLocals( item )
     if not rawLocals then return {} end
 
     for name, value in pairs( rawLocals ) do
-        local v = _formatRawValue( value )
+        local v = formatRawValue( value )
         locals[name] = v
     end
 

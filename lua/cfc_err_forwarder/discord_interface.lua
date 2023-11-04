@@ -1,6 +1,8 @@
 local CurTime = CurTime
-local Locals = include( "cfc_err_forwarder/formatter/locals.lua" )
+local MAX_VALUES = 30
+
 local Formatter = include( "cfc_err_forwarder/formatter/formatter.lua" )
+local Values = include( "cfc_err_forwarder/formatter/values.lua" )
 
 local log = ErrorForwarder.Logger
 local Config = ErrorForwarder.Config
@@ -106,15 +108,21 @@ function DI:sendNext()
         if Config.includeFullContext:GetBool() then
             local locals = context.locals
             if locals then
-                local formattedLocals = Locals( locals, 50, false )
+                local formattedValues = Values( locals, "locals", MAX_VALUES )
 
-                if #formattedLocals > 0 then
-                    data:Append( "files[0]", formattedLocals, "m", "full_locals.json" )
+                if formattedValues and #formattedValues > 0 then
+                    data:Append( "files[0]", formattedValues, "m", "full_locals.json" )
                 end
             end
 
             local upvalues = context.upvalues
-            if upvalues then data:Append( "files[1]", util.TableToJSON( upvalues, true ), "json", "full_upvalues.json" ) end
+            if upvalues then
+                local formattedValues = Values( upvalues, "upvalues", MAX_VALUES )
+
+                if formattedVallues and #formattedValues > 0 then
+                    data:Append( "files[1]", formattedValues, "m", "full_upvalues.json" )
+                end
+            end
         end
 
         local newItem = table.Copy( self.requestTemplate )
