@@ -1,5 +1,4 @@
 local istable = istable
-local tostring = tostring
 local pretty = include( "cfc_err_forwarder/formatter/pretty_values.lua" )
 
 ErrorForwarder.Helpers = {}
@@ -16,46 +15,18 @@ function Helpers.StripStack( tbl )
 end
 
 do
-    --- Converts a table to stringified table
-    --- @param tbl table
-    --- @return string
-    local function stringTable( tbl )
-        local oneline = table.Count( tbl ) == 1
-
-        local str = "{"
-        if not oneline then
-            str = str .. "\n"
-        end
-
-        local count = 0
-        for k, v in pairs( tbl ) do
-            if count >= 8 then break end
-
-            str = str .. "  " .. tostring( k ) .. " = " .. pretty( v )
-            str = str .. ( oneline and " " or "\n" )
-
-            count = count + 1
-        end
-
-        return str .. "}"
-    end
-
     local function saveLocal( newLocals, name, value )
-        if istable( value ) then
-            newLocals[name] = stringTable( value )
-        else
-            local val = pretty( value )
+        local val = pretty( value )
 
-            if #val > 125 then
-                if val[1] == '"' then
-                    val = string.sub( newLocal, 1, 121 ) .. "...\""
-                else
-                    val = string.sub( newLocal, 1, 122 ) .. "..."
-                end
+        if #val > 125 then
+            if val[1] == '"' then
+                val = string.sub( newLocal, 1, 121 ) .. "...\""
+            else
+                val = string.sub( newLocal, 1, 122 ) .. "..."
             end
-
-            newLocals[name] = val
         end
+
+        newLocals[name] = val
     end
 
     --- Formats all of the locals in the given stack table
@@ -67,6 +38,7 @@ do
             if locals then
                 local newLocals = {}
                 for name, value in pairs( locals ) do
+                    print( "Saving local:", name, value )
                     saveLocal( newLocals, name, value )
                 end
             end

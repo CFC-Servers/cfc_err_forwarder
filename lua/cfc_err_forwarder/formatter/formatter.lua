@@ -36,7 +36,7 @@ return function( data )
             },
         }
 
-        local localsData = locals( data )
+        local localsData = locals( data.fullContext.locals, 8, true )
         if localsData then
             table.insert( fields, {
                 name = "Locals",
@@ -44,7 +44,6 @@ return function( data )
             } )
         end
 
-        -- FIXME: data.hasPly
         if data.isClientside then
             table.insert( fields, {
                 name = "Player",
