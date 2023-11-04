@@ -106,7 +106,7 @@ function DI:sendNext()
         if Config.includeFullContext:GetBool() then
             local locals = context.locals
             if locals then
-                local formattedLocals = Locals( locals, 50 )
+                local formattedLocals = Locals( locals, 50, false )
 
                 if #formattedLocals > 0 then
                     data:Append( "files[0]", formattedLocals, "m", "full_locals.json" )
@@ -114,7 +114,6 @@ function DI:sendNext()
             end
 
             local upvalues = context.upvalues
-            if upvalues then PrintTable( upvalues ) end
             if upvalues then data:Append( "files[1]", util.TableToJSON( upvalues, true ), "json", "full_upvalues.json" ) end
         end
 

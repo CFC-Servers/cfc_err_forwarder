@@ -26,7 +26,6 @@ function Forwarder:QueueError( luaError )
     end
 
     local localsContext, upvaluesContext = context( luaError.stack )
-    Helpers.SaveLocals( luaError.stack )
     Helpers.StripStack( luaError.stack )
 
     local ply = luaError.ply
