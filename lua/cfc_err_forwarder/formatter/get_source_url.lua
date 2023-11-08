@@ -3,28 +3,17 @@ local function getGmodURL( source, line )
     return string.format( baseGmodURL, { source = source, line = line } )
 end
 
-return function( source, line )
-    -- { "addons", "acf-3", "lua", "entities", "acf_armor", "shared.lua" }
-    -- { "gamemodes", "sandbox", "entities", "weapons", "gmod_tool", "stools", "duplicator", "transport.lua" }
-    local sourceSpl = string.Split( source, "/" )
+--- A 
+local urlCache = {}
+local missCache = {}
 
-    -- "addons"
-    -- "gamemodes"
-    local root = sourceSpl[1]
-
-    -- "acf-3"
-    -- "sandbox"
-    local mainDir = sourceSpl[2]
-
-    if root == "gamemodes" then
-        return getGmodURL( source, line )
-    end
-
-    -- If the root isn't a Gamemode or Addon, we can't get a source URL for it
-    if root ~= "addons" then return end
-
+--- Builds the base URL for the given project dir
+--- It is assumed that this is only called for addons
+--- @param mainDir string The name of the addon's directory
+--- @return string?
+local function _getProjectURL( mainDir )
     local fetchPath = "addons/" .. mainDir .. "/.git/FETCH_HEAD"
-    local content = file.Read( fetchPath, "LUA" )
+    local content = file.Read( fetchPath, "GAME" )
 
     if not content then return nil end
 
@@ -56,10 +45,68 @@ return function( source, line )
     -- "ACF-3"
     local project = repoSpl[3]
 
+    return string.format( "https://%s/%s/%s/blob/%s", host, owner, project, branch )
+end
+
+--- Cache wrapper for the _getProjectURL function
+--- @param mainDir string
+--- @return string?
+local function getProjectURL( mainDir )
+    local cached = urlCache[mainDir]
+
+    if not cached then
+        -- Break out early if this is a waste of time
+        if missCache[mainDir] then return end
+
+        cached = _getProjectURL( mainDir )
+
+        -- If the function returned nothing, cache that result too
+        if not cached then
+            missCache[mainDir] = true
+            return
+        end
+
+        urlCache[mainDir] = cached
+    else
+        print( "Returning cached url result" )
+    end
+
+    return cached
+end
+
+return function( source, line )
+    -- { "addons", "acf-3", "lua", "entities", "acf_armor", "shared.lua" }
+    -- { "gamemodes", "sandbox", "entities", "weapons", "gmod_tool", "stools", "duplicator", "transport.lua" }
+    local sourceSpl = string.Split( source, "/" )
+
+    -- "addons"
+    -- "gamemodes"
+    local root = sourceSpl[1]
+
+    -- "acf-3"
+    -- "sandbox"
+    local mainDir = sourceSpl[2]
+
+    if root == "gamemodes" then
+        return getGmodURL( source, line )
+    end
+
+    -- If the root isn't a Gamemode or Addon, we can't get a source URL for it
+    if root ~= "addons" then return end
+
+    -- "https://github.com/Stooberton/ACF-3/blob/master"
+    local rootURL = getProjectURL( mainDir )
+    if not rootURL then
+        print( "[CFC_ErrorForwarder] Couldn't find project URL for addon:", mainDir )
+        return
+    end
+
     -- "lua/entities/acf_armor/shared.lua"
-    -- "sandbox/entities/waepons/gmod_stool/stools/duplicator/transport.lua"
+    -- "sandbox/entities/weapons/gmod_stool/stools/duplicator/transport.lua"
     local finalPath = table.concat( sourceSpl, "/", 3, #sourceSpl ) .. "#L" .. line
-    local finalURL = string.format( "https://%s/%s/%s/blob/%s/%s", host, owner, project, branch, finalPath )
+
+    -- "https://github.com/Stooberton/ACF-3/blob/master/lua/entities/acf_armor/shared.lua"
+    local finalURL = rootURL .. "/" .. finalPath
 
     return finalURL
 end

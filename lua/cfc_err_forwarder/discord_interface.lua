@@ -1,5 +1,4 @@
 local CurTime = CurTime
-local MAX_VALUES = 30
 
 local Formatter = include( "cfc_err_forwarder/formatter/formatter.lua" )
 local Values = include( "cfc_err_forwarder/formatter/values_full.lua" )
@@ -119,7 +118,7 @@ function DI:sendNext()
             if upvalues then
                 local formattedValues = Values( upvalues, "upvalues" )
 
-                if formattedVallues and #formattedValues > 0 then
+                if formattedValues and #formattedValues > 0 then
                     data:Append( "files[1]", formattedValues, "m", "full_upvalues.json" )
                 end
             end

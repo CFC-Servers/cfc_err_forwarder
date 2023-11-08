@@ -681,12 +681,17 @@ return function( stack )
             locals = locals
         }
 
+        if (locals and next( locals )) then break end
+    end
+
+    for i = 1, stackCount do
+        local level = stack[i]
+
         local upvalues = getUpvalues( level )
         stackUpvalues[i] = {
             upvalues = upvalues
         }
 
-        if (locals and next( locals )) then break end
         if (upvalues and next( upvalues )) then break end
     end
 

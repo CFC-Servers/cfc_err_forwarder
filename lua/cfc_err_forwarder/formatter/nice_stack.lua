@@ -1,18 +1,15 @@
-local string_rep = string.rep
 local table_concat = table.concat
 local table_insert = table.insert
 local string_format = string.format
 
---- @param data ErrorForwarder_QueuedError
---- @return string
+local GetSource = include( "get_source_url.lua" )
+
 return function( data )
-    local indent = 2
-    local lines = { data.luaError.fullError or "<unknown error>" }
+    local lines = {}
 
     local stack = data.luaError.stack
 
     for i = 1, #stack do
-        indent = indent + 1
         local item = stack[i]
 
         local lineNumber = item.currentline
@@ -21,8 +18,16 @@ return function( data )
         local name = item.name or ""
         name = #name == 0 and "<unknown>" or name
 
-        local spacing = string_rep( " ", indent )
-        table_insert( lines, string_format( "%s%s.  %s - %s:%s", spacing, i, name, src, lineNumber ) )
+        local sourceInfo = src .. ":" .. lineNumber
+
+        local link = GetSource( src, lineNumber )
+        if link then
+            sourceInfo = string_format( "[`%s`](%s)", sourceInfo, link )
+        else
+            sourceInfo = string_format( "`%s`", sourceInfo )
+        end
+
+        table_insert( lines, string_format( "%s. **%s** → %s", i, name, sourceInfo ) )
     end
 
     return table_concat( lines, "\n" )
