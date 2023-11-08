@@ -2,7 +2,7 @@ local red = 14483456
 local MAX_LOCALS = 8
 
 local niceStack = include( "nice_stack.lua" )
-local values = include( "values.lua" )
+local values = include( "values_short.lua" )
 
 local TextHelpers = include( "text_helpers.lua" )
 local bold = TextHelpers.bold
@@ -38,13 +38,13 @@ return function( data )
             },
         }
 
-        -- local localsData = values( data.fullContext.locals, "locals", MAX_LOCALS, true )
-        -- if localsData then
-        --     table.insert( fields, {
-        --         name = "Locals",
-        --         value = code( truncate( localsData ), "m" )
-        --     } )
-        -- end
+        local localsData = values( data.fullContext.locals, "locals" )
+        if localsData then
+            table.insert( fields, {
+                name = "Locals",
+                value = code( truncate( localsData ), "ini" )
+            } )
+        end
 
         if data.isClientside then
             table.insert( fields, {
