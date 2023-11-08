@@ -29,7 +29,7 @@ local function formatShort( struct, inTable )
         return name .. " [" .. val .. "]"
     end
 
-    return val or "<unknown>"
+    return tostring( val ) or "<unknown>"
 end
 
 local function formatTableData( data )
