@@ -33,8 +33,8 @@ return function( data )
                 value = TextHelpers.getSourceText( data )
             },
             {
-                name = "Full Error",
-                value = code( truncate( client and data.luaError.fullError or niceStack( data ) ) )
+                name = "Stack",
+                value = truncate( client and data.luaError.fullError or niceStack( data ) )
             },
         }
 

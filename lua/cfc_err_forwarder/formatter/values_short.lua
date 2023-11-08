@@ -53,7 +53,7 @@ local function formatTableData( data )
         local details = data[name]
 
         local line = "  "
-        local prefix = i < iterCount and "╞" or "└"
+        local prefix = i < iterCount and "┣" or "┖"
         table.insert( out, line .. prefix .. " " .. name .. " = " .. formatShort( details, true ) )
     end
 
