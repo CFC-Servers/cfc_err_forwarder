@@ -647,7 +647,6 @@ local function getUpvalues( item )
     for i = 1, nups do
         local name, value = debug.getupvalue( func, i )
         if value ~= nil then
-            print( "Parsing upvalue:", name, tostring( value ), type( value ) )
             upvalues[name] = formatRawValue( value )
         end
     end
@@ -656,13 +655,11 @@ local function getUpvalues( item )
 end
 
 local function getLocals( item )
-    print( "Getting locals" )
     local locals = {}
     local rawLocals = item.locals
     if not rawLocals then return {} end
 
     for name, value in pairs( rawLocals ) do
-        print( "Parsing local:", name, tostring( value ), type( value ) )
         local v = formatRawValue( value )
         locals[name] = v
     end
@@ -671,7 +668,6 @@ local function getLocals( item )
 end
 
 return function( stack )
-    print( "Running Context function" )
     local stackLocals = {}
     local stackUpvalues = {}
 
