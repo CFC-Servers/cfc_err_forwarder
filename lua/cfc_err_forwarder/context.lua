@@ -101,11 +101,12 @@ end
 --- @class FormattedRawValueShort
 --- @field name string? The human friendly name of the value. Omit to use the normal name, set to "" to not display a name
 --- @field val string The human friendly short value
+--- @field newline string? Should break the definition from the name in the short output
 
 --- @class RawValueDetails
 --- @field name string The human-friendly type of the value
 --- @field data table? Extra fields to give more context for the value. May not be present for simple values
---- @field _val any The actual value itself
+--- @field val any The actual value itself
 --- @field short FormattedRawValueShort The data to build a short one-liner for limited context
 
 --- Internal funtion to generate the first set of value details
@@ -130,17 +131,25 @@ _formatRawValue = function( val, _seen )
             name = "Number",
             short = {
                 name = "",
-                val = val
+                val = val,
+                newline = true
             }
         }
 
     elseif typeID == TYPE_STRING then
-        local quoted = fmt( [["%s"]], val )
+        local shortVal = val
+        if #val > 48 then
+            shortVal = string.sub( val, 1, 48 ) .. "..."
+        end
 
         return {
             name = "String",
-            _val = quoted,
-            short = { name = "" }
+            val = fmt( [["%s"]], val ),
+            short = {
+                name = "",
+                val = fmt( [["%s"]], shortVal ),
+                newline = true
+            }
         }
 
     elseif IsColor( val ) then
@@ -152,7 +161,7 @@ _formatRawValue = function( val, _seen )
         return {
             name = "Color",
             data = { r = r, g = g, b = b, a = a },
-            short = { val = fmt( "%d,%d,%d", r, g, b ) }
+            short = { val = fmt( "%d, %d, %d, %d", r, g, b, a ) }
         }
 
     elseif typeID == TYPE_TABLE then
@@ -164,6 +173,7 @@ _formatRawValue = function( val, _seen )
                 _seen[v] = true
 
                 local parsed = _formatRawValue( v, _seen )
+                parsed.val = parsed.val or tostring( v )
                 formatted[k] = parsed
             end
         end
@@ -190,10 +200,11 @@ _formatRawValue = function( val, _seen )
 
         return {
             name = "Function",
-            _val = pretty,
+            val = pretty,
             short = {
                 name = "Func",
-                val = pretty
+                val = fmt( [["%s"]], pretty ),
+                newline = true
             }
         }
 
@@ -205,14 +216,42 @@ _formatRawValue = function( val, _seen )
             return {
                 name = "Entity",
                 data = { isValid = isValid },
-                short = {
-                    name = "Ent",
-                    val = "NULL"
-                }
+                short = { val = "NULL" }
             }
         end
 
         local class = val:GetClass()
+
+        if class == "player" then
+            return {
+                name = "Player",
+                data = {
+                    steamID = val:SteamID(),
+                    steamID64 = val:SteamID64(),
+                    nickname = val:Nick(),
+                    ping = val:Ping(),
+                    packetLoss = val:PacketLoss(),
+                    health = val:Health(),
+                    armor = val:Armor(),
+                    alive = val:Alive(),
+                    model = val:GetModel(),
+                    flashlight = val:FlashlightIsOn(),
+                    weapon = val:GetActiveWeapon(),
+                    aimEnt = val:GetEyeTrace().Entity,
+                    vehicle = val:GetVehicle(),
+                    god = val:HasGodMode(),
+                    timeConnected = val:TimeConnected(),
+                    connected = val:IsConnected(),
+                    frozen = val:IsFrozen(),
+                    timingOut = val:IsTimingOut(),
+                    sprinting = val:IsSprinting(),
+                    typing = val:IsTyping()
+                },
+                short = {
+                    val = fmt( [["%s"]], val:SteamID() )
+                }
+            }
+        end
 
         return {
             name = "Entity",
@@ -224,10 +263,7 @@ _formatRawValue = function( val, _seen )
                 ang = val:GetAngles(),
                 isValid = isValid
             },
-            short = {
-                name = "Ent",
-                val = class
-            }
+            short = { val = fmt( [["%s"]], class ) }
         }
 
     elseif typeID == TYPE_VECTOR then
@@ -239,8 +275,7 @@ _formatRawValue = function( val, _seen )
             name = "Vector",
             data = { x = x, y = y, z = z },
             short = {
-                name = "Vec",
-                val = fmt( "%d,%d,%d", x, y, z )
+                val = fmt( "%d, %d, %d", x, y, z ),
             }
         }
 
@@ -253,8 +288,7 @@ _formatRawValue = function( val, _seen )
             name = "Angle",
             data = { p = p, y = y, r = r },
             short = {
-                name = "Ang",
-                val = fmt( "%d,%d,%d", p, y, r )
+                val = fmt( "%d, %d, %d", p, y, r )
             }
         }
 
@@ -299,6 +333,10 @@ _formatRawValue = function( val, _seen )
                 },
                 isValid = val:IsValid(),
             },
+            short = {
+                val = tostring( ent ),
+                newline = true
+            }
         }
 
     elseif typeID == TYPE_DAMAGEINFO then
@@ -319,7 +357,8 @@ _formatRawValue = function( val, _seen )
             },
             short = {
                 name = "Dmg",
-                val = fmt( "%s->%d", tostring( attacker ), damage )
+                val = fmt( "%s->%d", tostring( attacker ), damage ),
+                newline = true
             }
         }
 
@@ -339,7 +378,10 @@ _formatRawValue = function( val, _seen )
                 radius = val:GetRadius(),
                 scale = val:GetScale(),
             },
-            short = { name = "Effect", val = tostring( ent ) }
+            short = {
+                name = "Effect",
+                val = tostring( ent )
+            }
         }
 
     elseif typeID == TYPE_MOVEDATA then
@@ -354,6 +396,7 @@ _formatRawValue = function( val, _seen )
                 moveAngles = val:GetMoveAngles(),
                 origin = val:GetOrigin(),
             },
+            short = { val = "" }
         }
 
     elseif typeID == TYPE_RECIPIENTFILTER then
@@ -383,6 +426,7 @@ _formatRawValue = function( val, _seen )
                 viewAngles = val:GetViewAngles(),
                 isForced = val:IsForced(),
             },
+            short = { val = "" }
         }
 
     elseif typeID == TYPE_MATERIAL then
@@ -395,7 +439,7 @@ _formatRawValue = function( val, _seen )
                 shader = val:GetShader(),
                 texture = val:GetTexture( "$basetexture" ),
             },
-            short = { name = "Mat", val = name }
+            short = { name = "Mat", val = fmt( [["%s"]], name ) }
         }
 
     elseif typeID == TYPE_PARTICLE then
@@ -408,7 +452,7 @@ _formatRawValue = function( val, _seen )
                 rotation = val:GetRoll(),
                 velocity = val:GetVelocity(),
             },
-            short = { name = "Particle" }
+            short = { name = "Particle", val = "" }
         }
 
     elseif typeID == TYPE_TEXTURE then
@@ -433,14 +477,14 @@ _formatRawValue = function( val, _seen )
             data = {
                 isValid = val:IsValid(),
             },
-            short = { name = "Mesh" }
+            short = { name = "Mesh", val = "" }
         }
 
     elseif typeID == TYPE_MATRIX then
         return {
             name = "VMatrix",
             data = val:ToTable(),
-            short = { name = "Matrix" }
+            short = { name = "Matrix", val = "" }
         }
 
     elseif typeID == TYPE_SOUND then
@@ -495,6 +539,7 @@ _formatRawValue = function( val, _seen )
                 isStuck = val:IsStuck(),
                 isUsingLadder = val:IsUsingLadder(),
             },
+            short = { val = "" }
         }
 
     elseif typeID == TYPE_PATH then
@@ -517,7 +562,8 @@ _formatRawValue = function( val, _seen )
                 length = val:GetLength(),
                 startPos = val:GetStart(),
                 isValid = isValid,
-            }
+            },
+            short = { val = "" }
         }
 
     elseif typeID == TYPE_PHYSCOLLIDE then
@@ -553,13 +599,27 @@ end
 
 local function formatRawValue( val )
     local out = _formatRawValue( val )
-    out._val = out._val or tostring( val )
+    out.val = tostring( out.val or val )
+
+    local short = out.short
+    if short then
+        short.val = short.val ~= nil and tostring( short.val ) or out.val
+    end
 
     if out.name ~= "Table" then
         local data = out.data
+
         if data then
             for key, value in pairs( data ) do
-                data[key] = _formatRawValue( value )
+                local parsed = _formatRawValue( value )
+                parsed.val = parsed.val or tostring( value )
+
+                short = parsed.short
+                if short then
+                    short.val = short.val ~= nil and tostring( short.val ) or parsed.val
+                end
+
+                data[key] = parsed
             end
         end
     end
@@ -578,6 +638,7 @@ local function getUpvalues( item )
     for i = 1, nups do
         local name, value = debug.getupvalue( func, i )
         if value ~= nil then
+            print( "Parsing upvalue:", name, tostring( value ), type( value ) )
             upvalues[name] = formatRawValue( value )
         end
     end
@@ -592,6 +653,7 @@ local function getLocals( item )
     if not rawLocals then return {} end
 
     for name, value in pairs( rawLocals ) do
+        print( "Parsing local:", name, tostring( value ), type( value ) )
         local v = formatRawValue( value )
         locals[name] = v
     end
