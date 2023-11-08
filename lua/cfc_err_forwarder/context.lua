@@ -144,7 +144,6 @@ _formatRawValue = function( val, _seen )
 
         return {
             name = "String",
-            val = fmt( [["%s"]], val ),
             short = {
                 name = "",
                 val = fmt( [["%s"]], shortVal ),
@@ -201,6 +200,7 @@ _formatRawValue = function( val, _seen )
         return {
             name = "Function",
             val = pretty,
+            data = { source = pretty },
             short = {
                 name = "Func",
                 val = fmt( [["%s"]], pretty ),
@@ -597,32 +597,41 @@ _formatRawValue = function( val, _seen )
     end
 end
 
+local canRaw = {
+    Number = true,
+    Boolean = true,
+    String = true
+}
+
 local function formatRawValue( val )
     local out = _formatRawValue( val )
-    out.val = tostring( out.val or val )
+
+    if not out.val then
+        out.val = canRaw[out.name] and val or tostring( val )
+    end
 
     local short = out.short
     if short then
         short.val = short.val ~= nil and tostring( short.val ) or out.val
     end
 
-    if out.name ~= "Table" then
-        local data = out.data
+    -- if out.name ~= "Table" then
+    --     local data = out.data
 
-        if data then
-            for key, value in pairs( data ) do
-                local parsed = _formatRawValue( value )
-                parsed.val = parsed.val or tostring( value )
+    --     if data then
+    --         for key, value in pairs( data ) do
+    --             local parsed = _formatRawValue( value )
+    --             parsed.val = parsed.val or tostring( value )
 
-                short = parsed.short
-                if short then
-                    short.val = short.val ~= nil and tostring( short.val ) or parsed.val
-                end
+    --             short = parsed.short
+    --             if short then
+    --                 short.val = short.val ~= nil and tostring( short.val ) or parsed.val
+    --             end
 
-                data[key] = parsed
-            end
-        end
-    end
+    --             data[key] = parsed
+    --         end
+    --     end
+    -- end
 
     return out
 end
