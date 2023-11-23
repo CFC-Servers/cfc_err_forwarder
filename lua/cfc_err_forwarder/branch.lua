@@ -13,7 +13,7 @@ if SERVER then
     end
 
     ErrorForwarder.CLBranches = branches
-    ErrorForwarder.GetBranch = getBranch
+    ErrorForwarder.Forwarder.GetBranch = getBranch
 
     net.Receive( "cfc_err_forwarder_clbranch", function( _, ply )
         if getBranch( ply ) then return end

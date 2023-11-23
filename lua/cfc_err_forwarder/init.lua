@@ -36,9 +36,9 @@ EF.Config = {
 }
 local Config = EF.Config
 
-include( "cfc_err_forwarder/branch.lua" )
 include( "cfc_err_forwarder/discord_interface.lua" )
 include( "cfc_err_forwarder/error_forwarder.lua" )
+include( "cfc_err_forwarder/branch.lua" )
 local Discord = EF.Discord
 local Forwarder = EF.Forwarder
 

@@ -16,8 +16,6 @@ Forwarder.queue = {}
 
 --- Queue an error into the forwarder queue
 --- @param luaError ErrorForwarder_LuaError
---- @param isClientside boolean
---- @param ply Player?
 function Forwarder:QueueError( luaError )
     local fullError = luaError.fullError
     if self:errorIsQueued( fullError ) then
@@ -55,10 +53,6 @@ function Forwarder:QueueError( luaError )
             upvalues = upvalues,
         }
     }
-
-    if isClientside then
-        newError = addPlyToObject( newError, ply )
-    end
 
     log.debug( "Inserting error into queue: " .. luaError.fullError )
     self.queue[fullError] = newError
