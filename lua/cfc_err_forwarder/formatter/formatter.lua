@@ -34,7 +34,7 @@ return function( data )
             },
             {
                 name = "Stack",
-                value = truncate( client and data.luaError.fullError or niceStack( data ) )
+                value = truncate( niceStack( data ) )
             },
         }
 
@@ -49,7 +49,7 @@ return function( data )
         if data.isClientside then
             table.insert( fields, {
                 name = "Player",
-                value = bold( data.plyName .. " ( " .. TextHelpers.steamIDLink( data.plySteamID ) .. " )" )
+                value = bold( "[" .. data.plyName .. "](" .. TextHelpers.steamIDLink( data.plySteamID ) .. ")" )
             } )
         end
 
