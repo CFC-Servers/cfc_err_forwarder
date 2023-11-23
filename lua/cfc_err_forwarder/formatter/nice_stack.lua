@@ -41,57 +41,20 @@ local function formatStackInfo( stack )
     return table_concat( lines, "\n" )
 end
 
-local linePattern = [[^%d+%. (%w+) %- ([%w/%.]+):(%d+)$]]
-local function extractLineInfo( line )
-    line = string.TrimLeft( line, " " )
-
-    local name, sourceFile, sourceLine = string.match( line, linePattern )
-    if not name then return end
-
-    return {
-        currentline = sourceLine,
-        name = name,
-        short_src = sourceFile
-    }
-end
-
-local function convertStringStack( stack )
-    print( "I AM CONVERTING THE STACK" )
-    -- If it doesn't contain any actual stack info, just return the whole string
-    if not string.find( stack, "1.", 1, true ) then
-        return "```lua" .. stack .. "\n```"
-    end
-
-    local lines = {}
-    local stackLines = string.Split( stack, "\n" )
-
-    for i = 1, #stackLines do
-        local line = stackLines[i]
-        local info = extractLineInfo( line )
-        if info then
-            table.insert( lines, info )
-        end
-    end
-
-    return lines
-end
-
 return function( data )
-    return formatStackInfo( data.luaError.stack )
+    local err = data.luaError
+    local stack = err.stack
 
-    -- if istable( data ) then
-    --     stack = data.luaError.stack
-    --     if table.IsEmpty( stack ) then
-    --     end
-    -- else
-    --     assert( isstring( data ), "Given stack wasn't a string or a table, it was: " .. type( data ) )
-    --     stack = convertStringStack( data )
+    if table.IsEmpty( stack ) then
+        -- If we don't have any stack info, we just make it up
+        stack = {
+            {
+                currentline = err.sourceLine,
+                name = "<unknown>",
+                short_src = err.sourceFile
+            }
+        }
+    end
 
-    --     -- If it couldn't be converted into stack info, just return the formatted string
-    --     if isstring( stack ) then
-    --         return stack
-    --     end
-    -- end
-
-    -- return formatStackInfo( stack )
+    return formatStackInfo( stack )
 end
