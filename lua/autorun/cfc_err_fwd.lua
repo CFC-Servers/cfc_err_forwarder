@@ -1,2 +1,5 @@
 ErrorForwarder = {}
-include( "cfc_err_forwarder/branch.lua" )
+
+if CLIENT then
+    include( "cfc_err_forwarder/branch.lua" )
+end

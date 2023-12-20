@@ -1,5 +1,5 @@
 local Helpers = ErrorForwarder.Helpers
-local prettyFunc = include( "formatter/pretty_function.lua" )
+local prettyFunc = include( "formatter/pretty_function.lua" ).FromFunction
 
 local tostring = tostring
 local fmt = string.format

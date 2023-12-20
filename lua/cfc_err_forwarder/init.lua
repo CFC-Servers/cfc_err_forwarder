@@ -26,6 +26,8 @@ EF.Config = {
 
     includeFullContext = makeConfig( "include_full_context", "0", "Whether or not to include JSON files in every message containing the full locals/upvalues" ),
 
+    buildNameCache = makeConfig( "enable_name_cache", "1", "Whether or not to build a friendly name cache for all functions in the global scope. This can impact startup times." ),
+
     webhook = {
         -- cfc_err_forwarder_client_webhook
         client = makeConfig( "client_webhook", "", "Discord Webhook URL" ),

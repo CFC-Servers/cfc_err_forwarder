@@ -3,6 +3,7 @@ local table_insert = table.insert
 local string_format = string.format
 
 local GetSource = include( "get_source_url.lua" )
+local PrettyFunction = include( "pretty_function.lua" ).FromFile
 
 local function formatStackInfo( stack )
     local lines = {}
@@ -17,20 +18,15 @@ local function formatStackInfo( stack )
         name = #name == 0 and "<unknown>" or name
 
         local sourceInfo = src .. ":" .. lineNumber
+        local prettyName = PrettyFunction( src, lineNumber )
+
+        print( "Pretty name for ", sourceInfo, "is", prettyName )
+        if prettyName == "<unknown>" then prettyName = nil end
 
         local link = GetSource( src, lineNumber )
-        if link then
-            sourceInfo = string_format( "[`%s`](%s)", sourceInfo, link )
 
-            if #sourceInfo <= 54 then
-                -- <unknown> → [`addons/cfc_erf_forwarder/lua/autorun/cfc_err_fwd.lua:2`](https://blah)
-                table_insert( lines, string_format( "%s. **%s** → %s", i, name, sourceInfo ) )
-            else
-                -- Nicely break to a newline if it's going to do it anyway
-                -- <unknown>
-                --   └ [`addons/cfc_erf_forwarder/lua/autorun/cfc_err_fwd.lua:2`](https://blah)
-                table_insert( lines, string_format( "%s. **%s**\n  └ %s", i, name, sourceInfo ) )
-            end
+        if link then
+            table_insert( lines, string_format( "%s. [**%s**](%s)", i, prettyName or name, link ) )
         else
             -- __newindex → `[C]:-1`
             sourceInfo = string_format( "`%s`", sourceInfo )
