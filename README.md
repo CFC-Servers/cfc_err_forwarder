@@ -32,6 +32,7 @@ This addon will watch for errors, do a little investigation, and send a message 
  - **`cfc_err_forwarder_client_webhook`**: The full Discord Webhook URL to send Clientside errors
  - **`cfc_err_forwarder_client_enabled`**: A boolean indicating whether or not the addon should even track Clientside errors
  - **`cfc_err_forwarder_include_full_context`**: A boolean indicating whether or not the full error context should be included in the Discord messsages
+ - **`cfc_err_forwarder_enable_name_cache`**: A boolean indicating whether or not to build a full "Pretty name" cache for all functions in _G. This can impact startup time.
 
 
 ## Screenshots
