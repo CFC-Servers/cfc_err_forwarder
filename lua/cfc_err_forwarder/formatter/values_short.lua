@@ -40,7 +40,7 @@ local function formatTableData( data )
     local alert = ""
 
     if iterCount < keyCount then
-        local hiddenCount = keyCout - iterCount
+        local hiddenCount = keyCount - iterCount
         alert = " (" .. hiddenCount .. " hidden)"
     end
 

@@ -67,8 +67,6 @@ local function getProjectURL( mainDir )
         end
 
         urlCache[mainDir] = cached
-    else
-        print( "Returning cached url result" )
     end
 
     return cached
