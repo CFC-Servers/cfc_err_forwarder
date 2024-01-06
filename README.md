@@ -1,7 +1,18 @@
 # cfc_err_forwarder
 A pure-lua (well, Moonscript) Error tracker for Garry's Mod.
 
-This addon will watch for errors, do a little investigation, and send a message to a target Discord channel for your review.
+This addon will watch for errors, do a little investigation, and send a message to a Discord channel for your review.
+
+<br>
+
+## Notice ⚠️
+A full-rewrite of this addon is nearly complete. It has fixes, new features, and design reworks.
+
+Please keep an eye out for the update!
+
+You can track its progress in our support Discord: https://discord.gg/5JUqZjzmYJ
+
+<br>
 
 ### Some nifty features:
  - 🧠 If using source-controlled addons (i.e. git repos in your `addons/` dir), err_forwarder will generate a link to github.com, showing you the exact line that errored
