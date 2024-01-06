@@ -41,6 +41,17 @@ You can track its progress in our support Discord: https://discord.gg/5JUqZjzmYJ
  - **`cfc_err_forwarder_client_webhook`**: The full Discord Webhook URL to send Clientside errors
  - **`cfc_err_forwarder_client_enabled`**: A boolean indicating whether or not the addon should even track Clientside errors
 
+## Screenshots
+
+### Serverside Error with Locals and Context
+![DiscordCanary_nmbYDY33PH](https://user-images.githubusercontent.com/7936439/188520510-709cda4d-1f30-4f15-b43a-ac6cddd0723c.png)
+
+
+### Clientside Error with Context
+![image](https://user-images.githubusercontent.com/7936439/188520586-fdd2f05f-c83a-458a-a7f3-8f29fa99b95f.png)
+
+<br>
+
 ## Hooks
 
 ### `CFC_ErrorForwarder_PreQueue`
@@ -85,11 +96,3 @@ The error structure would look like:
 | `stack`          | `table`   | `{ 1 = { currentLine = 4, name = "unknown", source = "..." }, ... }` | A numerically indexed Stack object                                                                                                                                      |
 
 
-## Screenshots
-
-### Serverside Error with Locals and Context
-![DiscordCanary_nmbYDY33PH](https://user-images.githubusercontent.com/7936439/188520510-709cda4d-1f30-4f15-b43a-ac6cddd0723c.png)
-
-
-### Clientside Error with Context
-![image](https://user-images.githubusercontent.com/7936439/188520586-fdd2f05f-c83a-458a-a7f3-8f29fa99b95f.png)
