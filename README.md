@@ -6,7 +6,7 @@ This addon will watch for errors, do a little investigation, and send a message 
 <br>
 
 ## Notice ⚠️
-A full-rewrite of this addon is nearly complete. It has fixes, new features, and design reworks.
+A full-rewrite of this addon is nearly complete. It has fixes, new features, design reworks, and will attempt to use the upcoming [`OnLuaError`](https://wiki.facepunch.com/gmod/GM:OnLuaError) hook.
 
 Please keep an eye out for the update!
 
@@ -48,7 +48,41 @@ Called before an Error is queued to be processed.
 
 Return `false` to prevent it from being queued.
 
-You may also _(carefully)_ modify the error structure, which looks like:
+You may also _(carefully)_ modify the error structure.
+
+### Error Structure
+With the following code:
+```lua
+-- addons/example/lua/example/init.lua
+AddCSLuaFile()
+if SERVER then return end
+
+local function exampleFunction()
+    print( 5 + {} )
+end
+
+hook.Add( "InitPostEntity", "Example", function()
+    ProtectedCall( exampleFunction )
+end )
+```
+
+The error structure would look like:
+| **Name**         | **Type**  | **Example**                                                          | **Description**                                                                                                                                                         |
+|------------------|-----------|----------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `branch`         | `string`  | `"unknown"` _(Base branch)_                                          | The game branch where the error occurred. Is either `"Not sure yet"` if the client errored early, or [`BRANCH`](https://wiki.facepunch.com/gmod/Global.BRANCH) string   |
+| `count`          | `number`  | `1`                                                                  | How many times this error has occurred _(Will always be `1` in `CFC_ErrorForrwarder_PreQueue`)_                                                                         |
+| `errorString`    | `string`  | `"attempt to perform arithmetic on a table value"`                   | The actual error message that was produced                                                                                                                              |
+| `fullError`      | `string`  |                                                                      | The full, raw, multiline error string with a simplified stack                                                                                                           |
+| `isClientside`   | `boolean` | `true`                                                               | Whether or not this error occurred on a client                                                                                                                          |
+| `isRuntime`      | `boolean` | `true`                                                               | "Whether this is a runtime error or not" - taken straight from `gm_luaerror`                                                                                            |
+| `occurredAt`     | `number`  | `1704534832`                                                         | The result of `os.time()` of when the error occurred                                                                                                                    |
+| `ply`            | `Player`  | `Player [1][Phatso]`                                                 | The Player who experienced the error, or `nil` if serverside                                                                                                            |
+| `plyName`        | `string`  | `"Phatso"`                                                           | `nil` if serverside                                                                                                                                                     |
+| `plySteamID`     | `string`  | `"STEAM_0:0:21170873"`                                               | `nil` if serverside                                                                                                                                                     |
+| `reportInterval` | `number`  | `60`                                                                 | In seconds, how often the addon is sending errors to Discord                                                                                                            |
+| `sourceFile`     | `string`  | `"addons/test/lua/example/init.lua"`                                 | The file path where the error occurred                                                                                                                                  |
+| `sourceLine`     | `number`  | `4`                                                                  |                                                                                                                                                                         |
+| `stack`          | `table`   | `{ 1 = { currentLine = 4, name = "unknown", source = "..." }, ... }` | A numerically indexed Stack object                                                                                                                                      |
 
 
 ## Screenshots
