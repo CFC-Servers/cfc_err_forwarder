@@ -41,6 +41,15 @@ You can track its progress in our support Discord: https://discord.gg/5JUqZjzmYJ
  - **`cfc_err_forwarder_client_webhook`**: The full Discord Webhook URL to send Clientside errors
  - **`cfc_err_forwarder_client_enabled`**: A boolean indicating whether or not the addon should even track Clientside errors
 
+## Hooks
+
+### `CFC_ErrorForwarder_PreQueue`
+Called before an Error is queued to be processed. 
+
+Return `false` to prevent it from being queued.
+
+You may also _(carefully)_ modify the error structure, which looks like:
+
 
 ## Screenshots
 

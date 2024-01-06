@@ -114,8 +114,13 @@ return class ErrorForwarder
             reportInterval: @config.groomInterval\GetInt!
         }
 
+        PrintTable newError
+
         if isClientside
             newError = @addPlyToObject newError, ply
+
+        shouldQueue = hook.Run "CFC_ErrorForwarder_PreQueue", newError
+        return if shouldQueue == false
 
         @logger\debug "Inserting error into queue: '#{fullError}'"
 
