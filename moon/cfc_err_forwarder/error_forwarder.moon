@@ -114,8 +114,6 @@ return class ErrorForwarder
             reportInterval: @config.groomInterval\GetInt!
         }
 
-        PrintTable newError
-
         if isClientside
             newError = @addPlyToObject newError, ply
 
