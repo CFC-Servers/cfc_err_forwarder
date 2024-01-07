@@ -54,6 +54,9 @@ function Forwarder:QueueError( luaError )
         }
     }
 
+    local shouldQueue = hook.Run( "CFC_ErrorForwarder_PreQueue", newError )
+    if shouldQueue == false then return end
+
     log.debug( "Inserting error into queue: " .. luaError.fullError )
     self.queue[fullError] = newError
 end
