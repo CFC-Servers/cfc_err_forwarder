@@ -117,6 +117,9 @@ return class ErrorForwarder
         if isClientside
             newError = @addPlyToObject newError, ply
 
+        shouldQueue = hook.Run "CFC_ErrorForwarder_PreQueue", newError
+        return if shouldQueue == false
+
         @logger\debug "Inserting error into queue: '#{fullError}'"
 
         rawset @queue, fullError, newError
