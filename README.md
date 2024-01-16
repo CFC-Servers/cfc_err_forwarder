@@ -1,5 +1,5 @@
 # cfc_err_forwarder
-A pure-lua (well, Moonscript) Error tracker for Garry's Mod.
+A pure-lua Error tracker for Garry's Mod.
 
 This addon will watch for errors, do a little investigation, and send a message to a target Discord channel for your review.
 
@@ -11,18 +11,8 @@ This addon will watch for errors, do a little investigation, and send a message 
  - :floppy_disk: Automatically backs up your unsent errors, making it less likely that you lose track of errors if the server crashes/restarts.
 
 ## Requirements
- - [gm_logger](https://github.com/CFC-Servers/gm_logger) _(Optional)_
- - [gm_luaerror](https://github.com/danielga/gm_luaerror)
- - [gmsv_reqwest](https://github.com/WilliamVenner/gmsv_reqwest)
-
-
-## Installation
-**Simple**
- - You can download the latest release .zip from the [Releases](https://github.com/CFC-Servers/cfc_err_forwarder/releases) tab. Extract that and place it in your `addons` directory.
-
-**Source Controlled**
- - You can clone this repository directly into your `addons` directory, but be sure to check out the [`lua`](https://github.com/CFC-Servers/cfc_err_forwarder/tree/lua) branch which contains the compiled Lua from the latest release.
- - e.g. ``` git clone --single-branch --branch lua git@github.com:CFC-Servers/cfc_err_forwarder.git ```
+ - [gm_luaerror](https://github.com/danielga/gm_luaerror) _(for catching the errors)_
+ - [gmsv_reqwest](https://github.com/WilliamVenner/gmsv_reqwest) _(for sending the Discord messages)_
 
 
 ## Configuration
