@@ -92,7 +92,7 @@ The error structure would look like:
 | `plySteamID`     | `string`  | `"STEAM_0:0:21170873"`                                               | `nil` if serverside                                                                                                                                                     |
 | `reportInterval` | `number`  | `60`                                                                 | In seconds, how often the addon is sending errors to Discord                                                                                                            |
 | `sourceFile`     | `string`  | `"addons/test/lua/example/init.lua"`                                 | The file path where the error occurred                                                                                                                                  |
-| `sourceLine`     | `number`  | `4`                                                                  |                                                                                                                                                                         |
+| `sourceLine`     | `number`  | `4`                                                                  | The line in the file where the error occurred                                                                                                                              |
 | `stack`          | `table`   | `{ 1 = { currentLine = 4, name = "unknown", source = "..." }, ... }` | A numerically indexed Stack object                                                                                                                                      |
 
 
