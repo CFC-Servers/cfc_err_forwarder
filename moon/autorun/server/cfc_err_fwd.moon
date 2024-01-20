@@ -1,15 +1,19 @@
-require "luaerror"
 require "reqwest"
 
+useErrorModule = false
+if false and util.IsBinaryModuleInstalled "luaerror"
+    require "luaerror"
+    luaerror.EnableCompiletimeDetour true
+    luaerror.EnableClientDetour true
+    luaerror.EnableRuntimeDetour true
+    useErrorModule = true
+
 util.AddNetworkString "cfc_err_forwarder_clbranch"
+util.AddNetworkString "cfc_err_forwarder_clerror"
 
 timerName = "CFC_ErrorForwarderQueue"
 errorForwarder = include "cfc_err_forwarder/error_forwarder.lua"
 discordBuilder = include "cfc_err_forwarder/discord_interface.lua"
-
-luaerror.EnableCompiletimeDetour true
-luaerror.EnableClientDetour true
-luaerror.EnableRuntimeDetour true
 
 convarPrefix = "cfc_err_forwarder"
 convarFlags = FCVAR_ARCHIVE + FCVAR_PROTECTED
@@ -56,11 +60,14 @@ timer.Create timerName, Config.groomInterval\GetInt! or 60, 0, ->
 cvars.AddChangeCallback "cfc_err_forwarder_interval", (_, _, value) ->
     timer.Adjust timerName, tonumber(value), "UpdateTimer"
 
-hook.Add "LuaError", "CFC_ServerErrorForwarder", ErrorForwarder\receiveSVError
-hook.Add "ClientLuaError", "CFC_ClientErrorForwarder", ErrorForwarder\receiveCLError
-hook.Add "ShutDown", "CFC_ShutdownErrorForwarder", ErrorForwarder\forwardErrors
+if useErrorModule
+    hook.Add "LuaError", "CFC_ServerErrorForwarder", ErrorForwarder\receiveSVError
+    hook.Add "ClientLuaError", "CFC_ClientErrorForwarder", ErrorForwarder\receiveCLError
+else
+    include "cfc_err_forwarder/plain_receiver.lua"
 
-net.Receive "cfc_err_forwarder_clbranch", (_,ply) ->
+hook.Add "ShutDown", "CFC_ShutdownErrorForwarder", ErrorForwarder\forwardErrors
+net.Receive "cfc_err_forwarder_clbranch", (_, ply) ->
     if not ply.CFC_ErrorForwarder_CLBranch
         ply.CFC_ErrorForwarder_CLBranch = net.ReadString!
 

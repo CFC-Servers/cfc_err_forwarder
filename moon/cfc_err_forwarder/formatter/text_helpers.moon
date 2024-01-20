@@ -16,6 +16,7 @@ truncate = (text="<empty>", max=1024) ->
 
 getSourceText = (data) ->
     :sourceFile, :sourceLine = data
+    return unless sourceFile and sourceLine
 
     sourceURL = getSourceURL sourceFile, sourceLine
     sourceLink = sourceURL and "[Line with Context](#{sourceURL})" or ""

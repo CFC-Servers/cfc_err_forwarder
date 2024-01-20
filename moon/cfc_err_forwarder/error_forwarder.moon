@@ -71,10 +71,10 @@ return class ErrorForwarder
 
     countQueue: => Count @queue
 
-    errorIsQueued: (fullError) => rawget(@queue, fullError) ~= nil
+    errorIsQueued: (fullError) => @queue[fullError] ~= nil
 
     addPlyToObject: (errorStruct, ply) =>
-        rawset errorStruct, "player", {
+        errorStruct.player = {
             playerName: ply\Name!,
             playerSteamID: ply\SteamID!
         }
@@ -147,7 +147,7 @@ return class ErrorForwarder
         @queueError isRuntime, fullError, sourceFile, sourceLine, errorString, stack, ply
 
     logErrorInfo: (isRuntime, fullError, sourceFile, sourceLine, errorString, stack) =>
-        debug = @logger\debug
+        debug = @logger\info
 
         debug "Is Runtime: #{isRuntime}"
         debug "Full Error: #{fullError}"

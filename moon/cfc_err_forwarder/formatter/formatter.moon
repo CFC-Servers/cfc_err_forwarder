@@ -23,10 +23,9 @@ nonil = (t) -> [v for v in *t when v ~= nil]
                 author: name: GetHostName!
                 description: bad data.errorString
                 fields: nonil {
-                    {
-                        name: "Source File"
-                        value: getSourceText data
-                    }
+                    with source = getSourceText data
+                        return { name: "Source File", value: source } if source
+                        return nil
 
                     {
                         name: "Full Error"
