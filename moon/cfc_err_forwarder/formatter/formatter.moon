@@ -1,4 +1,5 @@
-red = 14483456
+clientColor = 14592265
+serverColor = 240116
 locals = include "locals.lua"
 niceStack = include "nice_stack.lua"
 
@@ -12,15 +13,14 @@ nonil = (t) -> [v for v in *t when v ~= nil]
 
 (data) ->
     client = data.isClientside
-    emoji = client and "🟨" or "🟦"
     realm = client and "Client" or "Server"
 
     {
         content: ""
         embeds: {
             {
-                color: red
-                title: "#{emoji} #{realm} Error"
+                color: client and clientColor or serverColor
+                title: "#{realm} Error"
                 author: name: GetHostName!
                 description: bad data.errorString
                 fields: nonil {
