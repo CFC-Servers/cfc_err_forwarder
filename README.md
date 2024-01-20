@@ -22,7 +22,8 @@ You can track its progress _(or ask questions)_ in our support Discord: https://
 
 ## Requirements
  - [gmsv_reqwest](https://github.com/WilliamVenner/gmsv_reqwest) **Required**
- - [gm_luaerror](https://github.com/danielga/gm_luaerror) _(Optional - add this if you want more information about client errors)_
+ - [gm_luaerror](https://github.com/danielga/gm_luaerror) _(Optional)_
+    - Add this module if you want more information about serverside errors, such as locals and upvalues at the time of error
 
 
 ## Installation
