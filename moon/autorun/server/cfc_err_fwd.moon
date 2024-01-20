@@ -1,7 +1,7 @@
 require "reqwest"
 
 useErrorModule = false
-if false and util.IsBinaryModuleInstalled "luaerror"
+if util.IsBinaryModuleInstalled "luaerror"
     require "luaerror"
     luaerror.EnableCompiletimeDetour true
     luaerror.EnableClientDetour true

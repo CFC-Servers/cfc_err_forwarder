@@ -168,7 +168,7 @@ return class ErrorForwarder
 
         @receiveError true, fullError, sourceFile, sourceLine, errorString, stack, ply
 
-    -- TODO: Remove this stupid thing andc all stripStack directly
+    -- TODO: Remove this stupid thing and call stripStack directly
     cleanStruct: (errorStruct) =>
         stripStack errorStruct.stack
         return errorStruct

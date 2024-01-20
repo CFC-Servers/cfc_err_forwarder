@@ -55,7 +55,6 @@ parseHead = (gitPath) ->
     config = configParser content
 
     -- { remote: "origin", merge: "refs/heads/master" }
-    print "branch", branch
     branchInfo = config.branch[branch]
     remoteInfo = config.remote[branchInfo.remote]
 

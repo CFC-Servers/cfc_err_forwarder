@@ -6,7 +6,7 @@ This addon will watch for errors, do a little investigation, and send a message 
 <br>
 
 ## Notice ⚠️
-A full-rewrite of this addon is nearly complete. It has fixes, new features, design reworks, and reliability improvements.
+A full-rewrite of this addon is nearly complete. It has fixes, new features, design reworks, discord ratelimit prevention, reliability improvements, and more.
 
 Please keep an eye out for the update!
 
@@ -21,9 +21,8 @@ You can track its progress _(or ask questions)_ in our support Discord: https://
  - 🔎 Shows you the current values of up to 8 local variables in the stack that threw an error (very useful for debugging!)
 
 ## Requirements
- - [gm_logger](https://github.com/CFC-Servers/gm_logger) _(Optional)_
- - [gm_luaerror](https://github.com/danielga/gm_luaerror)
- - [gmsv_reqwest](https://github.com/WilliamVenner/gmsv_reqwest)
+ - [gmsv_reqwest](https://github.com/WilliamVenner/gmsv_reqwest) **Required**
+ - [gm_luaerror](https://github.com/danielga/gm_luaerror) _(Optional - add this if you want more information about client errors)_
 
 
 ## Installation
