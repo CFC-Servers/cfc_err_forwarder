@@ -1,4 +1,5 @@
-hook.Add "InitPostEntity", "CFC_ErrForwarder_BranchInit", ->
+hook.Add "Think", "CFC_ErrForwarder_BranchInit", ->
+    hook.Remove "Think", "CFC_ErrForwarder_BranchInit"
     net.Start "cfc_err_forwarder_clbranch"
     net.WriteString BRANCH
     net.SendToServer!

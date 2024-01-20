@@ -9,6 +9,85 @@ publicGamemodes = {
 -- source file and links to the given line
 -- getGistLink = (source, line) ->
 
+parseRepoURL = (repo) ->
+    -- "git@github.com:wiremod/wire.git"
+    -- "github.com/Stooberton/ACF-3"
+
+    repo = string.Replace repo, "https://", ""
+    repo = string.Replace repo, "http://", ""
+    repo = string.Replace repo, ":", "/"
+    repo = string.Replace repo, ".git", ""
+    repo = string.Replace repo, "git@", ""
+
+    -- { "github.com", "wiremod", "wire" }
+    -- { "github.com", "Stooberton", "ACF-3" }
+    repoSpl = string.Split repo, "/"
+
+    -- "github.com"
+    -- "github.com"
+    host = repoSpl[1]
+
+    -- "wiremod"
+    -- "Stooberton"
+    owner = repoSpl[2]
+
+    -- "wire"
+    -- "ACF-3"
+    project = repoSpl[3]
+
+    return { :host, :owner, :project }
+
+configParser = include "git_config_parser.lua"
+parseHead = (gitPath) ->
+    local branch
+
+    do
+        -- ref: refs/heads/master
+        content = file.Read "#{gitPath}/HEAD", "GAME"
+        return unless content
+
+        -- "master"
+        branch = string.match content, "ref: refs/%w+/(%w+)"
+
+    content = file.Read "#{gitPath}/config", "GAME"
+    return unless content
+
+    config = configParser content
+
+    -- { remote: "origin", merge: "refs/heads/master" }
+    print "branch", branch
+    branchInfo = config.branch[branch]
+    remoteInfo = config.remote[branchInfo.remote]
+
+    -- "git@github.com:wiremod/wire.git"
+    repo = remoteInfo.url
+
+    parsed = parseRepoURL repo
+    parsed.branch = branch
+
+    return parsed
+
+
+parseFetchHead = (gitPath) ->
+    fetchPath = "#{gitPath}/FETCH_HEAD"
+    content = file.Read fetchPath, "GAME"
+    return unless content
+
+    -- 6679969ce1b0f6baa80dc4460beb7004f3197408 branch 'master' of github.com:Stooberton/ACF-3
+    -- 6679969ce1b0f6baa80dc4460beb7004f3197408 branch 'master' of https://github.com/Stooberton/ACF-3
+    -- 6679969ce1b0f6baa80dc4460beb7004f3197408	branch 'master' of https://github.com/stooberton/acf-3.git
+    firstLine = string.Split(content, "\n")[1]
+
+    -- "master", "github.com:Stooberton/ACF-3"
+    -- "master", "https://github.com/Stooberton/ACF-3"
+    -- "master", "https://github.com/Stooberton/acf-3.git"
+    _, _, branch, repo = string.find firstLine, "branch '(.+)' of (.+)$"
+
+    parsed = parseRepoURL repo
+    parsed.branch = branch
+
+    return parsed
+
 -- source:
 --    addons/acf-3/lua/entities/acf_armor/shared.lua
 --    gamemodes/sandbox/entities/weapons/gmod_tool/stools/duplicator/transport.lua
@@ -28,38 +107,14 @@ publicGamemodes = {
     -- If the root isn't a Gamemode or Addon, we can't get a source URL for it
     return if root ~= "addons"
 
-    fetchPath = "addons/#{mainDir}/.git/FETCH_HEAD", "GAME"
-    return unless file.Exists fetchPath, "GAME"
+    gitPath = "addons/#{mainDir}/.git"
+    return unless file.Exists gitPath, "GAME"
 
-    content = file.Read fetchPath, "GAME"
+    sourceData = parseFetchHead gitPath
+    sourceData or= parseHead gitPath
+    return unless sourceData
 
-    -- 6679969ce1b0f6baa80dc4460beb7004f3197408 branch 'master' of github.com:Stooberton/ACF-3
-    -- 6679969ce1b0f6baa80dc4460beb7004f3197408 branch 'master' of https://github.com/Stooberton/ACF-3
-    -- 6679969ce1b0f6baa80dc4460beb7004f3197408	branch 'master' of https://github.com/stooberton/acf-3.git
-    firstLine = string.Split(content, "\n")[1]
-
-    -- "master", "github.com:Stooberton/ACF-3"
-    -- "master", "https://github.com/Stooberton/ACF-3"
-    -- "master", "https://github.com/Stooberton/acf-3.git"
-    _, _, branch, repo = string.find firstLine, "branch '(.+)' of (.+)$"
-
-    -- "github.com/Stooberton/ACF-3"
-    repo = string.Replace repo, "https://", ""
-    repo = string.Replace repo, "http://", ""
-    repo = string.Replace repo, ":", "/"
-    repo = string.Replace repo, ".git", ""
-
-    -- { "github.com", "Stooberton", "ACF-3" }
-    repoSpl = string.Split repo, "/"
-
-    -- "github.com"
-    host = repoSpl[1]
-
-    -- "Stooberton"
-    owner = repoSpl[2]
-
-    -- "ACF-3"
-    project = repoSpl[3]
+    { :host, :owner, :project, :branch } = sourceData
 
     -- "lua/entities/acf_armor/shared.lua"
     -- "sandbox/entities/waepons/gmod_stool/stools/duplicator/transport.lua"

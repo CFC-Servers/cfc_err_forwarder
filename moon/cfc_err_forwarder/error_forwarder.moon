@@ -1,8 +1,6 @@
 import Count from table
 
 osTime = os.time
-rawset = rawset
-rawget = rawget
 istable = istable
 
 pretty = include "cfc_err_forwarder/formatter/pretty_values.lua"
@@ -122,23 +120,23 @@ return class ErrorForwarder
 
         @logger\debug "Inserting error into queue: '#{fullError}'"
 
-        rawset @queue, fullError, newError
+        @queue[fullError] = newError
 
     unqueueError: (fullError) =>
-        thisErr = rawget @queue, fullError
+        thisErr = @queue[fullError]
 
         if thisErr
             for k in pairs thisErr
-                rawset thisErr, k, nil
+                thisErr[k] = nil
 
-        rawset @queue, fullError, nil
+        @queue[fullError] = nil
 
     incrementError: (fullError) =>
-        thisErr = rawget @queue, fullError
-        count = rawget thisErr, "count"
+        thisErr = @queue[fullError]
+        count = thisErr.count
 
-        rawset thisErr, "count", count + 1
-        rawset thisErr, "occurredAt", osTime!
+        thisErr.count = count + 1
+        thisErr.occurredAt = osTime!
 
     receiveError: (isRuntime, fullError, sourceFile, sourceLine, errorString, stack, ply) =>
         if @errorIsQueued fullError

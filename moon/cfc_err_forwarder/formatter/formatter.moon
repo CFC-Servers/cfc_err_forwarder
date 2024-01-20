@@ -12,6 +12,7 @@ nonil = (t) -> [v for v in *t when v ~= nil]
 
 (data) ->
     client = data.isClientside
+    emoji = client and "🟨" or "🟦"
     realm = client and "Client" or "Server"
 
     {
@@ -19,7 +20,7 @@ nonil = (t) -> [v for v in *t when v ~= nil]
         embeds: {
             {
                 color: red
-                title: "#{realm} Error"
+                title: "#{emoji} #{realm} Error"
                 author: name: GetHostName!
                 description: bad data.errorString
                 fields: nonil {

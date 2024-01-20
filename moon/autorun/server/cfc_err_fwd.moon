@@ -26,6 +26,8 @@ Config =
     -- cfc_err_forwarder_client_enabled
     clientEnabled: makeConfig "client_enabled", "1", "Whether or not to track and forward Clientside errors"
 
+    bucketSize: makeConfig "bucket_size", "5", "Client -> Server rate limiting bucket size. (Only applies to clientside errors when not using the luaerror dll)"
+
     webhook:
         -- cfc_err_forwarder_client_webhook
         client: makeConfig "client_webhook", "", "Discord Webhook URL"
@@ -33,21 +35,14 @@ Config =
         -- cfc_err_forwarder_server_webhook
         server: makeConfig "server_webhook", "", "Discord Webhook URL"
 
-local logger
-if file.Exists "includes/modules/logger.lua", "LUA"
-    require "logger"
-    logger = Logger "ErrorForwarder"
-else
-    log = (...) -> print "[ErrorForwarder]", ...
-    log "GM_Logger not found, using backup logger. Consider installing: github.com/CFC-Servers/gm_logger"
+log = (...) => print "[ErrorForwarder]", ...
+logger =
+    trace: ->
+    debug: ->
+    info: log
+    warn: log
+    error: log
 
-    logger =
-        trace: ->
-        debug: ->
-        info: log
-        warn: log
-        error: log
-        
 
 Discord = discordBuilder Config
 ErrorForwarder = errorForwarder logger, Discord, Config
@@ -64,7 +59,7 @@ if useErrorModule
     hook.Add "LuaError", "CFC_ServerErrorForwarder", ErrorForwarder\receiveSVError
     hook.Add "ClientLuaError", "CFC_ClientErrorForwarder", ErrorForwarder\receiveCLError
 else
-    include "cfc_err_forwarder/plain_receiver.lua"
+    include("cfc_err_forwarder/plain_receiver.lua") logger, ErrorForwarder, Config
 
 hook.Add "ShutDown", "CFC_ShutdownErrorForwarder", ErrorForwarder\forwardErrors
 net.Receive "cfc_err_forwarder_clbranch", (_, ply) ->
