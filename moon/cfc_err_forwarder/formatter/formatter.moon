@@ -1,4 +1,5 @@
-red = 14483456
+clientColor = 14592265
+serverColor = 240116
 locals = include "locals.lua"
 niceStack = include "nice_stack.lua"
 
@@ -18,15 +19,14 @@ nonil = (t) -> [v for v in *t when v ~= nil]
         content: ""
         embeds: {
             {
-                color: red
+                color: client and clientColor or serverColor
                 title: "#{realm} Error"
                 author: name: GetHostName!
                 description: bad data.errorString
                 fields: nonil {
-                    {
-                        name: "Source File"
-                        value: getSourceText data
-                    }
+                    with source = getSourceText data
+                        return { name: "Source File", value: source } if source
+                        return nil
 
                     {
                         name: "Full Error"

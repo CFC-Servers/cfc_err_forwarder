@@ -1,8 +1,6 @@
 import Count from table
 
 osTime = os.time
-rawset = rawset
-rawget = rawget
 istable = istable
 
 pretty = include "cfc_err_forwarder/formatter/pretty_values.lua"
@@ -71,10 +69,10 @@ return class ErrorForwarder
 
     countQueue: => Count @queue
 
-    errorIsQueued: (fullError) => rawget(@queue, fullError) ~= nil
+    errorIsQueued: (fullError) => @queue[fullError] ~= nil
 
     addPlyToObject: (errorStruct, ply) =>
-        rawset errorStruct, "player", {
+        errorStruct.player = {
             playerName: ply\Name!,
             playerSteamID: ply\SteamID!
         }
@@ -122,23 +120,23 @@ return class ErrorForwarder
 
         @logger\debug "Inserting error into queue: '#{fullError}'"
 
-        rawset @queue, fullError, newError
+        @queue[fullError] = newError
 
     unqueueError: (fullError) =>
-        thisErr = rawget @queue, fullError
+        thisErr = @queue[fullError]
 
         if thisErr
             for k in pairs thisErr
-                rawset thisErr, k, nil
+                thisErr[k] = nil
 
-        rawset @queue, fullError, nil
+        @queue[fullError] = nil
 
     incrementError: (fullError) =>
-        thisErr = rawget @queue, fullError
-        count = rawget thisErr, "count"
+        thisErr = @queue[fullError]
+        count = thisErr.count
 
-        rawset thisErr, "count", count + 1
-        rawset thisErr, "occurredAt", osTime!
+        thisErr.count = count + 1
+        thisErr.occurredAt = osTime!
 
     receiveError: (isRuntime, fullError, sourceFile, sourceLine, errorString, stack, ply) =>
         if @errorIsQueued fullError
@@ -147,7 +145,7 @@ return class ErrorForwarder
         @queueError isRuntime, fullError, sourceFile, sourceLine, errorString, stack, ply
 
     logErrorInfo: (isRuntime, fullError, sourceFile, sourceLine, errorString, stack) =>
-        debug = @logger\debug
+        debug = @logger\info
 
         debug "Is Runtime: #{isRuntime}"
         debug "Full Error: #{fullError}"
@@ -170,7 +168,7 @@ return class ErrorForwarder
 
         @receiveError true, fullError, sourceFile, sourceLine, errorString, stack, ply
 
-    -- TODO: Remove this stupid thing andc all stripStack directly
+    -- TODO: Remove this stupid thing and call stripStack directly
     cleanStruct: (errorStruct) =>
         stripStack errorStruct.stack
         return errorStruct

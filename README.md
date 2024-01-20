@@ -3,14 +3,20 @@ A pure-lua (well, Moonscript) Error tracker for Garry's Mod.
 
 This addon will watch for errors, do a little investigation, and send a message to a Discord channel for your review.
 
+### Who is this for?
+This is for Server Owners/Operators. This allows server operators to monitor and manage the errors that occur on their server.
+
+### Who is this **not** for?
+Addon developers looking for a way to track their errors automatically across all servers - this is not the tool for you.
+
 <br>
 
 ## Notice ⚠️
-A full-rewrite of this addon is nearly complete. It has fixes, new features, design reworks, and will attempt to use the upcoming [`OnLuaError`](https://wiki.facepunch.com/gmod/GM:OnLuaError) hook.
+A full-rewrite of this addon is nearly complete. It has fixes, new features, design reworks, discord ratelimit prevention, reliability improvements, and more.
 
 Please keep an eye out for the update!
 
-You can track its progress in our support Discord: https://discord.gg/5JUqZjzmYJ
+You can track its progress _(or ask questions)_ in our support Discord: https://discord.gg/5JUqZjzmYJ
 
 <br>
 
@@ -21,9 +27,9 @@ You can track its progress in our support Discord: https://discord.gg/5JUqZjzmYJ
  - 🔎 Shows you the current values of up to 8 local variables in the stack that threw an error (very useful for debugging!)
 
 ## Requirements
- - [gm_logger](https://github.com/CFC-Servers/gm_logger) _(Optional)_
- - [gm_luaerror](https://github.com/danielga/gm_luaerror)
- - [gmsv_reqwest](https://github.com/WilliamVenner/gmsv_reqwest)
+ - [gmsv_reqwest](https://github.com/WilliamVenner/gmsv_reqwest) **Required**
+ - [gm_luaerror](https://github.com/danielga/gm_luaerror) _(Optional)_
+    - Add this module if you want more information about serverside errors, such as locals at the time of error
 
 
 ## Installation
@@ -40,6 +46,7 @@ You can track its progress in our support Discord: https://discord.gg/5JUqZjzmYJ
  - **`cfc_err_forwarder_server_webhook`**: The full Discord Webhook URL to send Serverside errors
  - **`cfc_err_forwarder_client_webhook`**: The full Discord Webhook URL to send Clientside errors
  - **`cfc_err_forwarder_client_enabled`**: A boolean indicating whether or not the addon should even track Clientside errors
+ - **`cfc_err_forwarder_bucket_size`**: Client -> Server rate limiting bucket size. (Only applies when not using the luaerror dll)
 
 ## Screenshots
 
@@ -93,6 +100,13 @@ The error structure would look like:
 | `reportInterval` | `number`  | `60`                                                                 | In seconds, how often the addon is sending errors to Discord                                                                                                            |
 | `sourceFile`     | `string`  | `"addons/test/lua/example/init.lua"`                                 | The file path where the error occurred                                                                                                                                  |
 | `sourceLine`     | `number`  | `4`                                                                  | The line in the file where the error occurred                                                                                                                              |
-| `stack`          | `table`   | `{ 1 = { currentLine = 4, name = "unknown", source = "..." }, ... }` | A numerically indexed Stack object                                                                                                                                      |
+| `stack`          | `table`   | `{ 1 = { currentline = 4, name = "unknown", source = "..." }, ... }` | A numerically indexed Stack object                                                                                                                                      |
 
+<br>
 
+### `CFC_ErrorForwarder_OnReceiveCLError`
+This hook is only called when the `luaerror` dll is not installed.
+
+This hook is called in the network receiver that is triggered when a player forwards their error to the server.
+
+Return `false` to prevent it from being processed.

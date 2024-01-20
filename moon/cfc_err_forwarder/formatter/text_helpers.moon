@@ -8,7 +8,7 @@ timestamp = (ts) -> "<t:#{ts}:R>"
 bad = (text) -> code "- #{text}", "diff"
 
 to64 = util.SteamIDTo64
-steamIDLink = (id) -> "[#{id}](https://steamid.io/lookup/#{to64 id})"
+steamIDLink = (id) -> "[#{id}](https://steamid.gay/lookup/#{to64 id})"
 
 truncate = (text="<empty>", max=1024) ->
     return text if #text < max
@@ -16,6 +16,7 @@ truncate = (text="<empty>", max=1024) ->
 
 getSourceText = (data) ->
     :sourceFile, :sourceLine = data
+    return unless sourceFile and sourceLine
 
     sourceURL = getSourceURL sourceFile, sourceLine
     sourceLink = sourceURL and "[Line with Context](#{sourceURL})" or ""
