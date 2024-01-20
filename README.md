@@ -3,6 +3,12 @@ A pure-lua (well, Moonscript) Error tracker for Garry's Mod.
 
 This addon will watch for errors, do a little investigation, and send a message to a Discord channel for your review.
 
+### Who is this for?
+This is for Server Owners/Operators. This allows server operators to monitor and manage the errors that occur on their server.
+
+### Who is this **not** for?
+Addon developers looking for a way to track their errors automatically across all servers - this is not the tool for you.
+
 <br>
 
 ## Notice ⚠️
