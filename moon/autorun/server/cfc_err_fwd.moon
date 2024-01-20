@@ -1,12 +1,13 @@
 require "reqwest"
 
 useErrorModule = false
-if util.IsBinaryModuleInstalled "luaerror"
+if false and util.IsBinaryModuleInstalled "luaerror"
     require "luaerror"
     luaerror.EnableCompiletimeDetour true
     luaerror.EnableClientDetour true
     luaerror.EnableRuntimeDetour true
     useErrorModule = true
+SetGlobal2Bool "CFC_ErrorForwarder_ManualSend", not useErrorModule
 
 util.AddNetworkString "cfc_err_forwarder_clbranch"
 util.AddNetworkString "cfc_err_forwarder_clerror"

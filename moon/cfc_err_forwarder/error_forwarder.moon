@@ -145,7 +145,7 @@ return class ErrorForwarder
         @queueError isRuntime, fullError, sourceFile, sourceLine, errorString, stack, ply
 
     logErrorInfo: (isRuntime, fullError, sourceFile, sourceLine, errorString, stack) =>
-        debug = @logger\info
+        debug = @logger\debug
 
         debug "Is Runtime: #{isRuntime}"
         debug "Full Error: #{fullError}"
