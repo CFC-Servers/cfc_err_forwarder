@@ -47,16 +47,14 @@ parseHead = (gitPath) ->
         return unless content
 
         -- "master"
-        branch = string.match content, "ref: refs/%w+/(%w+)"
+        branch = string.match content, "ref: refs/%w+/(.+)$"
+        branch = string.Replace branch, "\n", ""
 
     content = file.Read "#{gitPath}/config", "GAME"
     return unless content
 
     config = configParser content
-
-    -- { remote: "origin", merge: "refs/heads/master" }
-    branchInfo = config.branch[branch]
-    remoteInfo = config.remote[branchInfo.remote]
+    remoteInfo = config.remote.origin
 
     -- "git@github.com:wiremod/wire.git"
     repo = remoteInfo.url
