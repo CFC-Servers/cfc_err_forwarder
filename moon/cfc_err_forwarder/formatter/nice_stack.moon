@@ -1,8 +1,10 @@
 (data) ->
-    indent = 2
+    -- Start at -1 because we're going to increment before using it
+    indent = -1
 
-    lines = {data.fullError or "<unknown error>"}
+    lines = {}
     stack = data.stack
+    return data.fullError unless stack and next stack
 
     for i = 1, #stack do
         indent = indent + 1

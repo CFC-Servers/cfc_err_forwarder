@@ -67,15 +67,17 @@ net.Receive "cfc_err_forwarder_clerror", (len, ply) ->
     stackCount = math.min stackCount, 7
 
     stack = {}
+    local sourceFile, sourceLine
     for i = 1, stackCount
-        stack[i] =
-            source: net.ReadString!
-            name: net.ReadString!
-            currentline: net.ReadString!
+        source = net.ReadString!
+        name = net.ReadString!
+        currentline = net.ReadString!
+        stack[i] = { :source, :name, :currentline }
 
-    firstLevel = stack[1]
-    sourceFile = firstLevel and firstLevel.source
-    sourceLine = firstLevel and firstLevel.currentline
+        -- Always set it if it's not set, otherwise find the first non-[C] source
+        if sourceFile == nil or sourceFile == "[C]"
+            sourceFile = source
+            sourceLine = currentline
 
     shouldForward = hook.Run "CFC_ErrorForwarder_OnReceiveCLError", ply, fullError, sourceFile, sourceLine, errorString, stack
     return if shouldForward == false

@@ -30,11 +30,12 @@ nonil = (t) -> [v for v in *t when v ~= nil]
 
                     {
                         name: "Full Error"
-                        value: code truncate client and data.fullError or niceStack data
+                        value: code truncate niceStack data
                     }
 
                     with l = locals data
                         return { name: "Locals", value: code truncate(l), "m"  } if l
+                        return nil
 
                     with {:ply, :plyName, :plySteamID} = data
                         return { name: "Player", value: bold "#{plyName} ( #{steamIDLink plySteamID} )" } if ply
