@@ -1,4 +1,7 @@
-# cfc_err_forwarder
+# CFC Error Forwarder
+<p align="left">
+    <a href="https://discord.gg/5JUqZjzmYJ" alt="Discord Invite"><img src="https://img.shields.io/discord/981394195812085770?label=Support&logo=discord&logoColor=white" /></a>
+</p>
 A pure-lua (well, Moonscript) Error tracker for Garry's Mod.
 
 This addon will watch for errors, do a little investigation, and send a message to a Discord channel for your review.
