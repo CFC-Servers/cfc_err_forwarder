@@ -14,15 +14,19 @@ convertPlainStack = (stack) ->
 
     return newStack
 
-getErrorStringFromFull = (fullError) ->
-    errStringStart = string.find fullError, ": "
+getErrorStringFromFull = (fullError, addontitle) ->
+    error_text = str
+    error_text = error_text.gsub("\t", " ".rep 12) -- Ew
+    
+    for i, t in *stack
+      t.Function = "unknown" unless t.Function and t.Function != ""
+      error_text ..= "\n" .. "    ".rep(i) .. i .. ". " .. t.Function .. " - " .. t.File .. ":" .. t.Line
+    
+    return "[" .. addontitle .. "] " .. error_text
 
-    return fullError unless errStringStart
-    return string.sub fullError, errStringStart + 2
-
-hook.Add "OnLuaError", "CFC_ServerErrorForwarder", (fullError, realm, stack) ->
+hook.Add "OnLuaError", "CFC_ServerErrorForwarder", (fullError, realm, stack, addontitle) ->
     stack = convertPlainStack stack
-    errorString = getErrorStringFromFull fullError
+    errorString = getErrorStringFromFull fullError, addontitle
 
     firstLevel = stack[1]
     sourceFile = firstLevel and firstLevel.source
