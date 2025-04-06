@@ -22,11 +22,16 @@ EF.Config = {
     backup = makeConfig( "backup", "1", "Whether or not to save errors to a file in case the server crashes or restarts" ),
 
     -- cfc_err_forwarder_client_enabled
-    clientEnabled = makeConfig( "client_enabled", "1", "Whether or not to track and forward Clientside errors" ),
+    clientEnabled = makeConfig( "client_enabled", "1", "Whether or not to track and forward Clientside errors (Only relevant for gm_luaerror)" ),
 
-    includeFullContext = makeConfig( "include_full_context", "0", "Whether or not to include JSON files in every message containing the full locals/upvalues" ),
+    -- cfc_err_forwarder_include_full_context
+    includeFullContext = makeConfig( "include_full_context", "0", "Whether or not to include JSON files in every message containing the full locals/upvalues (Only relevant for gm_luaerror)" ),
 
-    buildNameCache = makeConfig( "enable_name_cache", "1", "Whether or not to build a friendly name cache for all functions in the global scope. This can impact startup times." ),
+    -- cfc_err_forwarder_enable_name_cache
+    buildNameCache = makeConfig( "enable_name_cache", "1", "Whether or not to build a friendly name cache for all functions in the global scope. This can impact startup times. (Only relevant for gm_luaerror)" ),
+
+    -- cfc_err_forwarder_use_gm_luaerror
+    useLuaErrorBinary = makeConfig( "use_gm_luaerror", "1", "Whether or not to use the gm_luaerror DLL if it's present." ),
 
     webhook = {
         -- cfc_err_forwarder_client_webhook
@@ -59,7 +64,7 @@ end, "UpdateBackup" )
 --- @param sourceFile string?
 --- @param sourceLine number?
 --- @param errorString string?
---- @param stack table
+--- @param stack DebugInfoStruct
 local function receiver( plyOrIsRuntime, fullError, sourceFile, sourceLine, errorString, stack )
     --- @class ErrorForwarder_LuaError
     local luaError = {
@@ -81,8 +86,52 @@ local function receiver( plyOrIsRuntime, fullError, sourceFile, sourceLine, erro
     Forwarder:QueueError( luaError )
 end
 
-hook.Add( "LuaError", "CFC_ServerErrorForwarder", receiver )
-hook.Add( "ClientLuaError", "CFC_ClientErrorForwarder", receiver )
+do
+    --- Converts a stack from the base game OnLuaError and converts it to the standard debug stackinfo
+    --- @param luaHookStack GmodOnLuaErrorStack
+    local function convertStack( luaHookStack )
+        --- @type DebugInfoStruct[]
+        local newStack = {}
+
+        for i = 1, #luaHookStack do
+            local item = luaHookStack[i]
+
+            --- @type DebugInfoStruct
+            local newItem = {
+                source = item.File,
+                funcName = item.Function,
+                currentline = item.Line,
+                name = item.Function,
+            }
+
+            table.insert( newStack, newItem )
+        end
+
+        return newStack
+    end
+
+    hook.Add( "OnLuaError", "CFC_RuntimeErrorForwarder", function( err, _, stack )
+        -- Skip this if we're using gm_luaerror and are configured to use it
+        if luaerror and not Config.useLuaErrorBinary:GetBool() == true then return end
+
+        local newStack = convertStack( stack --[[@as GmodOnLuaErrorStack]] )
+
+        local firstEntry = stack[1]
+        receiver( true, err, firstEntry.File, firstEntry.Line, err, newStack )
+    end )
+end
+
+-- gm_luaerror hooks
+hook.Add( "LuaError", "CFC_ServerErrorForwarder", function( ... )
+    if Config.useLuaErrorBinary:GetBool() == false then return end
+    receiver( ... )
+end )
+hook.Add( "ClientLuaError", "CFC_ClientErrorForwarder", function( ... )
+    if Config.useLuaErrorBinary:GetBool() == false then return end
+    if Config.clientEnabled:GetBool() == false then return end
+    receiver( ... )
+end )
+
 hook.Add( "ShutDown", "CFC_ShutdownErrorForwarder", function()
     log.warn( "Shut Down detected, saving unsent queue items..." )
     Forwarder:ForwardErrors()

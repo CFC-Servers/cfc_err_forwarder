@@ -2,36 +2,29 @@ local table_concat = table.concat
 local table_insert = table.insert
 local string_format = string.format
 
-local GetSource = include( "get_source_url.lua" )
-local PrettyFunction = include( "pretty_function.lua" ).FromFile
+local spacingTable = {} do
+    for i = 0, 20 do
+        spacingTable[i] = string.rep( " ", i )
+    end
+end
 
 local function formatStackInfo( stack )
     local lines = {}
+    local indent = -1
 
     for i = 1, #stack do
+        indent = indent + 1
         local item = stack[i]
 
         local lineNumber = item.currentline
         local src = item.short_src or item.source or "<unknown source>"
 
         local name = item.name or ""
-        name = #name == 0 and "<unknown>" or name
 
-        local sourceInfo = src .. ":" .. lineNumber
-        local prettyName = PrettyFunction( src, lineNumber )
+        name = #name == 0 and "<?>" or name
 
-        print( "Pretty name for ", sourceInfo, "is", prettyName )
-        if prettyName == "<unknown>" then prettyName = nil end
-
-        local link = GetSource( src, lineNumber )
-
-        if link then
-            table_insert( lines, string_format( "%s. [**%s**](%s)", i, prettyName or name, link ) )
-        else
-            -- __newindex → `[C]:-1`
-            sourceInfo = string_format( "`%s`", sourceInfo )
-            table_insert( lines, string_format( "%s. **%s** → %s", i, name, sourceInfo ) )
-        end
+        local spacing = spacingTable[indent]
+        table_insert( lines, string_format( "%s%s. %s - %s:%s", spacing, i, name, src, lineNumber ) )
     end
 
     return table_concat( lines, "\n" )

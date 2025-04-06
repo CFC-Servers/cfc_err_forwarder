@@ -11,13 +11,6 @@ if util.IsBinaryModuleInstalled( "luaerror" ) then
     luaerror.EnableCompiletimeDetour( true )
     luaerror.EnableClientDetour( true )
     luaerror.EnableRuntimeDetour( true )
-else
-    log.err( "LuaError module is not installed!" )
-    log.warn( "This addon cannot function without the LuaError module, as it is the only way to get Lua error information." )
-    log.warn( "Please visit this page and download the latest version of the module for your system ", colors.debug, "(then place it in lua/bin/):" )
-    log.info( colors.highlight, "https://github.com/danielga/gm_luaerror/releases" )
-
-    error( "ErrorForwarder: Cannot Load! LuaError module is not installed! (More info in logs)" )
 end
 
 if util.IsBinaryModuleInstalled( "reqwest" ) then

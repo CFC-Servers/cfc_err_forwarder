@@ -1,13 +1,14 @@
 local red = 14483456
-local MAX_LOCALS = 8
 
 local niceStack = include( "nice_stack.lua" )
 local values = include( "values_short.lua" )
 
+--- @type ErrorForwarder_TextHelpers
 local TextHelpers = include( "text_helpers.lua" )
 local bold = TextHelpers.bold
 local code = TextHelpers.code
 local truncate = TextHelpers.truncate
+local getMessageFromError = TextHelpers.getMessageFromError
 
 local function nonil( t )
     local ret = {}
@@ -34,7 +35,7 @@ return function( data )
             },
             {
                 name = "Stack",
-                value = truncate( niceStack( data ) )
+                value = code( truncate( niceStack( data ) ) )
             },
         }
 
@@ -81,7 +82,7 @@ return function( data )
                 color = red,
                 title = realm .. " Error",
                 author = { name = GetHostName() },
-                description = TextHelpers.bad( data.luaError.errorString ),
+                description = TextHelpers.bad( getMessageFromError( data.luaError.errorString ) ),
                 fields = nonil( fields )
             }
         }

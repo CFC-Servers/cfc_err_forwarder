@@ -1,4 +1,7 @@
 local to64 = util.SteamIDTo64
+local string_find = string.find
+local string_sub = string.sub
+local string_len = string.len
 local getSourceURL = include( "get_source_url.lua" )
 
 --- @class ErrorForwarder_TextHelpers
@@ -70,6 +73,22 @@ function TextHelpers.getSourceText( data )
     local sourceText = TextHelpers.code( sourceFile .. ":" .. sourceLine, "" )
 
     return sourceLink .. "\n" .. sourceText
+end
+
+--- Takes a full <error>:<line>: <message> and returns the message
+--- @param errorString string
+function TextHelpers.getMessageFromError( errorString )
+    local firstColon = string_find( errorString, ":", 1, true )
+    if not firstColon then return errorString end
+
+    local secondColon = string_find( errorString, ":", firstColon + 1, true )
+    if not secondColon then return errorString end
+
+    -- +2 to skip the ": "
+    local message = string_sub( errorString, secondColon + 2 )
+    if string_len( message ) == 0 then return errorString end
+
+    return message
 end
 
 --- Formats the given branch into a human friendly name
