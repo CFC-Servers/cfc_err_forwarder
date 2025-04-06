@@ -73,6 +73,8 @@ local function getProjectURL( mainDir )
 end
 
 return function( source, line )
+    if not source then return end
+
     -- { "addons", "acf-3", "lua", "entities", "acf_armor", "shared.lua" }
     -- { "gamemodes", "sandbox", "entities", "weapons", "gmod_tool", "stools", "duplicator", "transport.lua" }
     local sourceSpl = string.Split( source, "/" )
