@@ -85,9 +85,17 @@ function Forwarder:errorIsQueued( fullError )
     return self.queue[fullError]
 end
 
+function Forwarder:getInterval()
+    return Config.groomInterval:GetInt() or 60
+end
+
 function Forwarder:startTimer()
-    timer.Create( queueName, Config.groomInterval:GetInt() or 60, 0, function()
+    local nextRun = os_Time() + self:getInterval()
+    timer.Create( queueName, 0, 0, function() -- 0 tick timer so it still runs during hibernation
         ProtectedCall( function()
+            if os_Time() < nextRun then return end
+            nextRun = os_Time() + self:getInterval()
+
             self:groomQueue()
         end )
     end )
