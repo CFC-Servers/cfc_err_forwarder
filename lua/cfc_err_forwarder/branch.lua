@@ -1,26 +1,13 @@
 if SERVER then
     AddCSLuaFile()
 
-    local branches = {}
-
-    local function setBranch( ply, branch )
-        branches[ply] = branch
+    function ErrorForwarder.Forwarder.GetBranch( ply )
+        return ply.ErrorForwarder_Branch or "unknown branch"
     end
-
-    local function getBranch( ply )
-        return branches[ply]
-    end
-
-    ErrorForwarder.CLBranches = branches
-    ErrorForwarder.Forwarder.GetBranch = getBranch
 
     hook.Add( "PlayerInitialSpawn", "CFC_ErrorForwarder_BranchSet", function( ply )
         local branch = ply:GetInfo( "cfc_err_forwarder_branch" )
-        setBranch( ply, branch )
-    end )
-
-    hook.Add( "PlayerDisconnected", "CFC_ErrorForwarder_BranchCleanup", function( ply )
-        setBranch( ply, nil )
+        ply.ErrorForwarder_Branch = branch
     end )
 end
 
