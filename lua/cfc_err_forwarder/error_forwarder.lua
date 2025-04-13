@@ -33,7 +33,7 @@ function Forwarder:QueueError( luaError )
     if ply then
         plyName = ply:Nick()
         plySteamID = ply:SteamID()
-        branch = Forwarder.GetBranch( ply ) or "Not sure yet"
+        branch = Forwarder.GetBranch( ply )
         isClientside = true
     else
         branch = BRANCH
