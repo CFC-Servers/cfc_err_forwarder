@@ -86,7 +86,7 @@ local function receiver( plyOrIsRuntime, fullError, sourceFile, sourceLine, erro
     Forwarder:QueueError( luaError )
 end
 
-do
+do -- Base game error hooks
     --- Converts a stack from the base game OnLuaError and converts it to the standard debug stackinfo
     --- @param luaHookStack GmodOnLuaErrorStack
     local function convertStack( luaHookStack )
@@ -112,13 +112,48 @@ do
 
     hook.Add( "OnLuaError", "CFC_RuntimeErrorForwarder", function( err, _, stack )
         -- Skip this if we're using gm_luaerror and are configured to use it
-        if luaerror and not Config.useLuaErrorBinary:GetBool() == true then return end
+        if luaerror and Config.useLuaErrorBinary:GetBool() then return end
 
         local newStack = convertStack( stack --[[@as GmodOnLuaErrorStack]] )
 
         local firstEntry = stack[1]
         receiver( true, err, firstEntry.File, firstEntry.Line, err, newStack )
     end )
+
+    -- Client error networking logic when gm_luaerror isn't installed
+    if not luaerror then
+        util.AddNetworkString( "cfc_errorforwarder_clienterror" )
+
+        net.Receive( "cfc_errorforwarder_clienterror", function( _, ply )
+            if not Config.clientEnabled:GetBool() then return end
+
+            if ply.ErrorForwarder_LastReceiveTime and ply.ErrorForwarder_LastReceiveTime > os_time() - 5 then return end
+            ply.ErrorForwarder_LastReceiveTime = os_time()
+
+            local err = net.ReadString()
+            local stackSize = net.ReadUInt( 4 )
+            local stack = {}
+            for _ = 1, stackSize do
+                local fileName = net.ReadString()
+                local funcName = net.ReadString()
+                local line = net.ReadInt( 16 )
+
+                table.insert( stack, {
+                    File = fileName,
+                    Function = funcName,
+                    Line = line,
+                } )
+            end
+
+            if #stack == 0 then return end
+
+            local newStack = convertStack( stack --[[@as GmodOnLuaErrorStack]] )
+            local firstEntry = stack[1]
+            if not firstEntry then return end
+
+            receiver( ply, err, firstEntry.File, firstEntry.Line, err, newStack )
+        end )
+    end
 end
 
 -- gm_luaerror hooks
