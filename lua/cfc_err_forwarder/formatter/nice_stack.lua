@@ -21,7 +21,7 @@ local function formatStackInfo( stack )
 
         local name = item.name or ""
 
-        name = #name == 0 and "<?>" or name
+        name = #name == 0 and "<unknown>" or name
 
         local spacing = spacingTable[indent]
         table_insert( lines, string_format( "%s%s. %s - %s:%s", spacing, i, name, src, lineNumber ) )
