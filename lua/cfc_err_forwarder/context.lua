@@ -1,4 +1,3 @@
-local Helpers = ErrorForwarder.Helpers
 local prettyFunc = include( "formatter/pretty_function.lua" ).FromFunction
 
 local tostring = tostring
@@ -681,7 +680,7 @@ return function( stack )
             locals = locals
         }
 
-        if (locals and next( locals )) then break end
+        if ( locals and next( locals ) ) then break end
     end
 
     for i = 1, stackCount do
@@ -692,7 +691,7 @@ return function( stack )
             upvalues = upvalues
         }
 
-        if (upvalues and next( upvalues )) then break end
+        if ( upvalues and next( upvalues ) ) then break end
     end
 
     return stackLocals, stackUpvalues

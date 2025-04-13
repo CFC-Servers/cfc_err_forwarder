@@ -1,4 +1,3 @@
-local config = ErrorForwarder.Config
 -- Stores the functions "dot path" by the function itself
 _G._ErrorForwarder_functionNameCache = _G._ErrorForwarder_functionNameCache or {}
 local functionNameCache = _G._ErrorForwarder_functionNameCache

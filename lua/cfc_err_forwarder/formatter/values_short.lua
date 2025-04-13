@@ -18,7 +18,7 @@ local function formatShort( struct, inTable )
     local name = short.name or struct.name or ""
     local val = short.val or struct.val
 
-    if (not inTable) and short.newline then
+    if ( not inTable ) and short.newline then
         local length = #name + #val + 5
         if length > 50 then
             return name .. "\n   └ " .. val

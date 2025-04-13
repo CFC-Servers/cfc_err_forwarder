@@ -59,10 +59,10 @@ end
 
 function DI:loadQueue()
     local saved = file.Read( self.saveFile, "DATA" )
-    if not (saved and #saved > 0) then return end
+    if not ( saved and #saved > 0 ) then return end
 
     local savedQueue = util.JSONToTable( saved )
-    if not (savedQueue and #savedQueue > 0) then return end
+    if not ( savedQueue and #savedQueue > 0 ) then return end
 
     log.info( "Loaded " .. #savedQueue .. " items from queue file." )
 

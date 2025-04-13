@@ -1,5 +1,3 @@
-local fmt = string.format
-
 ErrorForwarder.Helpers = {}
 --- @class ErrForwarder_Helpers
 local Helpers = ErrorForwarder.Helpers
