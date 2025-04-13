@@ -1,4 +1,6 @@
-local red = 14483456
+-- Colors from: https://github.com/Facepunch/garrysmod/blob/dfdafba0f04e75be122961291a56d9c1714a3d8a/garrysmod/lua/menu/problems/problem_lua.lua#L3-L5
+local clientError = 0xFFDE66
+local serverError = 0x89DEFF
 
 local niceStack = include( "nice_stack.lua" )
 local values = include( "values_short.lua" )
@@ -79,7 +81,7 @@ return function( data )
         content = "",
         embeds = {
             {
-                color = red,
+                color = client and clientError or serverError,
                 title = realm .. " Error",
                 author = { name = GetHostName() },
                 description = TextHelpers.bad( getMessageFromError( data.luaError.errorString ) ),
