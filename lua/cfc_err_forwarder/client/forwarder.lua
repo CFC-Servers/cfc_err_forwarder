@@ -1,5 +1,3 @@
-if util.NetworkStringToID( "cfc_errorforwarder_clienterror" ) == 0 then return end -- Server doesn't have clientside error forwarding enabled.
-
 ErrorForwarder.ClientErrorQueue = ErrorForwarder.ClientErrorQueue or {}
 ErrorForwarder.ClientErrorsLogged = ErrorForwarder.ClientErrorsLogged or {}
 

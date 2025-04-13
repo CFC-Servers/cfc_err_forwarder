@@ -9,7 +9,6 @@ local colors = EF.colors
 if util.IsBinaryModuleInstalled( "luaerror" ) then
     require( "luaerror" )
     luaerror.EnableCompiletimeDetour( true )
-    luaerror.EnableClientDetour( true )
     luaerror.EnableRuntimeDetour( true )
 end
 

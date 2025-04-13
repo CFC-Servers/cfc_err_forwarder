@@ -21,8 +21,8 @@ This addon will watch for errors, do a little investigation, and send a message 
  - **`cfc_err_forwarder_dedupe_duration`**: The number of seconds new errors are held before being sent to Discord. Helps de-dupe spammy errors.
  - **`cfc_err_forwarder_backup`**: A boolean indicating whether or not errors should be backed up to a file in case the server crashes or restarts.
  - **`cfc_err_forwarder_server_webhook`**: The full Discord Webhook URL to send Serverside errors
- - **`cfc_err_forwarder_client_webhook`**: The full Discord Webhook URL to send Clientside errors _(Only relevant for gm_luaerror)_
- - **`cfc_err_forwarder_client_enabled`**: A boolean indicating whether or not the addon should even track Clientside errors _(Only relevant for gm_luaerror)_
+ - **`cfc_err_forwarder_client_webhook`**: The full Discord Webhook URL to send Clientside errors
+ - **`cfc_err_forwarder_client_enabled`**: A boolean indicating whether or not the addon should even track Clientside errors
  - **`cfc_err_forwarder_include_full_context`**: A boolean indicating whether or not the full error context should be included in the Discord messsages _(Only relevant for gm_luaerror)_
  - **`cfc_err_forwarder_enable_name_cache`**: A boolean indicating whether or not to build a full "Pretty name" cache for all functions in _G. This can impact startup time. (Only relevant for gm_luaerror)
 

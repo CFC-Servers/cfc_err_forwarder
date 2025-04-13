@@ -116,40 +116,37 @@ do -- Base game error hooks
         receiver( true, err, firstEntry.File, firstEntry.Line, err, newStack )
     end )
 
-    -- Client error networking logic when gm_luaerror isn't installed
-    if not luaerror then
-        util.AddNetworkString( "cfc_errorforwarder_clienterror" )
+        -- Clientside error forwarding
+    util.AddNetworkString( "cfc_errorforwarder_clienterror" )
+    net.Receive( "cfc_errorforwarder_clienterror", function( _, ply )
+        if not Config.clientEnabled:GetBool() then return end
 
-        net.Receive( "cfc_errorforwarder_clienterror", function( _, ply )
-            if not Config.clientEnabled:GetBool() then return end
+        if ply.ErrorForwarder_LastReceiveTime and ply.ErrorForwarder_LastReceiveTime > os_time() - 5 then return end
+        ply.ErrorForwarder_LastReceiveTime = os_time()
 
-            if ply.ErrorForwarder_LastReceiveTime and ply.ErrorForwarder_LastReceiveTime > os_time() - 5 then return end
-            ply.ErrorForwarder_LastReceiveTime = os_time()
+        local err = net.ReadString()
+        local stackSize = net.ReadUInt( 4 )
+        local stack = {}
+        for _ = 1, stackSize do
+            local fileName = net.ReadString()
+            local funcName = net.ReadString()
+            local line = net.ReadInt( 16 )
 
-            local err = net.ReadString()
-            local stackSize = net.ReadUInt( 4 )
-            local stack = {}
-            for _ = 1, stackSize do
-                local fileName = net.ReadString()
-                local funcName = net.ReadString()
-                local line = net.ReadInt( 16 )
+            table.insert( stack, {
+                File = fileName,
+                Function = funcName,
+                Line = line,
+            } )
+        end
 
-                table.insert( stack, {
-                    File = fileName,
-                    Function = funcName,
-                    Line = line,
-                } )
-            end
+        if #stack == 0 then return end
 
-            if #stack == 0 then return end
+        local newStack = convertStack( stack --[[@as GmodOnLuaErrorStack]] )
+        local firstEntry = stack[1]
+        if not firstEntry then return end
 
-            local newStack = convertStack( stack --[[@as GmodOnLuaErrorStack]] )
-            local firstEntry = stack[1]
-            if not firstEntry then return end
-
-            receiver( ply, err, firstEntry.File, firstEntry.Line, err, newStack )
-        end )
-    end
+        receiver( ply, err, firstEntry.File, firstEntry.Line, err, newStack )
+    end )
 end
 
 -- gm_luaerror hooks
@@ -157,17 +154,12 @@ hook.Add( "LuaError", "CFC_ServerErrorForwarder", function( ... )
     if Config.useLuaErrorBinary:GetBool() == false then return end
     receiver( ... )
 end )
-hook.Add( "ClientLuaError", "CFC_ClientErrorForwarder", function( ... )
-    if Config.useLuaErrorBinary:GetBool() == false then return end
-    if Config.clientEnabled:GetBool() == false then return end
-    receiver( ... )
-end )
 
 hook.Add( "ShutDown", "CFC_ShutdownErrorForwarder", function()
     log.warn( "Shut Down detected, saving unsent queue items..." )
     Forwarder:ForwardErrors()
 
-    if Config.backup:GetInt() ~= 1 then return end
+    if not Config.backup:GetBool() then return end
     Discord:saveQueue()
 end )
 
