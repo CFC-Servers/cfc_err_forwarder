@@ -133,22 +133,25 @@ do -- Base game error hooks
             local err = net.ReadString()
             local stackSize = net.ReadUInt( 4 )
             local stack = {}
-            for i = 1, stackSize do
-                local file = net.ReadString()
+            for _ = 1, stackSize do
+                local fileName = net.ReadString()
                 local funcName = net.ReadString()
-                local line = net.ReadUInt( 16 )
+                local line = net.ReadInt( 16 )
 
-                stack[i] = {
-                    File = file,
+                table.insert( stack, {
+                    File = fileName,
                     Function = funcName,
                     Line = line,
-                }
+                } )
             end
 
+            if #stack == 0 then return end
+
+            local newStack = convertStack( stack --[[@as GmodOnLuaErrorStack]] )
             local firstEntry = stack[1]
             if not firstEntry then return end
 
-            receiver( ply, err, firstEntry.File, firstEntry.Line, err, stack )
+            receiver( ply, err, firstEntry.File, firstEntry.Line, err, newStack )
         end )
     end
 end

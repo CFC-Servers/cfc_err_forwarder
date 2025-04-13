@@ -29,7 +29,7 @@ local function createTimer()
         for _, traceLevel in ipairs( stack ) do
             net.WriteString( traceLevel.File or "" )
             net.WriteString( traceLevel.Function or "" )
-            net.WriteUInt( traceLevel.Line or 0, 16 )
+            net.WriteInt( traceLevel.Line or 0, 16 )
         end
 
         net.SendToServer()
