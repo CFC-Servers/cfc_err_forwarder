@@ -1,6 +1,5 @@
 if SERVER then
     AddCSLuaFile()
-    util.AddNetworkString( "cfc_err_forwarder_clbranch" )
 
     local branches = {}
 
@@ -15,10 +14,8 @@ if SERVER then
     ErrorForwarder.CLBranches = branches
     ErrorForwarder.Forwarder.GetBranch = getBranch
 
-    net.Receive( "cfc_err_forwarder_clbranch", function( _, ply )
-        if getBranch( ply ) then return end
-
-        local branch = net.ReadString()
+    hook.Add( "PlayerInitialSpawn", "CFC_ErrorForwarder_BranchSet", function( ply )
+        local branch = ply:GetInfo( "cfc_err_forwarder_branch" )
         setBranch( ply, branch )
     end )
 
@@ -28,9 +25,5 @@ if SERVER then
 end
 
 if CLIENT then
-    hook.Add( "InitPostEntity", "CFC_ErrorForwarder_BranchSetter", function()
-        net.Start( "cfc_err_forwarder_clbranch" )
-        net.WriteString( BRANCH )
-        net.SendToServer()
-    end )
+    CreateConVar( "cfc_err_forwarder_branch", BRANCH, { FCVAR_CHEAT, FCVAR_PROTECTED, FCVAR_USERINFO } )
 end
