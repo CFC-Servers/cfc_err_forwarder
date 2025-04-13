@@ -101,10 +101,6 @@ function Forwarder:startTimer()
     end )
 end
 
-function Forwarder:adjustTimer( interval )
-    timer.Adjust( queueName, tonumber( interval ) )
-end
-
 function Forwarder:incrementError( fullError )
     local item = self.queue[fullError]
     item.count = item.count + 1

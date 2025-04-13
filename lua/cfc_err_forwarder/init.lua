@@ -49,10 +49,6 @@ include( "cfc_err_forwarder/branch.lua" )
 local Discord = EF.Discord
 local Forwarder = EF.Forwarder
 
-cvars.AddChangeCallback( Config.groomInterval:GetName(), function( _, _, new )
-    Forwarder:adjustTimer( new )
-end, "UpdateTimer" )
-
 cvars.AddChangeCallback( Config.backup:GetName(), function( _, _, new )
     if new ~= "1" then return end
     EF.Discord:LoadQueue()
