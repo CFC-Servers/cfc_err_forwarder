@@ -90,11 +90,11 @@ function Forwarder:getInterval()
 end
 
 function Forwarder:startTimer()
-    local nextRun = os_Time() + self:getInterval()
+    local lastRun = os_Time()
     timer.Create( queueName, 0, 0, function() -- 0 tick timer so it still runs during hibernation
         ProtectedCall( function()
-            if os_Time() < nextRun then return end
-            nextRun = os_Time() + self:getInterval()
+            if os_Time() - lastRun < self:getInterval() then return end
+            lastRun = os_Time()
 
             self:groomQueue()
         end )
