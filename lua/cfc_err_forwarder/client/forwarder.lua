@@ -16,7 +16,7 @@ end )
 
 local function createTimer()
     ErrorForwarder.CreatedClientErrorTimer = true
-    timer.Create( "CFC_ClientErrorForwarder", 5, 0, function()
+    timer.Create( "CFC_ClientErrorForwarder", 6, 0, function()
         if #ErrorForwarder.ClientErrorQueue == 0 then return end
 
         local errorData = table.remove( ErrorForwarder.ClientErrorQueue, 1 )
