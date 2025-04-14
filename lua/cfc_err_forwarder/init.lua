@@ -142,7 +142,7 @@ do -- Base game error hooks
     net.Receive( "cfc_errorforwarder_clienterror", function( _, ply )
         if not Config.clientEnabled:GetBool() then return end
 
-        if ply.ErrorForwarder_LastReceiveTime and ply.ErrorForwarder_LastReceiveTime > os_time() - 5 then return end
+        if ply.ErrorForwarder_LastReceiveTime and ply.ErrorForwarder_LastReceiveTime > os_time() - 10 then return end
         ply.ErrorForwarder_LastReceiveTime = os_time()
 
         local err = net.ReadString()
