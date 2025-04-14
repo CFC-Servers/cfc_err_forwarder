@@ -52,7 +52,7 @@ return function( data )
         if data.isClientside then
             table.insert( fields, {
                 name = "Player",
-                value = bold( "[" .. data.plyName .. "](" .. TextHelpers.steamIDLink( data.plySteamID ) .. ")" )
+                value = bold( data.plyName .. " [" .. data.plySteamID .. "](" .. TextHelpers.steamIDLink( data.plySteamID ) .. ")" )
             } )
         end
 
