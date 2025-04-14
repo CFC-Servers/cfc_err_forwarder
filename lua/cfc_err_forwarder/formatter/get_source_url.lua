@@ -16,6 +16,7 @@ local function _getProjectURL( mainDir )
     local content = file.Read( fetchPath, "GAME" )
 
     if not content then return nil end
+    if content == "" then return nil end
 
     -- 6679969ce1b0f6baa80dc4460beb7004f3197408 branch 'master' of github.com:Stooberton/ACF-3
     -- 6679969ce1b0f6baa80dc4460beb7004f3197408 branch 'master' of https://github.com/Stooberton/ACF-3
@@ -26,6 +27,7 @@ local function _getProjectURL( mainDir )
     -- "master", "https://github.com/Stooberton/ACF-3"
     -- "master", "https://github.com/Stooberton/acf-3.git"
     local _, _, branch, repo = string.find( firstLine, "branch '(.+)' of (.+)$" )
+    if not branch or not repo then return nil end --
 
     -- "github.com/Stooberton/ACF-3"
     repo = string.gsub( repo, "https://", "" )
