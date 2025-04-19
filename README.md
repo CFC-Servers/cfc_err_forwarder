@@ -30,8 +30,8 @@ This addon will watch for errors, do a little investigation, and send a message 
 ## Screenshots
 
 ### Serverside Error with Locals and Context
-![DiscordCanary_nmbYDY33PH](https://user-images.githubusercontent.com/7936439/188520510-709cda4d-1f30-4f15-b43a-ac6cddd0723c.png)
-
+![image](https://github.com/user-attachments/assets/f694166e-34d1-4e69-9782-711c8c04294e)
 
 ### Clientside Error with Context
-![image](https://user-images.githubusercontent.com/7936439/188520586-fdd2f05f-c83a-458a-a7f3-8f29fa99b95f.png)
+![image](https://github.com/user-attachments/assets/10bc91f6-6581-4949-8027-292466ed9146)
+
