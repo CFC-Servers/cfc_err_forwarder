@@ -47,9 +47,6 @@ EF.Config = {
     -- cfc_err_forwarder_include_full_context
     includeFullContext = makeConfig( "include_full_context", "0", "Whether or not to include JSON files in every message containing the full locals/upvalues (Only relevant for gm_luaerror)" ),
 
-    -- cfc_err_forwarder_enable_name_cache
-    buildNameCache = makeConfig( "enable_name_cache", "1", "Whether or not to build a friendly name cache for all functions in the global scope. This can impact startup times. (Only relevant for gm_luaerror)" ),
-
     -- cfc_err_forwarder_use_gm_luaerror
     useLuaErrorBinary = makeConfig( "use_gm_luaerror", "1", "Whether or not to use the gm_luaerror DLL if it's present." ),
 
