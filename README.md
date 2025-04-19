@@ -1,6 +1,8 @@
 # CFC Error Forwarder
+<p align="left">
+    <a href="https://discord.gg/5JUqZjzmYJ" alt="Discord Invite"><img src="https://img.shields.io/discord/981394195812085770?label=Support&logo=discord&logoColor=white" /></a>
+</p>
 
-![Version](https://img.shields.io/github/v/release/CFC-Servers/cfc_err_forwarder?include_prereleases)
 ![Downloads](https://img.shields.io/github/downloads/CFC-Servers/cfc_err_forwarder/total)
 
 A powerful, pure-Lua error tracking and reporting system for Garry's Mod servers. This addon monitors both server and client-side errors, performs detailed analysis, and delivers comprehensive reports directly to your Discord channel.
