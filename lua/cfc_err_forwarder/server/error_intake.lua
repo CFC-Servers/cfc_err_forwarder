@@ -54,7 +54,7 @@ do -- Base game error hooks
 
     hook.Add( "OnLuaError", "CFC_RuntimeErrorForwarder", function( err, _, stack )
         -- Skip this if we're using gm_luaerror and are configured to use it
-        if luaerror and Config.useLuaErrorBinary:GetBool() then return end
+        if ErrorForwarder.HasLuaErrorDLL and Config.useLuaErrorBinary:GetBool() then return end
 
         local newStack = convertStack( stack --[[@as GmodOnLuaErrorStack]] )
 

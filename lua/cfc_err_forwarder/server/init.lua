@@ -14,6 +14,7 @@ if util.IsBinaryModuleInstalled( "luaerror" ) then
     require( "luaerror" )
     luaerror.EnableCompiletimeDetour( true )
     luaerror.EnableRuntimeDetour( true )
+    ErrorForwarder.HasLuaErrorDLL = true
 end
 
 if util.IsBinaryModuleInstalled( "reqwest" ) then

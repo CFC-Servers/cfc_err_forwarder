@@ -63,7 +63,7 @@ do
 end
 
 hook.Add( "InitPostEntity", "CFC_ErrForwarder_FuncNameSetup", function()
-    if not luaerror then return end
+    if not ErrorForwarder.HasLuaErrorDLL then return end
 
     local startTime = SysTime()
     ProtectedCall( getNamesFrom )
