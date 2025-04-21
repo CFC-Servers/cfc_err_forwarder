@@ -41,12 +41,14 @@ return function( data )
             },
         }
 
-        local localsData = values( data.fullContext.locals, "locals" )
-        if localsData then
-            table.insert( fields, {
-                name = "Locals",
-                value = code( truncate( localsData ), "ini" )
-            } )
+        if data.fullContext then
+            local localsData = values( data.fullContext.locals, "locals" )
+            if localsData then
+                table.insert( fields, {
+                    name = "Locals",
+                    value = code( truncate( localsData ), "ini" )
+                } )
+            end
         end
 
         if data.isClientside then
