@@ -1,7 +1,7 @@
 local CurTime = CurTime
 
-local Formatter = include( "cfc_err_forwarder/formatter/formatter.lua" )
-local Values = include( "cfc_err_forwarder/formatter/values_full.lua" )
+local Formatter = include( "cfc_err_forwarder/server/formatter/formatter.lua" )
+local Values = include( "cfc_err_forwarder/server/formatter/values_full.lua" )
 
 local log = ErrorForwarder.Logger
 local Config = ErrorForwarder.Config
