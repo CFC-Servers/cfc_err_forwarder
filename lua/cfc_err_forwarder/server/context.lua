@@ -414,7 +414,7 @@ _formatRawValue = function( val, _seen )
         return {
             name = "CUserCmd",
             data = {
-                commandNumber = val:GetCommandNumber(),
+                commandNumber = val:CommandNumber(),
                 buttons = getButtons( val ),
                 forwardMove = val:GetForwardMove(),
                 impulse = val:GetImpulse(),
