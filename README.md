@@ -29,8 +29,7 @@ A powerful, pure-Lua error tracking and reporting system for Garry's Mod servers
 | `cfc_err_forwarder_server_webhook` | Discord webhook URL for serverside errors | `""` |
 | `cfc_err_forwarder_client_webhook` | Discord webhook URL for clientside errors | `""` |
 | `cfc_err_forwarder_client_enabled` | Enable tracking of clientside errors | `true` |
-| `cfc_err_forwarder_include_full_context` | Include full context in Discord messages (requires `gm_luaerror`) | `true` |
-| `cfc_err_forwarder_enable_name_cache` | Build a "Pretty name" cache for _G functions (impacts startup time, requires gm_luaerror) | `false` |
+| `cfc_err_forwarder_include_full_context` | Include full context in Discord messages (requires `gm_luaerror`) | `false` |
 
 ## 📊 Examples
 

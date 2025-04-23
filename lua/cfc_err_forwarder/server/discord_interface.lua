@@ -102,9 +102,8 @@ function DI:sendNext()
         local data = FormData()
         data:Append( "payload_json", item.body )
 
-        local context = item.rawData.fullContext
-
         if Config.includeFullContext:GetBool() then
+            local context = item.rawData.fullContext
             local locals = context.locals
             if locals then
                 local formattedValues = Values( locals, "locals" )

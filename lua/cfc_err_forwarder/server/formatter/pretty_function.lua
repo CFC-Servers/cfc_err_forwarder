@@ -65,9 +65,7 @@ end
 hook.Add( "InitPostEntity", "CFC_ErrForwarder_FuncNameSetup", function()
     if not ErrorForwarder.HasLuaErrorDLL then return end
 
-    local startTime = SysTime()
     ProtectedCall( getNamesFrom )
-    print( "[CFC_ErrForwarder] Function name cache built in " .. SysTime() - startTime .. " seconds. Disable with convar: cfc_err_forwarder_enable_name_cache" )
 end )
 
 do
