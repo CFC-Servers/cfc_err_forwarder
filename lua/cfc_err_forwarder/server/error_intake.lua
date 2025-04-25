@@ -58,8 +58,10 @@ do -- Base game error hooks
 
         local newStack = convertStack( stack --[[@as GmodOnLuaErrorStack]] )
 
-        local firstEntry = stack[1]
-        receiver( true, err, firstEntry.File, firstEntry.Line, err, newStack )
+        local firstEntry = stack[1] or {}
+        local fileName = firstEntry.File or "Unknown"
+        local fileLine = firstEntry.Line or 0
+        receiver( true, err, fileName, fileLine, err, newStack )
     end )
 
         -- Clientside error forwarding
@@ -96,7 +98,9 @@ do -- Base game error hooks
 end
 
 -- gm_luaerror hooks
-hook.Add( "LuaError", "CFC_ServerErrorForwarder", function( ... )
-    if Config.useLuaErrorBinary:GetBool() == false then return end
-    receiver( ... )
-end )
+if ErrorForwarder.HasLuaErrorDLL then
+    hook.Add( "LuaError", "CFC_ServerErrorForwarder", function( ... )
+        if Config.useLuaErrorBinary:GetBool() == false then return end
+        receiver( ... )
+    end )
+end
