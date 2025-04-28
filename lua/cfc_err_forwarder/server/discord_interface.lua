@@ -78,8 +78,6 @@ function DI:getUrl( isClientside )
     local url = Config.webhook[realm]
     if url then url = url:GetString() end
 
-    assert( url and #url > 0, "[ErrorForwarder] Tried to send a webhook with no URL (" .. realm .. "). Have you set your convars?" )
-
     return url
 end
 
@@ -176,6 +174,15 @@ function DI:onFailure( reason )
 end
 
 function DI:Send( data )
+    local realm = data.isClientside and "client" or "server"
+    local url = Config.webhook[realm]
+    if url then url = url:GetString() end
+
+    if url and #url == 0 then
+        log.err( "Missing Discord webhook URL for " .. realm .. " realm. Error will not be sent." )
+        return
+    end
+
     self:enqueue{
         isClientside = data.isClientside,
         body = Formatter( data ),
