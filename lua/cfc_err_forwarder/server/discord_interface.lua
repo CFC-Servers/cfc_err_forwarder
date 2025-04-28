@@ -161,6 +161,7 @@ end
 function DI:onSuccess( code, body )
     if code == 429 then
         self:onRateLimit( body )
+        return
     elseif code >= 400 then
         log.err( "Received failure code on webhook send: Code: " .. code .. " | Body:\n " .. body )
     end
