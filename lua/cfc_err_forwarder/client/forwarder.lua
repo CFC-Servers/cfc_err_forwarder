@@ -37,5 +37,4 @@ timer.Create( "CFC_ClientErrorForwarder_Init", 1, 0, function()
     if not IsValid( LocalPlayer() ) then return end
     timer.Remove( "CFC_ClientErrorForwarder_Init" )
     ErrorForwarder.ClientNetReady = true
-    print( "CFC_ClientErrorForwarder: Client network is ready!" )
 end )
