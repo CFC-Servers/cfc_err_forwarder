@@ -9,7 +9,7 @@ if util.IsBinaryModuleInstalled( "luaerror" ) then
     ErrorForwarder.HasLuaErrorDLL = true
 end
 
-if false and util.IsBinaryModuleInstalled( "reqwest" ) then
+if util.IsBinaryModuleInstalled( "reqwest" ) then
     require( "reqwest" )
 else
     log.err( "Reqwest module is not installed!" )
