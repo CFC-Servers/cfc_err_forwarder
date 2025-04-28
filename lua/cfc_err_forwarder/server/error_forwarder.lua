@@ -119,3 +119,11 @@ function Forwarder:incrementError( fullError )
 end
 
 Forwarder:startTimer()
+
+hook.Add( "ShutDown", "CFC_ShutdownErrorForwarder", function()
+    log.warn( "Shut Down detected, saving unsent queue items..." )
+    ErrorForwarder.Forwarder:ForwardErrors()
+
+    if not ErrorForwarder.Config.backup:GetBool() then return end
+    ErrorForwarder.Discord:saveQueue()
+end )

@@ -1,15 +1,3 @@
-require( "formdata" )
-include( "logger.lua" )
-include( "helpers.lua" )
-include( "config.lua" )
-include( "discord_interface.lua" )
-include( "error_forwarder.lua" )
-include( "error_intake.lua" )
-include( "client_branch.lua" )
-
-local log = ErrorForwarder.Logger
-local colors = ErrorForwarder.colors
-
 if util.IsBinaryModuleInstalled( "luaerror" ) then
     require( "luaerror" )
     luaerror.EnableCompiletimeDetour( true )
@@ -28,12 +16,13 @@ else
     error( "ErrorForwarder: Cannot Load! Reqwest module is not installed! (More info in logs)" )
 end
 
-hook.Add( "ShutDown", "CFC_ShutdownErrorForwarder", function()
-    log.warn( "Shut Down detected, saving unsent queue items..." )
-    ErrorForwarder.Forwarder:ForwardErrors()
-
-    if not ErrorForwarder.Config.backup:GetBool() then return end
-    ErrorForwarder.Discord:saveQueue()
-end )
+require( "formdata" )
+include( "logger.lua" )
+include( "helpers.lua" )
+include( "config.lua" )
+include( "discord_interface.lua" )
+include( "error_forwarder.lua" )
+include( "error_intake.lua" )
+include( "client_branch.lua" )
 
 log.info( "Loaded!" )
