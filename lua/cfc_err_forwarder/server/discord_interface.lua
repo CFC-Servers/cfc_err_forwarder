@@ -174,17 +174,16 @@ function DI:onFailure( reason )
 end
 
 function DI:Send( data )
-    local realm = data.isClientside and "client" or "server"
-    local url = Config.webhook[realm]
-    if url then url = url:GetString() end
+    local isClientside = data.isClientside
+    local url = self:getUrl( isClientside )
 
-    if url and #url == 0 then
-        log.err( "Missing Discord webhook URL for " .. realm .. " realm. Error will not be sent." )
+    if not url or #url == 0 then
+        log.err( "Missing Discord webhook URL for " .. ( isClientside and "client" or "server" ) .. " realm." )
         return
     end
 
     self:enqueue{
-        isClientside = data.isClientside,
+        isClientside = isClientside,
         body = Formatter( data ),
         rawData = data
     }
