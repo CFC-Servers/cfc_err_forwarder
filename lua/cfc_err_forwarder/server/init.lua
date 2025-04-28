@@ -1,3 +1,7 @@
+include( "logger.lua" )
+local log = ErrorForwarder.Logger
+local colors = ErrorForwarder.Colors
+
 if util.IsBinaryModuleInstalled( "luaerror" ) then
     require( "luaerror" )
     luaerror.EnableCompiletimeDetour( true )
@@ -17,7 +21,6 @@ else
 end
 
 require( "formdata" )
-include( "logger.lua" )
 include( "helpers.lua" )
 include( "config.lua" )
 include( "discord_interface.lua" )
