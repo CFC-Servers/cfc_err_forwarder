@@ -82,7 +82,7 @@ function DI:getUrl( isClientside )
 end
 
 function DI:sendNext()
-    if self.waitUntil and CurTime() < self.waitUntil then return end
+    if self.retryAfter and CurTime() < self.retryAfter then return end
 
     local item = table.remove( self.queue, 1 )
     if not item then
