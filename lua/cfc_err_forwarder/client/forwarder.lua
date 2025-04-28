@@ -1,3 +1,9 @@
+ -- Can happen when serverside isn't loaded, eg reqwest isn't installed.
+if util.NetworkStringToID( "cfc_errorforwarder_clienterror" ) == 0 then
+    print( "[ErrorForwarder]: Refusing to load client error forwarder, server is not loaded." )
+    return
+end
+
 ErrorForwarder.ClientErrorQueue = ErrorForwarder.ClientErrorQueue or {}
 ErrorForwarder.ClientErrorsLogged = ErrorForwarder.ClientErrorsLogged or {}
 ErrorForwarder.ClientNetReady = ErrorForwarder.ClientNetReady or false

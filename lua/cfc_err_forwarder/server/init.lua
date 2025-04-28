@@ -1,6 +1,6 @@
 include( "logger.lua" )
 local log = ErrorForwarder.Logger
-local colors = ErrorForwarder.Colors
+local colors = ErrorForwarder.colors
 
 if util.IsBinaryModuleInstalled( "luaerror" ) then
     require( "luaerror" )
@@ -9,15 +9,16 @@ if util.IsBinaryModuleInstalled( "luaerror" ) then
     ErrorForwarder.HasLuaErrorDLL = true
 end
 
-if util.IsBinaryModuleInstalled( "reqwest" ) then
+if false and util.IsBinaryModuleInstalled( "reqwest" ) then
     require( "reqwest" )
 else
     log.err( "Reqwest module is not installed!" )
     log.warn( "This addon cannot function without the Reqwest module, as Discord blocks Gmod's base HTTP Agent." )
     log.warn( "Please visit this page and download the latest version of the module for your system ", colors.debug, "(then place it in lua/bin/):" )
     log.info( colors.highlight, "https://github.com/WilliamVenner/gmsv_reqwest/releases" )
+    log.err( "Preventing addon from loading....." )
 
-    error( "ErrorForwarder: Cannot Load! Reqwest module is not installed! (More info in logs)" )
+    return
 end
 
 require( "formdata" )
