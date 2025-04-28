@@ -33,7 +33,9 @@ timer.Create( "CFC_ClientErrorForwarder", 11, 0, function()
     net.SendToServer()
 end )
 
-hook.Add( "InitPostEntity", "CFC_ClientErrorForwarder", function()
-    hook.Remove( "InitPostEntity", "CFC_ClientErrorForwarder" )
+timer.Create( "CFC_ClientErrorForwarder_Init", 1, 0, function()
+    if not IsValid( LocalPlayer() ) then return end
+    timer.Remove( "CFC_ClientErrorForwarder_Init" )
     ErrorForwarder.ClientNetReady = true
+    print( "CFC_ClientErrorForwarder: Client network is ready!" )
 end )
