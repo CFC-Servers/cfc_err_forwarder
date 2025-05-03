@@ -1,6 +1,6 @@
 local baseGmodURL = "https://github.com/Facepunch/garrysmod/blob/master/garrysmod/%s#L%s"
 local function getGmodURL( source, line )
-    return string.format( baseGmodURL, { source = source, line = line } )
+    return string.format( baseGmodURL, source, line )
 end
 
 --- A 
