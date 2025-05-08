@@ -27,6 +27,6 @@ include( "config.lua" )
 include( "discord_interface.lua" )
 include( "error_forwarder.lua" )
 include( "error_intake.lua" )
-include( "client_branch.lua" )
+include( "client_info.lua" )
 
 log.info( "Loaded!" )

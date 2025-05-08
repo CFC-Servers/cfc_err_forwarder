@@ -58,6 +58,12 @@ return function( data )
             } )
         end
 
+        table.insert( fields, {
+            name = "Count",
+            value = bold( data.count ),
+            inline = true
+        } )
+
         if data.branch then
             table.insert( fields, {
                 name = "Branch",
@@ -66,11 +72,29 @@ return function( data )
             } )
         end
 
-        table.insert( fields, {
-            name = "Count",
-            value = bold( data.count ),
-            inline = true
-        } )
+        if data.systemOS then
+            table.insert( fields, {
+                name = "OS",
+                value = bold( data.systemOS ),
+                inline = true
+            } )
+        end
+
+        if data.country then
+            table.insert( fields, {
+                name = "Country",
+                value = bold( data.country ),
+                inline = true
+            } )
+        end
+
+        if data.gmodVersion then
+            table.insert( fields, {
+                name = "GMod Version",
+                value = bold( data.gmodVersion ),
+                inline = true
+            } )
+        end
 
         table.insert( fields, {
             name = "Most recent occurrence",
