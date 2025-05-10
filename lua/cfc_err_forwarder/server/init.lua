@@ -28,5 +28,6 @@ include( "discord_interface.lua" )
 include( "error_forwarder.lua" )
 include( "error_intake.lua" )
 include( "client_info.lua" )
+include( "external_addons.lua" )
 
 log.info( "Loaded!" )
