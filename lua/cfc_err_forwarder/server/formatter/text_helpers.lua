@@ -22,6 +22,13 @@ function TextHelpers.code( text, language )
     return "```" .. ( language or "" ) .. "\n" .. text .. "\n```"
 end
 
+--- Formats a text to be a code line
+--- @param text string
+--- @return string
+function TextHelpers.codeLine( text )
+    return "`" .. text .. "`"
+end
+
 --- Formats a timestamp to be a Discord relative time
 --- @param ts number
 --- @return string

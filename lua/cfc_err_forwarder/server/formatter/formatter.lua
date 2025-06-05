@@ -9,6 +9,7 @@ local values = include( "values_short.lua" )
 local TextHelpers = include( "text_helpers.lua" )
 local bold = TextHelpers.bold
 local code = TextHelpers.code
+local codeLine = TextHelpers.codeLine
 local truncate = TextHelpers.truncate
 local getMessageFromError = TextHelpers.getMessageFromError
 
@@ -51,7 +52,7 @@ return function( data )
             end
         end
 
-        if data.isClientside then
+        if client then
             table.insert( fields, {
                 name = "Player",
                 value = bold( data.plyName .. " [" .. data.plySteamID .. "](" .. TextHelpers.steamIDLink( data.plySteamID ) .. ")" )
@@ -95,6 +96,12 @@ return function( data )
                 inline = true
             } )
         end
+
+        table.insert( fields, {
+            name = "Map",
+            value = codeLine( game.GetMap() ),
+            inline = true
+        } )
 
         table.insert( fields, {
             name = "Most recent occurrence",
