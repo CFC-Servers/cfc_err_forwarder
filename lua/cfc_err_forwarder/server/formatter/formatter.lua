@@ -84,7 +84,7 @@ return function( data )
         if data.country then
             table.insert( fields, {
                 name = "Country",
-                value = bold( data.country ),
+                value = bold( data.country ) .. " :flag_" .. data.country:lower() .. ":",
                 inline = true
             } )
         end
