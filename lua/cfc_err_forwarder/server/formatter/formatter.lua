@@ -83,8 +83,8 @@ return function( data )
 
         if data.country then
             table.insert( fields, {
-                name = "Country",
-                value = bold( data.country ) .. " :flag_" .. data.country:lower() .. ":",
+                name = "Country / Ping",
+                value = bold( data.country ) .. " :flag_" .. data.country:lower() .. ":" .. " / " .. codeLine( data.ping .. "ms" ),
                 inline = true
             } )
         end
