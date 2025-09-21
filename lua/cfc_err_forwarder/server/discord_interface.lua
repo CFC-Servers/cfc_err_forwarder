@@ -1,7 +1,6 @@
 local CurTime = CurTime
 
 local Formatter = include( "cfc_err_forwarder/server/formatter/formatter.lua" )
-local Values = include( "cfc_err_forwarder/server/formatter/values_full.lua" )
 
 local log = ErrorForwarder.Logger
 local Config = ErrorForwarder.Config
@@ -99,27 +98,6 @@ function DI:sendNext()
     local success = ProtectedCall( function()
         local data = FormData()
         data:Append( "payload_json", item.body )
-
-        if Config.includeFullContext:GetBool() then
-            local context = item.rawData.fullContext
-            local locals = context.locals
-            if locals then
-                local formattedValues = Values( locals, "locals" )
-
-                if formattedValues and #formattedValues > 0 then
-                    data:Append( "files[0]", formattedValues, "m", "full_locals.json" )
-                end
-            end
-
-            local upvalues = context.upvalues
-            if upvalues then
-                local formattedValues = Values( upvalues, "upvalues" )
-
-                if formattedValues and #formattedValues > 0 then
-                    data:Append( "files[1]", formattedValues, "m", "full_upvalues.json" )
-                end
-            end
-        end
 
         local newItem = table.Copy( self.requestTemplate )
         newItem.url = self:getUrl( item.isClientside )

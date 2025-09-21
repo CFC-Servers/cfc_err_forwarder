@@ -10,13 +10,7 @@ ErrorForwarder.Config = {
     backup = makeConfig( "backup", "1", "Whether or not to save errors to a file in case the server crashes or restarts" ),
 
     -- cfc_err_forwarder_client_enabled
-    clientEnabled = makeConfig( "client_enabled", "1", "Whether or not to track and forward Clientside errors (Only relevant for gm_luaerror)" ),
-
-    -- cfc_err_forwarder_include_full_context
-    includeFullContext = makeConfig( "include_full_context", "0", "Whether or not to include JSON files in every message containing the full locals/upvalues (Only relevant for gm_luaerror)" ),
-
-    -- cfc_err_forwarder_use_gm_luaerror
-    useLuaErrorBinary = makeConfig( "use_gm_luaerror", "1", "Whether or not to use the gm_luaerror DLL if it's present." ),
+    clientEnabled = makeConfig( "client_enabled", "1", "Whether or not to track and forward Clientside errors" ),
 
     webhook = {
         -- cfc_err_forwarder_client_webhook
@@ -29,5 +23,5 @@ ErrorForwarder.Config = {
 
 cvars.AddChangeCallback( ErrorForwarder.Config.backup:GetName(), function( _, _, new )
     if new ~= "1" then return end
-    ErrorForwarder.Discord:LoadQueue()
+    ErrorForwarder.Discord:loadQueue()
 end, "UpdateBackup" )

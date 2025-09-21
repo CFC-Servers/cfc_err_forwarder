@@ -6,16 +6,6 @@ local Helpers = ErrorForwarder.Helpers
 local Discord = ErrorForwarder.Discord
 local queueName = "CFC_ErrorForwarderQueue"
 
-local context
-if Config.includeFullContext:GetBool() then
-    context = include( "context.lua" )
-end
-cvars.AddChangeCallback( Config.includeFullContext:GetName(), function( _, _, newValue )
-    if tobool( newValue ) and not context then
-        context = include( "context.lua" )
-    end
-end )
-
 --- @class ErrorForwarderForwarder
 ErrorForwarder.Forwarder = {}
 --- @class ErrorForwarderForwarder
@@ -65,14 +55,6 @@ function Forwarder:QueueError( luaError )
         gmodVersion = gmodVersion,
         reportInterval = Config.groomInterval:GetInt() or 60
     }
-
-    if Config.includeFullContext:GetBool() then
-        local locals, upvalues = context( luaError.stack )
-        newError.fullContext = {
-            locals = locals,
-            upvalues = upvalues,
-        }
-    end
 
     local shouldQueue = hook.Run( "CFC_ErrorForwarder_PreQueue", newError )
     if shouldQueue == false then return end

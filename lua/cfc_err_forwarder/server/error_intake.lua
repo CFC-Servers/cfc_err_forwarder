@@ -53,9 +53,6 @@ do -- Base game error hooks
     end
 
     hook.Add( "OnLuaError", "CFC_RuntimeErrorForwarder", function( err, _, stack )
-        -- Skip this if we're using gm_luaerror and are configured to use it
-        if ErrorForwarder.HasLuaErrorDLL and Config.useLuaErrorBinary:GetBool() then return end
-
         local newStack = convertStack( stack --[[@as GmodOnLuaErrorStack]] )
 
         local firstEntry = stack[1] or {}
@@ -64,7 +61,7 @@ do -- Base game error hooks
         receiver( true, err, fileName, fileLine, err, newStack )
     end )
 
-        -- Clientside error forwarding
+    -- Clientside error forwarding
     util.AddNetworkString( "cfc_errorforwarder_clienterror" )
     net.Receive( "cfc_errorforwarder_clienterror", function( _, ply )
         if not Config.clientEnabled:GetBool() then return end
@@ -94,13 +91,5 @@ do -- Base game error hooks
         if not firstEntry then return end
 
         receiver( ply, err, firstEntry.File, firstEntry.Line, err, newStack )
-    end )
-end
-
--- gm_luaerror hooks
-if ErrorForwarder.HasLuaErrorDLL then
-    hook.Add( "LuaError", "CFC_ServerErrorForwarder", function( ... )
-        if Config.useLuaErrorBinary:GetBool() == false then return end
-        receiver( ... )
     end )
 end
