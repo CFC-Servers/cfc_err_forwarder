@@ -52,6 +52,15 @@ do -- Base game error hooks
         return newStack
     end
 
+    hook.Add( "OnLuaError", "CFC_RuntimeErrorForwarder", function( err, _, stack )
+        local newStack = convertStack( stack --[[@as GmodOnLuaErrorStack]] )
+
+        local firstEntry = stack[1] or {}
+        local fileName = firstEntry.File or "Unknown"
+        local fileLine = firstEntry.Line or 0
+        receiver( true, err, fileName, fileLine, err, newStack )
+    end )
+
     -- Clientside error forwarding
     util.AddNetworkString( "cfc_errorforwarder_clienterror" )
     net.Receive( "cfc_errorforwarder_clienterror", function( _, ply )
