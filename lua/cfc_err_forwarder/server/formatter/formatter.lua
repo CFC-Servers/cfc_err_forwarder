@@ -3,7 +3,6 @@ local clientError = 0xFFDE66
 local serverError = 0x89DEFF
 
 local niceStack = include( "nice_stack.lua" )
-local values = include( "values_short.lua" )
 
 --- @type ErrorForwarder_TextHelpers
 local TextHelpers = include( "text_helpers.lua" )
@@ -41,16 +40,6 @@ return function( data )
                 value = code( truncate( niceStack( data ) ) )
             },
         }
-
-        if data.fullContext then
-            local localsData = values( data.fullContext.locals, "locals" )
-            if localsData then
-                table.insert( fields, {
-                    name = "Locals",
-                    value = code( truncate( localsData ), "ini" )
-                } )
-            end
-        end
 
         if client then
             table.insert( fields, {

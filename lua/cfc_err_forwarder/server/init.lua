@@ -2,13 +2,6 @@ include( "logger.lua" )
 local log = ErrorForwarder.Logger
 local colors = ErrorForwarder.colors
 
-if util.IsBinaryModuleInstalled( "luaerror" ) then
-    require( "luaerror" )
-    luaerror.EnableCompiletimeDetour( true )
-    luaerror.EnableRuntimeDetour( true )
-    ErrorForwarder.HasLuaErrorDLL = true
-end
-
 if util.IsBinaryModuleInstalled( "reqwest" ) then
     require( "reqwest" )
 else

@@ -17,8 +17,6 @@ A powerful, pure-Lua error tracking and reporting system for Garry's Mod servers
 ## 📋 Requirements
 
 - **[gmsv_reqwest](https://github.com/WilliamVenner/gmsv_reqwest)**: Required for sending messages to Discord
-- **[gm_luaerror](https://github.com/danielga/gm_luaerror)** _(Entirely optional)_:
-  - Enhances serverside error messages with additional context (local variables)
 
 ## ⚙️ Configuration
 
@@ -29,7 +27,6 @@ A powerful, pure-Lua error tracking and reporting system for Garry's Mod servers
 | `cfc_err_forwarder_server_webhook` | Discord webhook URL for serverside errors | `""` |
 | `cfc_err_forwarder_client_webhook` | Discord webhook URL for clientside errors | `""` |
 | `cfc_err_forwarder_client_enabled` | Enable tracking of clientside errors | `true` |
-| `cfc_err_forwarder_include_full_context` | Include full context in Discord messages (requires `gm_luaerror`) | `false` |
 
 ## 📊 Examples
 
