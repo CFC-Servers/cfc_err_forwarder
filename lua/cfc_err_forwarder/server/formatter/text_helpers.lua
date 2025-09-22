@@ -74,6 +74,18 @@ function TextHelpers.getSourceText( data )
     local sourceFile = data.luaError.sourceFile
     local sourceLine = data.luaError.sourceLine
 
+    if sourceFile == "[C]" then
+        for _, stackLine in ipairs( data.luaError.stack ) do
+            if stackLine.source ~= "[C]" then
+                sourceFile = stackLine.source
+                sourceLine = stackLine.currentline
+                break
+            end
+        end
+    end
+
+    if not sourceFile or not sourceLine then return "" end
+
     local sourceURL = ErrorForwarder.GetSourceURL( sourceFile, sourceLine )
     local sourceLink = sourceURL and string.format( "[Line with Context](%s)", sourceURL ) or ""
 
