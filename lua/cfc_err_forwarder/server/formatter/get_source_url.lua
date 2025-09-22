@@ -74,7 +74,7 @@ local function getProjectURL( mainDir )
     return cached
 end
 
-return function( source, line )
+function ErrorForwarder.GetSourceURL( source, line )
     if not source then return end
 
     -- { "addons", "acf-3", "lua", "entities", "acf_armor", "shared.lua" }

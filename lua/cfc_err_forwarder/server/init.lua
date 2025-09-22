@@ -23,4 +23,9 @@ include( "error_intake.lua" )
 include( "client_info.lua" )
 include( "external_addons.lua" )
 
+include( "formatter/nice_stack.lua" )
+include( "formatter/get_source_url.lua" )
+include( "formatter/text_helpers.lua" )
+include( "formatter/formatter.lua" )
+
 log.info( "Loaded!" )

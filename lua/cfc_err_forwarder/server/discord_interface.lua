@@ -1,7 +1,5 @@
 local CurTime = CurTime
 
-local Formatter = include( "cfc_err_forwarder/server/formatter/formatter.lua" )
-
 local log = ErrorForwarder.Logger
 local Config = ErrorForwarder.Config
 
@@ -163,7 +161,7 @@ function DI:Send( data )
 
     self:enqueue{
         isClientside = isClientside,
-        body = Formatter( data ),
+        body = ErrorForwarder.Formatter( data ),
         rawData = data
     }
 end

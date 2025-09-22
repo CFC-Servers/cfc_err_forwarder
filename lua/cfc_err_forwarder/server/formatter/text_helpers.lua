@@ -2,10 +2,10 @@ local to64 = util.SteamIDTo64
 local string_find = string.find
 local string_sub = string.sub
 local string_len = string.len
-local getSourceURL = include( "get_source_url.lua" )
 
 --- @class ErrorForwarder_TextHelpers
 local TextHelpers = {}
+ErrorForwarder.TextHelpers = TextHelpers
 
 --- Formats a text to be bold
 --- @param text string
@@ -74,7 +74,7 @@ function TextHelpers.getSourceText( data )
     local sourceFile = data.luaError.sourceFile
     local sourceLine = data.luaError.sourceLine
 
-    local sourceURL = getSourceURL( sourceFile, sourceLine )
+    local sourceURL = ErrorForwarder.GetSourceURL( sourceFile, sourceLine )
     local sourceLink = sourceURL and string.format( "[Line with Context](%s)", sourceURL ) or ""
 
     local sourceText = TextHelpers.code( sourceFile .. ":" .. sourceLine, "" )
@@ -104,5 +104,3 @@ end
 function TextHelpers.gmodBranch( branch )
     return branch == "unknown" and "main" or branch
 end
-
-return TextHelpers

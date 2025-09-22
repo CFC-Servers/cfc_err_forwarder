@@ -30,7 +30,7 @@ local function formatStackInfo( stack )
     return table_concat( lines, "\n" )
 end
 
-return function( data )
+function ErrorForwarder.NiceStack( data )
     local err = data.luaError
     local stack = err.stack
 

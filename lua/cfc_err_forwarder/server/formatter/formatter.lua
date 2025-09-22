@@ -2,15 +2,12 @@
 local clientError = 0xFFDE66
 local serverError = 0x89DEFF
 
-local niceStack = include( "nice_stack.lua" )
-
---- @type ErrorForwarder_TextHelpers
-local TextHelpers = include( "text_helpers.lua" )
-local bold = TextHelpers.bold
-local code = TextHelpers.code
-local codeLine = TextHelpers.codeLine
-local truncate = TextHelpers.truncate
-local getMessageFromError = TextHelpers.getMessageFromError
+local niceStack = ErrorForwarder.NiceStack
+local bold = ErrorForwarder.TextHelpers.bold
+local code = ErrorForwarder.TextHelpers.code
+local codeLine = ErrorForwarder.TextHelpers.codeLine
+local truncate = ErrorForwarder.TextHelpers.truncate
+local getMessageFromError = ErrorForwarder.TextHelpers.getMessageFromError
 
 local function nonil( t )
     local ret = {}
@@ -24,7 +21,7 @@ local function nonil( t )
 end
 
 --- @param data ErrorForwarder_QueuedError
-return function( data )
+function ErrorForwarder.Formatter( data )
     local client = data.isClientside
     local realm = client and "Client" or "Server"
 
@@ -33,7 +30,7 @@ return function( data )
         fields = {
             {
                 name = "Source File",
-                value = TextHelpers.getSourceText( data )
+                value = ErrorForwarder.TextHelpers.getSourceText( data )
             },
             {
                 name = "Stack",
@@ -44,7 +41,7 @@ return function( data )
         if client then
             table.insert( fields, {
                 name = "Player",
-                value = bold( data.plyName .. " [" .. data.plySteamID .. "](" .. TextHelpers.steamIDLink( data.plySteamID ) .. ")" )
+                value = bold( data.plyName .. " [" .. data.plySteamID .. "](" .. ErrorForwarder.TextHelpers.steamIDLink( data.plySteamID ) .. ")" )
             } )
         end
 
@@ -57,7 +54,7 @@ return function( data )
         if data.branch then
             table.insert( fields, {
                 name = "Branch",
-                value = bold( TextHelpers.gmodBranch( data.branch ) ),
+                value = bold( ErrorForwarder.TextHelpers.gmodBranch( data.branch ) ),
                 inline = true
             } )
         end
@@ -94,7 +91,7 @@ return function( data )
 
         table.insert( fields, {
             name = "Most recent occurrence",
-            value = TextHelpers.timestamp( data.luaError.occurredAt ),
+            value = ErrorForwarder.TextHelpers.timestamp( data.luaError.occurredAt ),
             inline = true
         } )
     end
@@ -106,7 +103,7 @@ return function( data )
                 color = client and clientError or serverError,
                 title = realm .. " Error",
                 author = { name = GetHostName() },
-                description = TextHelpers.bad( getMessageFromError( data.luaError.errorString ) ),
+                description = ErrorForwarder.TextHelpers.bad( getMessageFromError( data.luaError.errorString ) ),
                 fields = nonil( fields )
             }
         }
