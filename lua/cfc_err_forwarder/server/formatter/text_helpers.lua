@@ -73,7 +73,7 @@ end
 --- @param max number
 --- @return string
 function TextHelpers.truncate( text, max )
-    max = max or 1024
+    max = max or 1000 -- Default discord field limit is 1024, we use 1000 to account for formatting
     text = text or "<empty>"
     if #text <= max then return text end
 
