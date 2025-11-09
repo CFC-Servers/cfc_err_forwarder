@@ -36,6 +36,23 @@ function TextHelpers.timestamp( ts )
     return "<t:" .. ts .. ":R>"
 end
 
+--- Formats a duration in seconds to a human readable uptime
+--- @param seconds number
+--- @return string
+function TextHelpers.nicetime( seconds )
+    local hours = math.floor( seconds / 3600 )
+    local minutes = math.floor( ( seconds % 3600 ) / 60 )
+    seconds = seconds % 60
+
+    if hours > 0 then
+        return string.format( "%dh %dm", hours, minutes )
+    elseif minutes > 0 then
+        return string.format( "%dm", minutes )
+    else
+        return string.format( "%ds", seconds )
+    end
+end
+
 --- Formats a text to be red
 --- @param text string
 --- @return string

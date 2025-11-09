@@ -8,6 +8,7 @@ local code = ErrorForwarder.TextHelpers.code
 local codeLine = ErrorForwarder.TextHelpers.codeLine
 local truncate = ErrorForwarder.TextHelpers.truncate
 local getMessageFromError = ErrorForwarder.TextHelpers.getMessageFromError
+ErrorForwarder.StartTime = ErrorForwarder.StartTime or os.time()
 
 local function nonil( t )
     local ret = {}
@@ -86,6 +87,12 @@ function ErrorForwarder.Formatter( data )
         table.insert( fields, {
             name = "Map",
             value = codeLine( game.GetMap() ),
+            inline = true
+        } )
+
+        table.insert( fields, {
+            name = "Server Uptime",
+            value = codeLine( ErrorForwarder.TextHelpers.nicetime( os.time() - ErrorForwarder.StartTime ) ),
             inline = true
         } )
 
