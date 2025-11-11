@@ -92,7 +92,7 @@ function ErrorForwarder.Formatter( data )
 
         table.insert( fields, {
             name = "Server Uptime",
-            value = "Realtime (" .. codeLine( ErrorForwarder.TextHelpers.nicetime( os.time() - ErrorForwarder.StartTime ) ) .. "), Curtime (" .. codeLine( ErrorForwarder.TextHelpers.nicetime( CurTime() ) ) .. ")",
+            value = "Real time " .. codeLine( ErrorForwarder.TextHelpers.nicetime( os.time() - ErrorForwarder.StartTime ) ) .. "\n Curtime " .. codeLine( ErrorForwarder.TextHelpers.nicetime( CurTime() ) ),
             inline = true
         } )
 
