@@ -110,7 +110,7 @@ function ErrorForwarder.Formatter( data )
                 color = client and clientError or serverError,
                 title = realm .. " Error",
                 author = { name = GetHostName() },
-                description = ErrorForwarder.TextHelpers.bad( getMessageFromError( data.luaError.errorString ) ),
+                description = ErrorForwarder.TextHelpers.bad( data.luaError.errorString ),
                 fields = nonil( fields )
             }
         }
