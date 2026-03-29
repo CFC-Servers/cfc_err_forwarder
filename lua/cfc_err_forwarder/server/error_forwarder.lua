@@ -36,6 +36,7 @@ function Forwarder:QueueError( luaError )
         ping = ply:Ping()
         gmodVersion = ErrorForwarder.ClientInfo.GetGModVersion( ply )
         isClientside = true
+        timeConnected = ply:TimeConnected()
     else
         branch = BRANCH
         gmodVersion = VERSIONSTR
@@ -51,6 +52,7 @@ function Forwarder:QueueError( luaError )
         branch = branch,
         systemOS = systemOS,
         country = country,
+        timeConnected = timeConnected,
         ping = ping,
         gmodVersion = gmodVersion,
         reportInterval = Config.groomInterval:GetInt() or 60
