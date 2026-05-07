@@ -1,4 +1,4 @@
-local os_Time = os.time
+local os_time = os.time
 
 local log = ErrorForwarder.Logger
 local Config = ErrorForwarder.Config
@@ -94,21 +94,20 @@ function Forwarder:getInterval()
 end
 
 function Forwarder:startTimer()
-    local lastRun = os_Time()
+    local lastRun = os_time()
+    local interval = self:getInterval()
     timer.Create( queueName, 0, 0, function() -- 0 tick timer so it still runs during hibernation
-        ProtectedCall( function()
-            if os_Time() - lastRun < self:getInterval() then return end
-            lastRun = os_Time()
+        if os_time() - lastRun < interval then return end
+        lastRun = os_time()
 
-            self:groomQueue()
-        end )
+        ProtectedCall( self.groomQueue, self )
     end )
 end
 
 function Forwarder:incrementError( fullError )
     local item = self.queue[fullError]
     item.count = item.count + 1
-    item.occurredAt = os_Time()
+    item.occurredAt = os_time()
 end
 
 Forwarder:startTimer()
