@@ -45,6 +45,7 @@ function Forwarder:QueueError( luaError )
     --- @class ErrorForwarder_QueuedError
     local newError = {
         count = 1,
+        lastOccurredAt = os_time(),
         luaError = luaError,
         isClientside = isClientside,
         plyName = plyName,
@@ -107,7 +108,7 @@ end
 function Forwarder:incrementError( fullError )
     local item = self.queue[fullError]
     item.count = item.count + 1
-    item.occurredAt = os_time()
+    item.lastOccurredAt = os_time()
 end
 
 Forwarder:startTimer()
