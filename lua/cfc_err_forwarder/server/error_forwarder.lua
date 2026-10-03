@@ -45,6 +45,7 @@ function Forwarder:QueueError( luaError )
     --- @class ErrorForwarder_QueuedError
     local newError = {
         count = 1,
+        firstOccurredAt = SysTime(),
         lastOccurredAt = os_time(),
         luaError = luaError,
         isClientside = isClientside,
@@ -68,8 +69,17 @@ end
 
 --- Forwards all queued Errors to Discord
 function Forwarder:ForwardErrors()
-    for errorString, errorData in pairs( self.queue ) do
-        log.debug( "Sending queued error to Discord: " .. errorString )
+    local ordered = {}
+    for _, errorData in pairs( self.queue ) do
+        table.insert( ordered, errorData )
+    end
+
+    table.sort( ordered, function( a, b )
+        return ( a.firstOccurredAt or 0 ) < ( b.firstOccurredAt or 0 )
+    end )
+
+    for _, errorData in ipairs( ordered ) do
+        log.debug( "Sending queued error to Discord: " .. errorData.luaError.fullError )
         ProtectedCall( function()
             Discord:Send( errorData )
         end )
