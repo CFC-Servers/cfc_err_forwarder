@@ -105,7 +105,7 @@ function ErrorForwarder.Formatter( data )
 
         table.insert( fields, {
             name = "Most recent occurrence",
-            value = ErrorForwarder.TextHelpers.timestamp( data.luaError.occurredAt ),
+            value = ErrorForwarder.TextHelpers.timestamp( data.lastOccurredAt ),
             inline = true
         } )
     end
