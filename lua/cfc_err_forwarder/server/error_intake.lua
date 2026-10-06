@@ -7,7 +7,8 @@ local Config = ErrorForwarder.Config
 --- @param sourceLine number?
 --- @param errorString string?
 --- @param stack DebugInfoStruct
-local function receiver( plyOrIsRuntime, fullError, sourceFile, sourceLine, errorString, stack )
+--- @param addonTitle string?
+local function receiver( plyOrIsRuntime, fullError, sourceFile, sourceLine, errorString, stack, addonTitle )
     --- @class ErrorForwarder_LuaError
     local luaError = {
         fullError = fullError,
@@ -15,6 +16,7 @@ local function receiver( plyOrIsRuntime, fullError, sourceFile, sourceLine, erro
         sourceLine = sourceLine,
         errorString = errorString,
         stack = stack,
+        addonTitle = addonTitle,
         occurredAt = os.time()
     }
 
@@ -52,13 +54,13 @@ do -- Base game error hooks
         return newStack
     end
 
-    hook.Add( "OnLuaError", "CFC_RuntimeErrorForwarder", function( err, _, stack )
+    hook.Add( "OnLuaError", "CFC_RuntimeErrorForwarder", function( err, _, stack, addonTitle )
         local newStack = convertStack( stack --[[@as GmodOnLuaErrorStack]] )
 
         local firstEntry = stack[1] or {}
         local fileName = firstEntry.File or "Unknown"
         local fileLine = firstEntry.Line or 0
-        receiver( true, err, fileName, fileLine, err, newStack )
+        receiver( true, err, fileName, fileLine, err, newStack, addonTitle )
     end )
 
     -- Clientside error forwarding
@@ -70,6 +72,7 @@ do -- Base game error hooks
         ply.ErrorForwarder_LastReceiveTime = os.time()
 
         local err = net.ReadString()
+        local addonTitle = net.ReadString()
         local stackSize = net.ReadUInt( 4 )
         local stack = {}
         for _ = 1, stackSize do
@@ -90,6 +93,6 @@ do -- Base game error hooks
         local firstEntry = stack[1]
         if not firstEntry then return end
 
-        receiver( ply, err, firstEntry.File, firstEntry.Line, err, newStack )
+        receiver( ply, err, firstEntry.File, firstEntry.Line, err, newStack, addonTitle )
     end )
 end

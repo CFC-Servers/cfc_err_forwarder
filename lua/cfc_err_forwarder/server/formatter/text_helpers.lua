@@ -104,11 +104,11 @@ function TextHelpers.getSourceText( data )
     if not sourceFile or not sourceLine then return "" end
 
     local sourceURL = ErrorForwarder.GetSourceURL( sourceFile, sourceLine )
-    local sourceLink = sourceURL and string.format( "[Line with Context](%s)", sourceURL ) or ""
+    if sourceURL then
+        return string.format( "[Line with Context](%s)", sourceURL )
+    end
 
-    local sourceText = TextHelpers.code( sourceFile .. ":" .. sourceLine, "" )
-
-    return sourceLink .. "\n" .. sourceText
+    return TextHelpers.code( sourceFile .. ":" .. sourceLine, "" )
 end
 
 --- Takes a full <error>:<line>: <message> and returns the message

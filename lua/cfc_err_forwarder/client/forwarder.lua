@@ -8,7 +8,7 @@ ErrorForwarder.ClientErrorQueue = ErrorForwarder.ClientErrorQueue or {}
 ErrorForwarder.ClientErrorsLogged = ErrorForwarder.ClientErrorsLogged or {}
 ErrorForwarder.ClientNetReady = ErrorForwarder.ClientNetReady or false
 
-hook.Add( "OnLuaError", "CFC_RuntimeErrorForwarder", function( err, _, stack )
+hook.Add( "OnLuaError", "CFC_RuntimeErrorForwarder", function( err, _, stack, addonTitle )
     local errorHash = util.CRC( err .. util.TableToJSON( stack ) )
     if ErrorForwarder.ClientErrorsLogged[errorHash] then return end
     ErrorForwarder.ClientErrorsLogged[errorHash] = true
@@ -16,6 +16,7 @@ hook.Add( "OnLuaError", "CFC_RuntimeErrorForwarder", function( err, _, stack )
     table.insert( ErrorForwarder.ClientErrorQueue, {
         err = err,
         stack = stack,
+        addonTitle = addonTitle,
     } )
 end )
 
@@ -29,6 +30,7 @@ timer.Create( "CFC_ClientErrorForwarder", 11, 0, function()
 
     net.Start( "cfc_errorforwarder_clienterror" )
     net.WriteString( err )
+    net.WriteString( errorData.addonTitle or "" )
     net.WriteUInt( #stack, 4 )
     for _, traceLevel in ipairs( stack ) do
         net.WriteString( traceLevel.File or "" )
