@@ -63,36 +63,13 @@ do -- Base game error hooks
         receiver( true, err, fileName, fileLine, err, newStack, addonTitle )
     end )
 
-    -- Clientside error forwarding
-    util.AddNetworkString( "cfc_errorforwarder_clienterror" )
-    net.Receive( "cfc_errorforwarder_clienterror", function( _, ply )
+    hook.Add( "OnClientLuaError", "CFC_RuntimeErrorForwarder", function( err, ply, stack, addonTitle )
         if not Config.clientEnabled:GetBool() then return end
 
-        if ply.ErrorForwarder_LastReceiveTime and ply.ErrorForwarder_LastReceiveTime > os.time() - 10 then return end
-        ply.ErrorForwarder_LastReceiveTime = os.time()
-
-        local err = net.ReadString()
-        local addonTitle = net.ReadString()
-        local stackSize = net.ReadUInt( 4 )
-        local stack = {}
-        for _ = 1, stackSize do
-            local fileName = net.ReadString()
-            local funcName = net.ReadString()
-            local line = net.ReadInt( 16 )
-
-            table.insert( stack, {
-                File = fileName,
-                Function = funcName,
-                Line = line,
-            } )
-        end
-
-        if #stack == 0 then return end
-
-        local newStack = convertStack( stack --[[@as GmodOnLuaErrorStack]] )
         local firstEntry = stack[1]
         if not firstEntry then return end
 
-        receiver( ply, err, firstEntry.File, firstEntry.Line, err, newStack, addonTitle )
+        local newStack = convertStack( stack --[[@as GmodOnLuaErrorStack]] )
+        receiver( ply, err, firstEntry.File, firstEntry.Line, err, newStack, addonTitle ~= "ERROR" and addonTitle )
     end )
 end
