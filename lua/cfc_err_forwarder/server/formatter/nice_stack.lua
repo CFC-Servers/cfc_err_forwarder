@@ -2,18 +2,11 @@ local table_concat = table.concat
 local table_insert = table.insert
 local string_format = string.format
 
-local spacingTable = {} do
-    for i = 0, 20 do
-        spacingTable[i] = string.rep( " ", i )
-    end
-end
-
+-- Matches the game's console error output format
 local function formatStackInfo( stack )
     local lines = {}
-    local indent = -1
 
     for i = 1, #stack do
-        indent = indent + 1
         local item = stack[i]
 
         local lineNumber = item.currentline
@@ -21,9 +14,9 @@ local function formatStackInfo( stack )
 
         local name = item.name or ""
 
-        name = #name == 0 and "<unknown>" or name
+        name = #name == 0 and "unknown" or name
 
-        local spacing = spacingTable[indent]
+        local spacing = string.rep( " ", i + 1 )
         table_insert( lines, string_format( "%s%s. %s - %s:%s", spacing, i, name, src, lineNumber ) )
     end
 
@@ -39,7 +32,7 @@ function ErrorForwarder.NiceStack( data )
         stack = {
             {
                 currentline = err.sourceLine,
-                name = "<unknown>",
+                name = "unknown",
                 short_src = err.sourceFile
             }
         }

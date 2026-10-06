@@ -7,6 +7,7 @@ local bold = ErrorForwarder.TextHelpers.bold
 local code = ErrorForwarder.TextHelpers.code
 local codeLine = ErrorForwarder.TextHelpers.codeLine
 local truncate = ErrorForwarder.TextHelpers.truncate
+local getSourceText = ErrorForwarder.TextHelpers.getSourceText
 ErrorForwarder.StartTime = ErrorForwarder.StartTime or os.time()
 
 local function nonil( t )
@@ -20,6 +21,21 @@ local function nonil( t )
     return ret
 end
 
+-- Error display format matching the game's console error output
+local function gmodErrorText( data )
+    local err = data.luaError
+    local errorString = err.errorString or err.fullError or ""
+
+    if errorString == "" then return niceStack( data ) end
+
+    local addonTitle = err.addonTitle
+    local prefix = addonTitle and addonTitle ~= "" and ( "[" .. addonTitle .. "] " ) or ""
+
+    errorString = string.Replace( errorString, "\t", ( " " ):rep( 12 ) )
+
+    return prefix .. errorString .. "\n" .. niceStack( data )
+end
+
 --- @param data ErrorForwarder_QueuedError
 function ErrorForwarder.Formatter( data )
     local client = data.isClientside
@@ -27,16 +43,7 @@ function ErrorForwarder.Formatter( data )
 
     local fields
     do
-        fields = {
-            {
-                name = "Source File",
-                value = ErrorForwarder.TextHelpers.getSourceText( data )
-            },
-            {
-                name = "Stack",
-                value = code( truncate( niceStack( data ) ) )
-            },
-        }
+        fields = {}
 
         if client then
             table.insert( fields, {
@@ -110,6 +117,14 @@ function ErrorForwarder.Formatter( data )
         } )
     end
 
+    local description
+    do
+        local sourceText = getSourceText( data )
+        local errorText = code( truncate( gmodErrorText( data ), 3700 ) )
+
+        description = sourceText ~= "" and ( sourceText .. "\n" .. errorText ) or errorText
+    end
+
     return {
         content = "",
         embeds = {
@@ -117,7 +132,7 @@ function ErrorForwarder.Formatter( data )
                 color = client and clientError or serverError,
                 title = realm .. " Error",
                 author = { name = GetHostName() },
-                description = ErrorForwarder.TextHelpers.bad( data.luaError.errorString ),
+                description = description,
                 fields = nonil( fields )
             }
         }

@@ -7,7 +7,8 @@ local Config = ErrorForwarder.Config
 --- @param sourceLine number?
 --- @param errorString string?
 --- @param stack DebugInfoStruct
-local function receiver( plyOrIsRuntime, fullError, sourceFile, sourceLine, errorString, stack )
+--- @param addonTitle string?
+local function receiver( plyOrIsRuntime, fullError, sourceFile, sourceLine, errorString, stack, addonTitle )
     --- @class ErrorForwarder_LuaError
     local luaError = {
         fullError = fullError,
@@ -15,6 +16,7 @@ local function receiver( plyOrIsRuntime, fullError, sourceFile, sourceLine, erro
         sourceLine = sourceLine,
         errorString = errorString,
         stack = stack,
+        addonTitle = addonTitle,
         occurredAt = os.time()
     }
 
@@ -52,22 +54,22 @@ do -- Base game error hooks
         return newStack
     end
 
-    hook.Add( "OnLuaError", "CFC_RuntimeErrorForwarder", function( err, _, stack )
+    hook.Add( "OnLuaError", "CFC_RuntimeErrorForwarder", function( err, _, stack, addonTitle )
         local newStack = convertStack( stack --[[@as GmodOnLuaErrorStack]] )
 
         local firstEntry = stack[1] or {}
         local fileName = firstEntry.File or "Unknown"
         local fileLine = firstEntry.Line or 0
-        receiver( true, err, fileName, fileLine, err, newStack )
+        receiver( true, err, fileName, fileLine, err, newStack, addonTitle )
     end )
 
-    hook.Add( "OnClientLuaError", "CFC_RuntimeErrorForwarder", function( err, ply, stack, _ )
+    hook.Add( "OnClientLuaError", "CFC_RuntimeErrorForwarder", function( err, ply, stack, addonTitle )
         if not Config.clientEnabled:GetBool() then return end
 
         local firstEntry = stack[1]
         if not firstEntry then return end
 
         local newStack = convertStack( stack --[[@as GmodOnLuaErrorStack]] )
-        receiver( ply, err, firstEntry.File, firstEntry.Line, err, newStack )
+        receiver( ply, err, firstEntry.File, firstEntry.Line, err, newStack, addonTitle ~= "ERROR" and addonTitle )
     end )
 end

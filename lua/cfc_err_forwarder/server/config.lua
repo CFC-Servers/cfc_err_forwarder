@@ -12,6 +12,9 @@ ErrorForwarder.Config = {
     -- cfc_err_forwarder_client_enabled
     clientEnabled = makeConfig( "client_enabled", "1", "Whether or not to track and forward Clientside errors" ),
 
+    -- cfc_err_forwarder_steamidurl
+    steamIDURL = makeConfig( "steamidurl", "https://steamcommunity.com/profiles/%s/", "URL format for SteamID links" ),
+
     webhook = {
         -- cfc_err_forwarder_client_webhook
         client = makeConfig( "client_webhook", "", "Discord Webhook URL" ),
