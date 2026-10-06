@@ -64,7 +64,7 @@ end
 --- @param steamID string
 --- @return string
 function TextHelpers.steamIDLink( steamID )
-    return string.format( "https://steamid.gg/user/%s", to64( steamID ) )
+    return string.format( "https://steamcommunity.com/profiles/%s/", to64( steamID ) )
 end
 
 --- Truncates a given field to the given max length
