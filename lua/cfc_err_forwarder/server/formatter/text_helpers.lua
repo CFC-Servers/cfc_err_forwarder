@@ -12,7 +12,7 @@ ErrorForwarder.TextHelpers = TextHelpers
 --- @return string
 local function TextHelpers.escape( text, in_code_block )
     if in_code_block then
-        return ( string.gsub( "`", "'" ) )
+        return ( string.gsub( text, "`", "'" ) )
     end
 
     return ( string.gsub( text, "([%\\%*_~`|>#%-%[%]%(%)])", "\\%1" ) )
