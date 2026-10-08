@@ -19,14 +19,14 @@ end
 --- @param language string
 --- @return string
 function TextHelpers.code( text, language )
-    return "```" .. ( language or "" ) .. "\n" .. text .. "\n```"
+    return "```" .. ( language or "" ) .. "\n" .. string.Replace( text, "```", "'''" ) .. "\n```"
 end
 
 --- Formats a text to be a code line
 --- @param text string
 --- @return string
 function TextHelpers.codeLine( text )
-    return "`" .. text .. "`"
+    return "`" .. string.Replace( text, "`", "'" ) .. "`"
 end
 
 --- Formats a timestamp to be a Discord relative time
