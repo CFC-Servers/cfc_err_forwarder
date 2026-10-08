@@ -7,6 +7,17 @@ local string_len = string.len
 local TextHelpers = {}
 ErrorForwarder.TextHelpers = TextHelpers
 
+--- Formats a text to escape all special characters
+--- @param text string
+--- @return string
+local function TextHelpers.escape( text, in_code_block )
+    if in_code_block then
+        return ( string.gsub( "`", "'" ) )
+    end
+
+    return ( string.gsub( text, "([%\\%*_~`|>#%-%[%]%(%)])", "\\%1" ) )
+end
+
 --- Formats a text to be bold
 --- @param text string
 --- @return string
@@ -19,14 +30,14 @@ end
 --- @param language string
 --- @return string
 function TextHelpers.code( text, language )
-    return "```" .. ( language or "" ) .. "\n" .. string.Replace( text, "```", "'''" ) .. "\n```"
+    return "```" .. ( language or "" ) .. "\n" .. text .. "\n```"
 end
 
 --- Formats a text to be a code line
 --- @param text string
 --- @return string
 function TextHelpers.codeLine( text )
-    return "`" .. string.Replace( text, "`", "'" ) .. "`"
+    return "`" .. text .. "`"
 end
 
 --- Formats a timestamp to be a Discord relative time
