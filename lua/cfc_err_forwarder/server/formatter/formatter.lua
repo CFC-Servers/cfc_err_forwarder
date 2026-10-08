@@ -30,11 +30,23 @@ local function gmodErrorText( data )
     if errorString == "" then return niceStack( data ) end
 
     local addonTitle = err.addonTitle
-    local prefix = addonTitle and addonTitle ~= "" and ( "[" .. addonTitle .. "] " ) or ""
+    local prefix = addonTitle and addonTitle ~= "" and ( " [" .. addonTitle .. "] " ) or ""
 
-    errorString = string.Replace( errorString, "\t", ( " " ):rep( 12 ) )
+    -- Replace to "\n- " only after first newline
+    local first_matched = false
+    
+    errorString = string.gsub(errorString, "\n", function()
+        if not first_matched then
+            first_matched = true
+            return "\n"
+        end
 
-    return prefix .. errorString .. "\n" .. niceStack( data )
+        return "\n- "
+    end)
+    
+    errorString = string.Replace( errorString, "\t", string.rep( " ", 12 ) )
+
+    return "- " .. prefix .. errorString .. "\n" .. niceStack( data )
 end
 
 --- @param data ErrorForwarder_QueuedError
@@ -127,7 +139,7 @@ function ErrorForwarder.Formatter( data )
                 color = client and clientError or serverError,
                 title = realm .. " Error",
                 author = { name = GetHostName() },
-                description = code( truncate( escape( gmodErrorText( data ), true ), 3700 ) ),
+                description = code( truncate( escape( gmodErrorText( data ), true ), 3700 ), "diff" ),
                 fields = nonil( fields )
             }
         }
