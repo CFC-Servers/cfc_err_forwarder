@@ -30,7 +30,7 @@ local function gmodErrorText( data )
     if errorString == "" then return niceStack( data ) end
 
     local addonTitle = err.addonTitle
-    local prefix = addonTitle and addonTitle ~= "" and ( " [" .. addonTitle .. "] " ) or ""
+    local prefix = addonTitle and addonTitle ~= "" and ( "[" .. addonTitle .. "] " ) or ""
 
     errorString = string.Replace( errorString, "\n", "\n- " )
     errorString = string.Replace( errorString, "\t", string.rep( " ", 12 ) )
