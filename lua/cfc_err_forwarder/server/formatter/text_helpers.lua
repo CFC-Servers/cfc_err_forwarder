@@ -7,6 +7,17 @@ local string_len = string.len
 local TextHelpers = {}
 ErrorForwarder.TextHelpers = TextHelpers
 
+--- Formats a text to escape all special characters
+--- @param text string
+--- @return string
+local function TextHelpers.escape( text, in_code_block )
+    if in_code_block then
+        return ( string.gsub( text, "`", "'" ) )
+    end
+
+    return ( string.gsub( text, "([%\\%*_~`|>#%-%[%]%(%)])", "\\%1" ) )
+end
+
 --- Formats a text to be bold
 --- @param text string
 --- @return string

@@ -3,6 +3,7 @@ local clientError = 0xFFDE66
 local serverError = 0x89DEFF
 
 local niceStack = ErrorForwarder.NiceStack
+local escape = ErrorForwarder.TextHelpers.escape
 local bold = ErrorForwarder.TextHelpers.bold
 local code = ErrorForwarder.TextHelpers.code
 local codeLine = ErrorForwarder.TextHelpers.codeLine
@@ -48,7 +49,7 @@ function ErrorForwarder.Formatter( data )
         if client then
             table.insert( fields, {
                 name = "Player",
-                value = bold( data.plyName .. " [" .. data.plySteamID .. "](" .. ErrorForwarder.TextHelpers.steamIDLink( data.plySteamID ) .. ")" )
+                value = bold( escape( data.plyName ) .. " [" .. data.plySteamID .. "](" .. ErrorForwarder.TextHelpers.steamIDLink( data.plySteamID ) .. ")" )
             } )
         end
 
@@ -61,7 +62,7 @@ function ErrorForwarder.Formatter( data )
         if data.branch then
             table.insert( fields, {
                 name = "Branch",
-                value = bold( ErrorForwarder.TextHelpers.gmodBranch( data.branch ) ),
+                value = bold( escape( ErrorForwarder.TextHelpers.gmodBranch( data.branch ) ) ),
                 inline = true
             } )
         end
@@ -69,15 +70,17 @@ function ErrorForwarder.Formatter( data )
         if data.systemOS then
             table.insert( fields, {
                 name = "OS",
-                value = bold( data.systemOS ),
+                value = bold( escape( data.systemOS ) ),
                 inline = true
             } )
         end
 
         if data.country then
+            local escapedCountry = escape( data.country )
+
             table.insert( fields, {
                 name = "Country / Ping",
-                value = bold( data.country ) .. " :flag_" .. data.country:lower() .. ":" .. " / " .. codeLine( data.ping .. "ms" ),
+                value = bold( escapedCountry ) .. " :flag_" .. escapedCountry:lower() .. ":" .. " / " .. codeLine( data.ping .. "ms" ),
                 inline = true
             } )
         end
@@ -85,14 +88,14 @@ function ErrorForwarder.Formatter( data )
         if data.gmodVersion then
             table.insert( fields, {
                 name = "GMod Version",
-                value = bold( data.gmodVersion ),
+                value = bold( escape( data.gmodVersion ) ),
                 inline = true
             } )
         end
 
         table.insert( fields, {
             name = "Map",
-            value = codeLine( game.GetMap() ),
+            value = codeLine( escape( game.GetMap(), true ) ),
             inline = true
         } )
 
@@ -120,7 +123,7 @@ function ErrorForwarder.Formatter( data )
     local description
     do
         local sourceText = getSourceText( data )
-        local errorText = code( truncate( gmodErrorText( data ), 3700 ) )
+        local errorText = code( truncate( escape( gmodErrorText( data ), true ), 3700 ) )
 
         description = sourceText ~= "" and ( sourceText .. "\n" .. errorText ) or errorText
     end
