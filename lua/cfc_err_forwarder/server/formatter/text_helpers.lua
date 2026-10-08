@@ -10,7 +10,7 @@ ErrorForwarder.TextHelpers = TextHelpers
 --- Formats a text to escape all special characters
 --- @param text string
 --- @return string
-local function TextHelpers.escape( text, in_code_block )
+function TextHelpers.escape( text, in_code_block )
     if in_code_block then
         return ( string.gsub( text, "`", "'" ) )
     end
