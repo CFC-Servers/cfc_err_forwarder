@@ -32,18 +32,7 @@ local function gmodErrorText( data )
     local addonTitle = err.addonTitle
     local prefix = addonTitle and addonTitle ~= "" and ( " [" .. addonTitle .. "] " ) or ""
 
-    -- Replace to "\n- " only after first newline
-    local first_matched = false
-    
-    errorString = string.gsub(errorString, "\n", function()
-        if not first_matched then
-            first_matched = true
-            return "\n"
-        end
-
-        return "\n- "
-    end)
-    
+    errorString = string.Replace( errorString, "\n", "\n- " )
     errorString = string.Replace( errorString, "\t", string.rep( " ", 12 ) )
 
     return "- " .. prefix .. errorString .. "\n" .. niceStack( data )
