@@ -119,7 +119,7 @@ function TextHelpers.getSourceText( data )
         return string.format( "[Line with Context](%s)", sourceURL )
     end
 
-    return TextHelpers.code( sourceFile .. ":" .. sourceLine, "" )
+    return ""
 end
 
 --- Takes a full <error>:<line>: <message> and returns the message
