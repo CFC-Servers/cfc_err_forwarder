@@ -62,7 +62,7 @@ function ErrorForwarder.Formatter( data )
 
         if data.branch then
             table.insert( fields, {
-                name = "Branch",
+                name = "Gmod branch",
                 value = bold( escape( ErrorForwarder.TextHelpers.gmodBranch( data.branch ) ) ),
                 inline = true
             } )
