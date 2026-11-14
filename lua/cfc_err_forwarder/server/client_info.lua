@@ -16,9 +16,14 @@ function ErrorForwarder.ClientInfo.GetGModVersion( ply )
     return ply.ErrorForwarder_GModVersion or "unknown"
 end
 
+function ErrorForwarder.ClientInfo.GetArch( ply )
+    return ply.ErrorForwarder_Arch or "unknown"
+end
+
 hook.Add( "PlayerInitialSpawn", "CFC_ErrorForwarder_BranchSet", function( ply )
     ply.ErrorForwarder_Branch = ply:GetInfo( "cfc_err_forwarder_branch" )
     ply.ErrorForwarder_OS = ply:GetInfo( "cfc_err_forwarder_os" )
     ply.ErrorForwarder_Country = ply:GetInfo( "cfc_err_forwarder_country" )
     ply.ErrorForwarder_GModVersion = ply:GetInfo( "cfc_err_forwarder_gmodversion" )
+    ply.ErrorForwarder_Arch = ply:GetInfo( "cfc_err_forwarder_arch" )
 end )

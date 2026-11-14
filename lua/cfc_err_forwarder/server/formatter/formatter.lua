@@ -94,6 +94,14 @@ function ErrorForwarder.Formatter( data )
             } )
         end
 
+        if data.arch then
+            table.insert( fields, {
+                name = "Arch",
+                value = bold( escape( ErrorForwarder.TextHelpers.arch( data.arch ) ) ),
+                inline = true
+            } )
+        end
+
         table.insert( fields, {
             name = "Map",
             value = codeLine( escape( game.GetMap(), true ) ),

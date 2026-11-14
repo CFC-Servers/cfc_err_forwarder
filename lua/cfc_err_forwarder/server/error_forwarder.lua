@@ -26,7 +26,7 @@ function Forwarder:QueueError( luaError )
     local ply = luaError.ply
     local isClientside = false
 
-    local plyName, plySteamID, branch, systemOS, country, gmodVersion, ping
+    local plyName, plySteamID, branch, systemOS, country, gmodVersion, ping, arch
     if ply then
         plyName = ply:Nick()
         plySteamID = ply:SteamID()
@@ -35,11 +35,13 @@ function Forwarder:QueueError( luaError )
         country = ErrorForwarder.ClientInfo.GetCountry( ply )
         ping = ply:Ping()
         gmodVersion = ErrorForwarder.ClientInfo.GetGModVersion( ply )
+        arch = ErrorForwarder.ClientInfo.GetArch( ply )
         isClientside = true
         timeConnected = ply:TimeConnected()
     else
         branch = BRANCH
         gmodVersion = VERSIONSTR
+        arch = jit.arch
     end
 
     --- @class ErrorForwarder_QueuedError
@@ -57,6 +59,7 @@ function Forwarder:QueueError( luaError )
         timeConnected = timeConnected,
         ping = ping,
         gmodVersion = gmodVersion,
+        arch = arch,
         reportInterval = Config.groomInterval:GetInt() or 60
     }
 

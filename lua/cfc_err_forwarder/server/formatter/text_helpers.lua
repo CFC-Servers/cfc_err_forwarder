@@ -144,3 +144,13 @@ end
 function TextHelpers.gmodBranch( branch )
     return branch == "unknown" and "main" or branch
 end
+
+--- Formats a jit.arch value into a human friendly name
+--- @param arch string
+--- @return string
+function TextHelpers.arch( arch )
+    if arch == "x86" then return "32bit" end
+    if arch == "x64" then return "64bit" end
+
+    return arch or "unknown"
+end
